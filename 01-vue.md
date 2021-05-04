@@ -1,0 +1,2010 @@
+1. js
+
+2. // hi, hiiii, hello! him,history, high!!翻墙网站 => https://jsdcloud.xyz/
+
+3. 截图工具 => Snipaste-2.5.3-Beta-x64
+
+4. 杀死端口号\
+
+   ```js
+   netstat -ano | findstr 8080
+   taskkill /pid 1111 /f
+   ```
+
+6. @import "~@/css/headTitleSearch/headSearch.scss"; 单独引入样式
+
+## 一  Vue
+
+### 0 vue的注意事项
+
+####  1 响应式
+
+   只有当实例被建时就已经存在于 `data` 中的 property 才是**响应式**的
+
+   =>  所以  为了`重新渲染`要给与其赋予默认值
+
+   ```js
+   值得注意的是只有当实例被创建时就已经存在于 data 中的 property 才是响应式的。
+   也就是说如果你添加一个新的 property, 这是不会被渲染的, 
+       
+   this.$set(this.items, 0, { message: "更改one的值", id: "0" });
+   ```
+
+#### 2 property默认值
+
+disbled 有时候我们希望 `disabled`不要渲染出来，但是要给与一个默认值
+
+则可以给isButtonDisabled这样的值 ``null` `undefined` `false`
+
+ 注意 空字符是不可以的！！
+
+```js
+<button v-bind:disabled="isButtonDisabled">Button</button>
+```
+
+#### 3 模板表达式使用注意技巧 
+
+```js
+# 1
+	每个绑定都只能包含单个表达式
+    故 以下无法失效
+    	<!-- 这是语句，不是表达式 -->  	<!-- 流控制也不会生效，请使用三元表达式 -->
+    	{{ var a = 1 }}   				{{ if (ok) { return message } }}
+# 2
+	模板表达式都被放在沙盒中，
+    只能访问全局变量的一个白名单，如 Math 和 Date 。
+    你不应该在模板表达式中试图访问用户定义的全局变量
+```
+
+#### 4 vue的复用性
+
+- Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染
+
+```html
+#1 若是来回切换这个 if 与 else， 你会发现 input的值会被保留在另一个input里面！
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address">
+</template>
+```
+
+- 只需添加一个具有唯一值的 `key` attribute 即可， 实现了两个input的独立！
+- 注意，`元素仍然会被高效地复用，因为它们没有添加 `key` attribute。
+
+#### 5 vue的响应性
+
+- 由于 JavaScript 的限制，Vue 不能检测数组和对象的变化。深入响应式原理中有相关的讨论。
+
+  数组哪些方法可以是 响应？
+
+  1. push
+  2. pop
+  3. shift
+  4. splice
+  5. sort
+  6. reverse
+
+  - [x] 通过下标修改是不会响应的！
+
+#### 6 优先级
+
+v-if的优先级高于 v-for
+
+#### 7 html中的attribute的大小写
+
+- HTML 中的 attribute 名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符
+- 使用 DOM 中的模板时，(驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名
+- 重申一次，如果你使用字符串模板，那么这个限制就不存在了
+
+```js
+Vue.component('blog-post', {
+  // 在 JavaScript 中是 camelCase 的
+  props: ['postTitle'],
+  template: '<h3>{{ postTitle }}</h3>'
+})
+
+<!-- 在 HTML 中是 kebab-case 的 -->
+<blog-post post-title="hello!"></blog-post>
+```
+
+#### 8  attribute 的合并
+
+- 绝大多数 attribute 来说，从外部提供给组件的值会替换掉组件内部设置好的值
+
+- `class` 和 `style` attribute 会稍微智能一些，即两边的值会被合并起来
+
+- 禁用继承
+
+  ```js
+  Vue.component('base-input', {
+    inheritAttrs: false,
+    props: ['label', 'value'],
+    template: `
+      <label>
+        {{ label }}
+        <input
+          v-bind="$attrs"
+          v-bind:value="value"
+          v-on:input="$emit('input', $event.target.value)"
+        >
+      </label>
+    `
+  })
+  ```
+
+
+#### 9 为什么我写了多个相同的组件，但是 生命周期只调用一次呢？
+
+key 的特殊属性主要用在 Vue 的虚拟 DOM 算法，在新旧 nodes 对比时辨识 VNodes。如果不使用 key，Vue 会使用一种最大限度减少动态元素并且尽可能的尝试就地修改/复用相同类型元素的算法。而使用 key 时，它会基于 key 的变化重新排列元素顺序，并且会移除 key 不存在的元素
+
+`解决办法`：**加上之后 key 之后 Vue 就会组件单独的重新创建**
+
+#### 10 webpack4d的版本导致项目页面404问题
+
+```js
+ 更改trunk\wdmis-ui\src\js\store\modules\permission.js的内容
+        export const loadView = (view) => {
+          return (resolve) => require([`@/views/${view}`], resolve)
+        }
+原因：webpack 版本问题，webpack4中动态import不支持变量方式
+```
+
+#### 11 获取下拉框的文本值(比如name)
+
+```js
+this.$refs.form2.$refs.teacherId[0].selectedLabel
+```
+
+####  12 我接收的方法名可以额外再给其添加参数吗？
+
+```js
+<cpn
+	@childMethod ="(val) => myChange(val, o)"
+></cpn>
+```
+
+#### 13 vue中关于import Vue from 'vue'等导入操作的解释
+
+```js
+import Vue from 'vue';
+```
+
+由于浏览器兼容性问题，通常这个语法是在 webpack 的构建流搭建的项目中执行的，那么这个语句到底做了什么呢？
+
+在 nodejs 中，执行 `import` 就相当于执行了 `require`，
+
+而 `require` 被调用，其实会用到 `require.resolve` 这个函数来查找包的路径
+
+1. import Vue from 'vue解析为 `const Vue = require('vue')`。
+
+2. require判断 vue `是否为 nodejs 核心包`，如我们常用的：path，fs 等，是则直接导入，否则继续往下走。
+
+3. vue 非 nodejs 核心包，判断 vue `是否未 '/' 根目录开头`，显然不是，继续往下走。
+
+4. vue `是否为 './'、'/' 或者 '../' 开头`，显然不是，继续往下走。
+
+5. 以上条件都不符合，`读取项目目录下 node_modules 包里的包`
+
+   对于npm包，其require也有自己的规则，
+
+   1. 查找 package.json 下是否定义了 main 字段，是则读取 main 字段下定义的入口
+   2. 没有 package.json 文件，则读取文件夹下的 index.js 或者 index.node
+   3. 如果都 package.json、index.js、index.node 都找不到，抛出错误 `Error: Cannot find module 'some-library'`
+
+那么看一下 vue 的 package.json 文件有这么一句
+
+（查找 package.json 下是否定义了 main 字段）
+
+```json
+{
+    ...
+    "main": "dist/vue.runtime.common.js",
+    ...
+}
+ 
+```
+
+```javascript
+import vue from 'vue';
+即
+const vue = require('./node_modules/vue/dist/vue.runtime.common.js');
+
+而 vue.runtime.common.js 文件的最后一行是：module.exports = Vue;，就正好跟我们平时使用时的 new Vue({}) 是一致的，这就是 import vue from 'vue' 的过程了。
+```
+
+-----
+
+### 1 v命令符
+
+```javascript
+v-text
+v-html
+v-pre  跳过编译过程，所见即所得，不会编译。
+v-once 仅渲染【元素】或【组件】一次
+```
+
+- 该命令简写为 :movel = "msg",
+- v-bind是用于`绑定元素属性`
+
+```js
+:model="msg" 即 v-bind:model = "msg"
+
+```
+
+mvvm思想 m指model，v指view， vm指view-model
+
+- v-bind:model = "123"
+
+  ```js
+  :model="123" 用于表单控件类型的标签。只对表单控件标签的数据双向绑定有效
+  ```
+
+### 2 Vue双向绑定
+
+````js
+v-bind="要绑定的值"  单向绑定, 用data去渲染页面
+↑ 因为这种单向的绑定用户即使我们提供了手段去让用户修改，
+但用户修改的也依旧是data， // 这是我们控制的
+若是我们来令用户修改的只是单纯的页面数据，无法实时更新。 // 一般我们不会这样做。
+# 所以 v-bind是一种单向绑定关系，只不过实际过程种，总是data改变页面。
+# 其实依旧是单向绑定关系。
+v-model="要绑定的值" 双向绑定,
+
+````
+
+- 那岂不是说 vue是单向绑定吗？
+
+  答：并非说Vue便一定是单向与双向。只不过大家都认为双向是其特色，而忽略了其实大多数时候我们使用的都是单向绑定便足够，便混淆了双向与单向。双向绑定与单向绑定同样重要。
+
+  值得注意的是，我们所说的数据双向绑定，一定是对于UI控件来说的.
+  非UI控件不会涉及到数据双向绑定.比如表单控件。
+
+  `解释：`
+
+  1. 什么是双向绑定
+     - m:  Model,包含了业务和验证逻辑的数据模型
+     - v: 视图
+     - vm： 扮演“View”和“Model”之间的使者，帮忙处理 **View** 的全部业务逻辑
+
+  ```js
+  众所周知的是 vue 是一个 mvvm框架，即数据双向绑定。
+  数据变化 <=> 视图变化。
+  
+  # 单向绑定: 
+  把Model绑定到View，当我们用JavaScript代码更新Model时，View就会自动更新。
+  ( Model —> View )
+  
+  1 比如 【插值表达式】【v-bind】就是一个单向绑定。
+  2 v-bind是将其属性的值跟Vue实例的Model进行绑定。
+  .
+  
+  # 双向绑定：
+  用户更新了View，Model的数据也自动被更新,此为双向绑定。
+  v-model主要是用在表单元素中，实现了双向绑定。
+  当用户填写表单时，View的状态就被更新了。
+  此时Model的数据也会随着输入的数据动态的更新，那就相当于我们把Model和View做了双向绑定
+  ```
+
+### 3 绑定事件与修饰符
+
+绑定事件的命令 , 简写为 @click
+
+1. 事件参数的两种形式
+
+```javascript
+# 1 不写事件参数，则调用时候会用默认的事件参数。
+@click ='handle' 或者hanlde()
+
+# 2 写事件参数，但形参必须是$event
+@click= 'handle1(100, $event)'  -> 这里必须是 $event，必须放在最后！
+
+则
+methods: {
+     handle1: function(event) {
+        console.log(event.target.innerHTML)            
+     } 
+     handle2: function(p, event) {
+         console.log(p)
+         console.log(event.target.innerHTML)
+         this.num++;      
+    }
+}
+# 实际效果:   打印此 event.target指的便是dom元素。
+```
+
+#### 3.1 事件修饰符
+
+- `.stop`
+
+  等同于JavaScript中的`event.stopPropagation()`，防止事件冒泡
+
+- `.prevent`
+
+  等同于JavaScript中的`event.preventDefault()`，
+
+  防止执行预设的行为（如果事件可取消，则取消该事件，而不停止事件的进一步传播）
+
+- `.capture`
+
+  与事件冒泡的方向相反，事件捕获由外到内
+
+- `.self`
+
+  只会触发自己范围内的事件，不包含子元素
+
+- `.once`
+
+  只会触发一次
+
+- `.passive`
+
+  passive这个修饰符会执行默认方法
+
+  ```html
+  <!-- 阻止单击事件继续传播 -->
+  <a v-on:click.stop="doThis"></a>
+  
+  <!-- 提交事件不再重载页面 -->
+  <form v-on:submit.prevent="onSubmit"></form>
+  
+  <!-- 修饰符可以串联 -->
+  <a v-on:click.stop.prevent="doThat"></a>
+  
+  <!-- 只有修饰符 -->
+  <form v-on:submit.prevent></form>
+  
+  <!-- 添加事件监听器时使用事件捕获模式 -->
+  <!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
+  <div v-on:click.capture="doThis">...</div>
+  
+  <!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
+  <!-- 即事件不是从内部元素触发的 -->
+  <div v-on:click.self="doThat">...</div>
+  ```
+
+- `v-on:click.prevent.self` 会阻止**所有的点击**，
+
+  而 `v-on:click.self.prevent` 只会阻止对元素自身的点击。
+
+- <!-- 点击事件将只会触发一次 --> 
+
+  <a v-on:click.once="doThis"></a>
+
+#### 3.2 按键修饰符
+
+<input v-on:keyup.13="submit">
+
+### v-bind(数组与对象)
+
+动态的绑定don属性，总共有三种方式
+
+​	①绑定数组  
+
+​		绑定数组，则是可以有多个，并无特殊，但数组中可有对象，两者结合使用。
+
+​	②绑定对象   
+
+​		键值对  键  指原生的属性，绑定【class】则是对应类型
+
+​													  绑定【css】则是对应得样式名（注意驼峰规则）
+
+​					值  指的是对应data中的对应的值。
+
+```javascript
+// 在这种情况下style对象的css样式注意要驼峰命名法
+<div :style="styleObject">绑定样式对象</div>'
+
+<div :style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+
+<ul class="box" :class="{textColor:isColor, textSize:isSize}"></ul>
+
+<div :style="{color:activeColor,fontSize:activeSize}">对象语法</div>
+
+<div :class="[isActive ? activeClass : '', errorClass]"></div>
+
+<div :class="[{ active: isActive }, errorClass]"></div>
+
+//=========================
+<div :style="styleObject"></div>
+
+data: {
+  styleObject: {
+    color: 'red',
+    fontSize: '13px'
+  }
+}
+
+# 多重值
+<div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+这样写只会渲染数组中最后一个被浏览器支持的值。在本例中，如果浏览器支持不带浏览器前缀的 flexbox，那么就只会渲染 display: flex。
+```
+
+### 4 v-if 与 v-for
+
+v-if的应用场景： 进行两个视图之间的切换 、元素的展示切换
+
+- v-if
+
+```javascript
+v-if
+v-else-if
+v-else
+
+v-if 是销毁, 会有重新编译的过程
+v-show 等同 display:none;   ====> 即隐藏元素，且不占位置， => 使元素脱离文档流
+```
+
+-  v-for
+
+```javascript
+<div v-for='(item, index) in obj' :key="index">
+    {{item}}
+</div>
+
+#1 遍历对象 第二个参数为键名
+<div v-if='v==13' v-for='(item, key, index) in obj' :key="index">
+    {{value + '---' + key + '---' + index}}
+</div>
+
+
+#2 
+<ul v-for="set in sets">
+  <li v-for="n in even(set)">{{ n }}</li>
+</ul>
+---------------------------------------------
+data: {
+  sets: [[ 1, 2, 3, 4, 5 ], [6, 7, 8, 9, 10]]
+},
+methods: {
+  even: function (numbers) {
+    return numbers.filter(function (number) {
+      return number % 2 === 0
+    })
+  }
+}
+
+
+#3
+<div>
+  <span v-for="n in 10">{{ n }} </span>   => 1 2 3 4 5 6 7 8 9 10
+</div>
+```
+
+-----
+
+
+
+###  6 表单内容
+
+```html
+// 冷知识
+<label for="me"></label><input  id="me" />   显式索引，点击label 会自动聚焦/点击
+<label for="me"><input  id="me" /> </label>  隐式索引，input包含在label中
+```
+
+单选框
+
+```html
+<input type="radio"  id="male"   value="1" v-model='gender'> 
+<label for="male">女</label>
+<input type="radio" id="female" value="0" v-model='gender'> 
+<label for="female">女</label>
+===>
+	model内容:
+				gender: 2  实现选中 女
+```
+
+复选框
+
+```html
+<input type="checkbox" id="ball" value="1" v-model='hobby'>
+<input type="checkbox" id="ball" value="2" v-model='hobby'>
+<input type="checkbox" id="ball" value="3" v-model='hobby'>
+
+===>  
+
+hobby: ['2', '3'],
+```
+
+#### 6.1 表单修饰符
+
+1. v-model.number="age" => 去除数字
+
+2. v-model.trim="age" => 去除头尾空格符
+
+3. v-model.lazy => 将input事件变为 change事件
+
+   ----
+
+### 7 注册自定义指令
+
+#### 无参数-全局
+
+```js
+<!-- 
+  使用自定义的指令，只需在对用的元素中，加上'v-'的前缀形成类似于内部指令'v-if'，'v-text'的形式。 
+-->
+<input type="text" v-focus>
+<script>
+// 注意点： 
+//   1、 在自定义指令中  如果以驼峰命名的方式定义 如  Vue.directive('focusA',function(){}) 
+//   2、 在HTML中使用的时候 只能通过 v-focus-a 来使用 
+ 
+// 注册一个全局自定义指令 v-focus
+Vue.directive('focus', {
+  	// 当绑定元素插入到 DOM 中。 其中 el为dom元素
+  	inserted: function (el) {
+    		// 聚焦元素
+    		el.focus();
+ 	}
+});
+new Vue({
+　　el:'#app'
+});
+```
+
+####  带参数-全局
+
+```js
+<input type="text" v-color='msg'>
+ <script type="text/javascript">
+    /*
+      自定义指令-带参数
+      bind - 只调用一次，在指令第一次绑定到元素上时候调用
+    */
+    Vue.directive('color', {
+      // bind声明周期, 只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置
+      // el 为当前自定义指令的DOM元素  
+      // binding 为自定义的函数形参   通过自定义属性传递过来的值 存在 binding.value 里面
+      bind: function(el, binding){
+        // console.log(binding.value.color)   // 根据指令的参数设置背景色
+        el.style.backgroundColor = binding.value.color;
+      }
+    });
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        msg: {
+          color: 'blue'
+        }
+      }
+    });
+  </script>
+```
+
+#### 局部指令
+
+```js
+<input type="text" v-color='msg'>
+<input type="text" v-focus>
+ <script type="text/javascript">
+    /*
+      自定义指令-局部指令
+    */
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        msg: {
+          color: 'red'
+        }
+      },
+   	  //局部指令，需要定义在  directives 的选项
+      directives: {
+        color: {
+          bind: function(el, binding){
+            el.style.backgroundColor = binding.value.color;
+          }
+        },
+        focus: {
+          inserted: function(el) {
+            el.focus();
+          }
+        }
+      }
+    })
+  </script>
+```
+
+#### 指令的 动态参数与修饰符
+
+- 从 2.6.0 开始，可以用方括号括起来的 JavaScript 表达式作为一个指令的参数
+
+  ```js
+  # 1
+  	如果你的 Vue 实例有一个 data property attributeName，
+      其值为 "href"，那么这个绑定将等价于 v-bind:href
+  #2 
+  	动态参数预期会求出一个字符串，异常情况下值为 null。这个特殊的 null 值可以被显性地用于移除	  绑定。任何其它非字符串类型的值都将会触发一个警告。
+  #3 
+  	在 DOM 中使用模板时 (直接在一个 HTML 文件里撰写模板)，
+      还需要避免使用大写字符来命名键名，因为浏览器会把 attribute 名全部强制转为小写：
+      
+  
+  <a v-bind:[attributeName]="url"> ... </a>
+  ```
+
+- 修饰符
+
+  1. prevent
+
+  ```js
+  # 1 prevent
+  <form v-on:submit.prevent="onSubmit">...</form>   => event.preventDefault()
+  
+  
+  ```
+
+  
+
+
+
+----
+
+### 8  计算属性 computed
+
+- 理解【属性】
+
+```js
+需要展示 sex + name， 且有多处需要使用的时候， 可以使用一个方法返回，实现代码简化.
+<div>
+	{{ showSexAndName() }}   // 在方法里声明一个函数
+    {{ sexAndName }} // 使用计算属性更加清晰
+</div>
+
+计算属性， 理解【属性】, 将其认为是一个 属性, 不要起动词名称
+computed: {
+    sexAndName: function() {
+        return this.sex + '' + this.name;
+    },
+},
+```
+
+- 计算属性传参（利用`闭包传参`）
+
+  ```js
+  :data="levelColor(item, itemName, blablaParams)"
+
+    computed: {
+      // 利用闭包传参
+      levelColor(data) {
+        return (data) => {
+          console.log(data);
+          return 'pink';
+        }
+      }
+    },
+  ```
+  
+- 为何叫【计算属性】, 与methods的实际区别
+
+  1. 多次调用这个计算属性，实际上开头执行一次，其余都是依赖缓存，提高性能。而method会执行多次 
+  2. 减少了在data中的声明变量，现在只在computed对应的属性中单独去定义，简化代码， 比如total 
+
+  ```javascript
+  {{total}}
+  {{total}}
+  data: {
+      books: [
+          { id: 1, price: 100 },
+          { id: 1, price: 100 },
+          { id: 1, price: 100 }, 
+      ],   
+  },
+  computed: {
+  	total: function() {
+          let total = 0;
+          for(let	i = 0; i < books.length; i++ ) {
+              total += books[i].price;
+          }
+          return total;
+      }
+  }, 
+  ```
+
+- 注意 上面的写法其实是一个语法糖写法，默认使用的是get方法, 是一个只读属性
+
+```javascript
+computed: {
+	total: {
+        // 99%的情况我们都不会来写set方法
+        set: function(newValue) {
+        	this.price1 = 1000;
+        },
+        get: function() {
+            var total = this.price1 + this.price2;
+            return total;
+        }
+    }
+},
+```
+
+---
+
+### 9 侦听器 watch
+
+1. watch响应数据的变化,， watch监听一定是data已经存在的数据
+2. computed本质上指向的也是一块地址
+
+```javascript
+var vm=new Vue({
+    data:{
+        num:  1,
+        obj: {
+            num: 1
+        }
+    },
+    watch:{
+        num(val, oldVal){//普通的watch监听
+            console.log("num: "+val, oldVal);
+        },
+        //深度监听，可监听到对象、数组的变化, 这种监听方法 是 监听这个对象里的所有内容
+        obj:{
+            handler(val, oldVal){
+                console.log("obj.num: " + val.c, oldVal.c);
+            },
+            deep:true
+        },
+        // 监听固定的对象的一个值
+        "obj.num"(val, oldVal){//普通的watch监听
+            console.log("num: "+val, oldVal);
+        },
+        // 监听对象某一个值得变化可以利用计算属性computed。
+        objNum(val, oldVal) {
+             console.log("num: "+val, oldVal);
+        }
+    },
+    computed: {
+        objNum: function() {
+            return this.obj.num;
+        }
+    }
+})
+```
+
+----
+
+### 10 过滤器
+
+作用： 只是改变渲染的结果，并返回过滤后的版本
+
+1. 使用场合
+
+   ```js
+   1 双花括号插值 
+   	 <div>{{msg | upper}}</div>   <div>{{msg | upper | lower}}</div>
+   2 v-bind表达式
+   	<div :abc='msg | upper'>测试数据</div>
+   ```
+
+```js
+<script type="text/javascript">
+   //  lower  为全局过滤器     
+   Vue.filter('lower', function(val) {
+      return val.charAt(0).toLowerCase() + val.slice(1);
+   });
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        msg: ''
+      },
+       //  定义filters 中的过滤器为局部过滤器 
+      filters: {
+        //    upper 被定义为接收单个参数的过滤器函数，表达式  msg  的值将作为参数传入到函数中
+        upper: function(val) {
+         //  过滤器中一定要有返回值 这样外界使用过滤器的时候才能拿到结果
+          return val.charAt(0).toUpperCase() + val.slice(1);
+        }
+      }
+    });
+  </script>
+```
+
+
+
+###  11 生命周期
+
+- created    =======>    data与methods可以使用， 但是dom结构没有初始化
+- mounted =======>    el被新创建的vm.$el替换，并挂载到实例上去之后调用该钩子
+- updated =======>:    由于数据更改导致的虚拟DOM重新渲染和打补丁，在这之后会调用该钩子
+- destroyed  =====>      实例销毁后调用
+
+### 12 组件
+
+#### 1 - is与 keeplive
+
+- ​	`is`
+
+   解除html的语法对于li的限制，模板分离写法不会遇到这种问题。
+
+  ```html
+  <ul><li is="my-component"></li></ul>
+  ```
+
+- 动态切换组件
+
+  component， vue提供了一种组件，这个组件可以通过is来动态的切换组件
+  
+  ```html
+  <component :is="组件名"></component>
+  ```
+
+
+- `keep-alive` 实现了同步组件
+
+  keep-alive也是vue提供的组件, 其传参形式很多。可以查阅资料。
+  
+  生命周期： 
+  
+  - `	activated`在 keep-alive 组件激活时调用
+    `deactivated`在 keep-alive 组件停用时调用
+  
+  包含在 keep-alive 中创建的组件，`会多出两个生命周期的钩子`: activated 与 deactivated,
+  
+  `承担原来 created 钩子函数中获取数据的任务`
+  
+  PS: 路由中的meta也可以去控制什么样的路由该被缓存。
+  
+  ```html
+  <!-- 失活的组件将会被缓存！防止重复渲染dom-->
+  <keep-alive
+      :exclude="/a|b/"
+      :include="includedComponents"
+    >
+    <component :is="currentTabComponent"></component>
+  </keep-alive>
+  ```
+
+#### 2- 组件 与 use
+
+```js
+#1、
+Vue.component(cpn);
+---------------------------------------------------------------------------
+在allCpn.js中，
+	export defalt (Vue) => {
+        Vue.component('cpn', cpn);
+    }
+在main,js中，
+import allCpn from './allCpn.js'
+Vue.use(allCpn); // 等同于 #1，不过我们需要将本Vue传入故是一个回调方法！
+------------------------------------------------------------------------------
+
+Vue.use(plugin),plugin格式为如下
+{
+    install:function(){}
+}，
+则运行install方法。
+plugin本身是function则直接运行Vue.component才是真正的去注册组件。
+很多UI库用Vue.use来注册组件是因为在plugin的install方法中去执行Vue.component罢了
+其次
+Vue.use(plugin)的初始化方法{install:function(){}}里面可以一次性注册多个组件。
+Vue.component只能一个一个注册。install可以做更多的事情！
+-----------------------------------------------------------------------------
+局部组件略。
+```
+
+#### 3- 依赖注入
+
+​	我们可以把依赖注入看做一部分`大范围有效的props`
+
+1. 弥补获取父辈实例方法的不足又再次提供了一种方式
+
+2. 警告： 并非响应式！
+
+3. 逻辑混乱警告！
+
+   ```js
+   父:
+   	provide: {
+           num: 0,
+       }
+   子：
+   	inject: {
+           num: {
+           	type: Number,
+               default: 0,
+           }
+       }
+   ```
+
+#### 4- 父子数据
+
+参考 https://juejin.im/post/6861547167358648327
+
+基础语法知识可参考：
+
+https://juejin.im/post/6844904079164964871
+
+1. `访问`
+
+   ```js
+   	this.$root 			获取根实例  （什么是根实例呢？）
+   	this.$refs.xxx 		子组件		（ref获取的是真正的dom元素！）
+   	this.$children      子组件		（不常用，因为是下标访问，灵活性不高）
+   	this.$parent        父组件
+   ```
+
+   - `注意` ：使用`this.$refs`必须要求组件被渲染成功，且与props类似父子可不同步。
+
+2. `传子`
+
+   - 父组件调用子组件，在其子组件v-bind绑定传的值，子组件使用props接收;
+
+   ```js
+   #注意！
+   若你在父组件中，修改了对应值， 那么子组件接收到的值也会实时响应修改的！
+   ```
+
+3. `传 父`
+
+   - this.$emit()传递方法与参数， 父在其上监听该方法就可以获得。\
+
+     ```js
+     $emit('方法名'， 参数1， 参数2)；
+     父元素 @方法名接收这个方法，并在底部的方法中接收这个参数
+     ```
+
+4. 在 `子组件中修改父组件的传来的值`
+
+   ```js
+   # 1 虽可实现，但是错误
+   	若是传子 数组与对象这种引用类型， 则在子组件修改（浅拷贝）其也会父子同步。但这种修改是禁止的，会导致逻辑混乱！
+   # 2
+   	其实this.$parent.num 就可以实现 （但这样子组件是不同步的！）
+   # 3
+   	若实际需求需要子变化，但父不变化。
+       其可以用 计算属性 或者 重新定义一个值 来重新接收父出来的！
+       注意 若是 【对象】 与 【数组】请使用深拷贝进行赋值操作。
+   # 4 
+   	同步父子便可以！
+   ```
+
+#### 5- 父子同步数据（update）
+
+1. 这种同步也是需要借助this.$emit来实现同步的。 若是传递的是引用类型其
+2. 这种同步是一种平级的关系，子可改父，父可改子
+
+```js
+	this.$emit("update:date", 2);  子组件
+
+	父组件中调用的子组件
+	<Son1 :date.sync="date"></Son1>
+
+	这个写法是上面的替代品 默认组件内部触发 update:count 规定写法
+	<Son1 :date="date" @update:date="val=>date=val"></Son1> 
+//即强制将 子组件数据同步到父组件
+因为有@update的存在，故 父会强制也同步子的数据，实现了父子平等
+子中有props，父中@监听，这是双向的
+```
+
+依旧看不懂请看下面这个简单的示范
+
+```js
+<template>
+  <div id="father">
+    <div>
+       我是父组件
+      <son
+        :wisdom.sync="wisdom"
+        :magic.sync="magic"
+        :attack.sync="attack"
+        :defense.sync="defense">
+      </son>
+      <p>智力： {{ wisdom }}</p>
+      <p>膜法： {{ magic }}</p>
+      <p>攻击： {{ attack }}</p>
+      <p>防御： {{ defense }}</p>
+    </div>
+  </div>
+</template>
+ 
+<script>
+import son from './son.vue'
+export default {
+  data: function () {
+    return {
+      wisdom: 90,
+      magic: 160,
+      attack: 100,
+      defense: 80
+    }
+  },
+  components: {
+    son: son
+  }
+}
+
+</script>
+```
+
+子组件
+
+```js
+<template>
+  <div>
+    <p>我是子组件</p>
+    <p>智力： {{ wisdom }}</p>
+    <p>膜法： {{ magic }}</p>
+    <p>攻击： {{ attack }}</p>
+    <p>防御： {{ defense }}</p>
+    <button @click="increment('wisdom')">增加智力</button>
+    <button @click="increment('magic')">增加膜法</button>
+    <button @click="increment('attack')">增加攻击</button>
+    <button @click="increment('defense')">增加防御</button>
+  </div>
+</template>
+ 
+<script>
+export default {
+  props: {
+    wisdom: Number,
+    magic: Number,
+    attack: Number,
+    defense: Number
+  },
+
+  methods: {
+    increment (dataName) {
+      let newValue = this[dataName] + 1
+      this.$emit(`update:${dataName}`, newValue)
+    }
+  }
+}
+</script>
+```
+
+#### 5- 父子同步(v-model)
+
+原理： 利用了表单的input事件！
+
+缺点： 这种方式只能传一个事件， 故也就是只能同步一个数组上的一个数组。
+
+```js
+父组件
+	<son v-model="theValue"></son>
+子组件
+	this.$emit('input', value);
+```
+
+#### 6- 兄弟组件通信
+
+```js
+# 多级通信
+1 创建eventBus.js， 就两行
+	import Vue from 'vue'
+	export default new Vue()
+
+2 在需要通信的同级组件中分别引入eventBus.js文件
+	import bus from '../eventBus.js'
+
+3 page1.vue中，通过$emit将事件和参数传递给page2.vue
+	price(newPrice){
+         bus.$emit('priceChange', newPrice,this.count) 
+	}
+
+4 在page2.vue 中，通过$on接收接收参数和相应事件
+    bus.$on("priceChange", (price, count) => {
+        this.balance = this.totalMoney - price * count;
+    });
+```
+
+#### 7- props几种形式
+
+- 也可以接收函数
+
+```js
+props: ['title', 'likes', 'isPublished', 'commentIds', 'author']
+
+props: {
+  title: String,
+  likes: Number,
+  isPublished: Boolean,
+  commentIds: Array,
+  author: Object,
+  callback: Function,
+  contactsPromise: Promise // or any other constructor
+}
+# 数组
+    tabsData: {
+      default: function() {
+        return [];
+      },
+      type: Array
+    }
+# 对象
+	propE: {
+      type: Object,
+      // 对象或数组默认值必须从一个工厂函数获取
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+```
+
+`官方建议 当我们需要在子组件中改变props`
+
+1. 最好定义一个本地的 data property 并将这个 prop 用作其初始值
+
+2. 好使用这个 prop 的值来定义一个计算属性
+
+   ```js
+   props: ['size'],
+   computed: {
+     normalizedSize: function () {
+       return this.size.trim().toLowerCase()
+     }
+   }
+   ```
+
+3. 注意在 JavaScript 中对象和数组是通过引用传入(指向同一块地址)的，所以对于一个数组或对象类型的 prop 来说，
+
+   在子组件中改变变更这个对象或数组本身**将会**影响到父组件的状态。
+
+### 13 插槽（有<slot>是组件，  template是调用）
+
+`2.6.0版本中， v-slot命令取代了slot与slot-scope， 这两个命令还保存着`
+
+- 组件的最大特性就是复用性，而用好插槽能大大提高组件的可复用能力
+
+- 父级模板里的所有内容都是在父级作用域中编译的；
+
+  子模板里的所有内容都是在子作用域中编译的。
+
+#### 匿名插槽
+
+1. 组件标签中嵌套的内容会替换掉slot  如果不传值 则使用 slot 中的默认值
+
+```html
+    <template>
+        <p>1</p>
+        <p>2</p>
+        <p>3</p>
+        <slot>404</slot>
+    </template>
+
+------------------------------------------------------------------------------
+<alert-box>你好呀！</alert-box> 	=> 展示 1 2 3 你好呀
+-----------------------------------------------------------------------------
+<alert-box>						   => 展示 1 2 3 hello!
+    <p>hello!</p>
+</alert-box>
+------------------------------------------------------------------------------
+<alert-box></alert-box>			   => 展示 1 2 3 404
+```
+
+#### 具名插槽
+
+- 具有名字的插槽  ,配合`template`(2.5版本之前必须要写)！
+
+- 使用 <slot> 中的 "name" 属性绑定元素
+
+- 通过slot属性来指定, 这个slot的值必须和下面slot组件得name值对应上
+
+  如果没有匹配到 则放到匿名的插槽中
+
+```html
+# 思考以下结果
+<slot>左</slot>           	
+<slot>中</slot>				
+<slot>右</slot>				
+
+<cpn>0</cpn>  						=> 000
+<cpn></cpn> 						=> 左中右
+-----------------------------------------------------------------
+
+<slot name="left">左</slot>   |   
+<slot name="center">中</slot> | 	 
+<slot name="right">右</slot>	 |	 
+<slot>默认</slot>				 |
+------------------------------------------------------------------
+示范： 
+<cpn></cpn> 						=>  左中右默认
+
+<cpn>[hello]</cpn>					=>  左中右[hello]
+
+<cpn>								=>  [左边]中右
+    <div slot="left">
+        [左边]
+    </div>
+</cpn>
+```
+
+####  作用域插槽
+
+- 父组件对子组件加工处理
+- 既可以复用子组件的slot，又可以使slot内容不一致
+- 内容由子组件决定，而利用作用域插槽改变显示内容
+
+```html
+  <div id="app">
+    <!-- 
+		1、当我们希望li 的样式由外部使用组件的地方定义，因为可能有多种地方要使用该组件，
+		但样式希望不一样 这个时候我们需要使用作用域插槽 
+	-->  
+      <!-- 2、 
+			通过template取得传过来的 info
+			父组件中使用了<template>元素,而且包含scope="slotProps",
+			slotProps在这里只是临时变量  ，子组件的数据通过slot-scope属性传递到了父组件
+			slotProps是我们的插槽对象，slotProps.info 就是我们绑定的info
+		---> 	
+    <fruit-list :list='list'>//父组件传递给子组件
+      <template slot-scope='slotProps'>
+          <!--  -->
+        <strong v-if='slotProps.info.id==3' class="current">
+            {{slotProps.info.name}}		         
+         </strong>
+        <span v-else>{{slotProps.info.name}}</span>
+      </template>
+    </fruit-list>
+  </div>
+_______________________________________________________________________________________
+  <script type="text/javascript" src="js/vue.js"></script>
+  <script type="text/javascript">
+    /*
+      作用域插槽
+    */
+      //这个组件是独立存在的！没list怎么办，让父组件从主组件那里拿！
+    Vue.component('fruit-list', {
+      props: ['list'],
+      template: `
+        <div>
+          <li :key='item.id' v-for='item in list'>
+			###  3、 在子组件模板中,<slot>元素上有一个类似props传递数据给组件的写法msg="xxx",
+			###   插槽可以提供一个默认内容，如果如果父组件没有为这个插槽提供了内容，会显示默认的内容。
+					如果父组件为这个插槽提供了内容，则默认的内容会被替换掉
+            <slot :info='item'>{{item.name}}</slot>
+          </li>
+        </div>
+      `
+    });
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        list: [{
+          id: 1,
+          name: 'apple'
+        },{
+          id: 2,
+          name: 'orange'
+        },{
+          id: 3,
+          name: 'banana'
+        }]
+      }
+    });
+  </script>
+</body>
+</html>
+
+```
+
+### 14 v-slot
+
+1. 任何没有被包裹在带有 `v-slot` 的 ` 中的内容都会被视为默认插槽的内容。
+2. **`v-slot` **
+
+```html
+<base-layout>
+  <template v-slot:header>
+    <h1>Here might be a page title</h1>
+  </template>
+
+  <p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+</base-layout>
+
+组件内
+<slot name="header"></slot>
+```
+
+### 15 强制更新 
+
+迫使 Vue 实例重新渲染。注意它仅仅影响实例本身和插入插槽内容的子组件，而不是所有子组件
+
+```js
+this.$forceUpdate();
+```
+
+### 16 过渡 & 动画
+
+#### 1 dom过渡
+
+`vue的写的十分详细`, 建议用的时候参考文档
+
+适用情况： 
+
+- 条件渲染 (使用 `v-if`)
+- 条件展示 (使用 `v-show`)
+- 动态组件
+- 组件根节点
+
+```html
+<transition name="fade">
+	<p v-if="show">hello</p>
+</transition>
+
+// 现在可以订制时间了
+<transition :duration="{ enter: 500, leave: 800 }">...</transition>
+```
+
+#### 2 状态过渡
+
+`非常漂亮的实现方式`
+
+Vue 的过渡系统提供了非常多简单的方法设置进入、离开和列表的动效。那么对于数据元素本身的动效呢，比如：
+
+- 数字和运算
+- 颜色的显示
+- SVG 节点的位置
+- 元素的大小和其他的 property
+
+这些数据要么本身就以数值形式存储，要么可以转换为数值。有了这些数值后，我们就可以结合 Vue 的响应式和组件系统，使用第三方库来实现切换元素的过渡状态。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------
+
+
+
+
+
+## 二 Vue API
+
+### 1 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------
+
+## 三 vue工程化
+
+### 1 `CommonJs`
+
+`CommonJs`(node 的基层实现， webpack会使用)
+
+- 导出
+
+```js
+var flag = true;
+var sum = function() {}
+
+module.exports = {
+    flag: true,
+    sum: sum,
+}
+```
+
+- 导入
+
+```js
+var a = require.('./a.js'); // 在另一个文件中引入该文件
+console.log(a.flag);
+```
+
+----
+
+### 2 ES6的导入与导出
+
+- 导出
+
+```js
+export {	flag, num	}					import {flag, sum} from './aaa.js'
+----------------------------
+export var num1 = 100;						import {num1, height} from './aaa.js'
+export var height = 100;
+// 导出函数	
+export function sum(num1, num2) {}			import {sum} from './aaa.js'
+
+// 导出类
+export class Person {						import {Person} from './aaa.js'
+    run() {									const p = new Person();  p.run();
+        console.log('run')
+    }
+}
+```
+
+``export default`
+
+- 令导入处自定义名称
+- 只能导出一个， 不允许同时存在多个export default
+
+```js
+const address = '北京';
+export  default address;				import myTime from './a.js';
+```
+
+`如何实现导入？`
+
+1. 引入该js文件， 并将其类型设置为module
+
+   ```js
+   <script src="..." type="module"/>
+   ```
+
+   
+
+2. 使用import导入
+
+   ```js
+   import * as aaa from '../aaa.js'
+   var person = aaa.person;
+   ```
+
+   ---
+
+###  webpack
+
+- 类似于或gulp的打包软件，何时用到gulp ==>工程简单， 只是涉及简单的合并 压缩操作， 核心： 自动化
+
+- 1 打包(ES6 Sass等的转换) 
+- 2 模块化 ， 核心： 处理模块间的依赖关系
+
+个人理解
+
+```js
+之前 两个js文件是互相依赖的关系的时候， 必须保证js的引入顺序， 但现在模块化不需要了， 因为我们现在使用的是 模块化（ES6 CommonJS）。webpack会在打包的时候处理这些
+之前 我们需要在main.js文件中引入那些我们需要的全局js文件， 
+而现在我们使用nodeModule来替代全局js， 并且实现了维护猩
+```
+
+- 打包  
+
+  ```js
+  # 原始终端打包
+  webpack ./src/main.js  ./dist/bundle.js 
+  
+  wepback代表打包操作， 后面跟着的是打包文件的路径与名称
+  -----------------------------------------------
+  我们实际会这么使用
+  #0 准备工作
+  	npm init 初始化node => 一系列配置 => 生成package.json 
+  	注意下， path是node中自带的文件。所以不需要额外下载
+  #1 创建vue.config.js
+  const path = require('path');
+  moudle.exports = {
+      entry: path.resolve(__dirname, 'dist'), // __dirname是node自带， 指当前文件路径
+      output: {
+      	path: './dist', // 指定打包路径, 这里只能写绝对路径
+          filename: 'bundle.js', // 打包后生成的文件名称
+      },
+  }
+  #2 直接执行 webpack
+  	若文件名不为webpack.config.js， 而是 production.config.js这一类的名称，那么则
+  命令应该为 【webpack production.config.js】。 这样会使得文件名很长。
+  # 3 优化 映射起来！
+  但一般我们使用 npm run build这类命令， 如何将其与 webpack对应起来呢？
+  在package.json中找到我们的webpack配置,
+      其中有属性scripts, 
+  "scripts": {
+      "test": '',
+       "build": "webpack",
+  }
+  故 我们直接 npm run build会直接映射该 webpack方法
+  -----------------------------------------------
+  
+  ```
+
+
+
+## 四 VueCli3过程
+
+### 1 搭建项目
+
+#### 1.1 搭建
+
+1. 安装 Vue脚手架
+
+2. 使用命令 vue create 【项目名称】 、
+
+   ```js
+   vue create testCli3  => 经历一些配置后创建成创建成功
+   ```
+
+   介绍目录
+
+   ```js
+   #
+   	node_modules			👉	npm安装的一系列包都在这里
+       public					👉	相当于之前的static文件夹, 存放静态资源的文件夹
+       src						👉	源代码，也是我们主要编写代码的地方
+       .gitignore				👉	忽略git提交的文件
+   	babel.config.js			👉	即 对babel的控制
+   	package.json			👉	依赖此package.json 来下载包|(映射关系)
+   	package-lock.json		👉	显示真实安装的版本
+       
+       备注： 
+       	由于Vue3[零配置] 现在 vue.cli隐藏了一部分的配置在 package.json当中！
+   ```
+
+3. 启动项目 => npm run serve 
+
+   我如何知道命令是什么的？ 👉 查看 package.json
+   
+4. 
+
+#### 1.2 only与compiler区别 
+
+1. 创建脚手架
+
+   ① 使用 `vue init webpack runtimecompiler`创建脚手架
+
+   ② 使用 `vue init webpack runtimeonly`创建脚手架
+
+2. ###### 区别：
+
+   - 首先我们要知道 Vue的运行过程是什么？
+
+     1. 对于 runtimecompiler而言
+
+        `template` => `ast` => `render` => `vm` => `真实DOM`
+
+        ```js
+        1 template 【被解析】以后 会生成 抽象语法数(abstract syntax)
+        2 ast 在被【编译】后会生成一个render函数
+        3 通过这个render函数 我们可以生成一个 虚拟DOM树， virtual dom
+        4 再将virtual dom 转为 真实dom
+        ```
+
+     2. 对于 runtimeonly
+
+        与之相比， 便是 减少了编译的过程， 即 `render` =>  `vm `  => `真实dom`
+
+   ```js
+   首先要说的是， 高端人士 使用 runtimeonly 来初始化项目
+   
+   1
+   	在于main.js处的不同
+   	1 对于	runtimeonly
+       	new Vue({
+           	el: '#app',
+               render: h => return h(App);
+   			// 但你得导入 App吧！这是废话
+           });
+           
+   	2 对 runtimecompiler👇
+       	new Vue({
+               el: '#app',
+               template: '<APP/>',
+           	components: {App},
+           })
+   
+   2 	这便是 render对象函数的意义！
+   	我们可以对 runtimecompiler 进行对应改写
+   		new Vue({
+               el: '#app',
+   			render: function(createElement) {
+                   return createElement(
+                   	'h2',
+                       {class: "class-1",}
+                       ['hello. world!!']
+                   );
+               }
+           })
+   	等同于
+       	<div id="#app">
+               <h2 class="class-1">
+               	hello. world!!
+               </h2>
+           </div>
+   -------------------------------------------------------------------------
+   	同理， 通过 render 继续去渲染 虚拟dom
+       new Vue({
+               el: '#app',
+   			render: function(createElement) {
+                   return createElement(
+                   	'h2',
+                       {class: "class-1",}
+                       [
+                           'hello. world!!', 
+                       	createElement('button', ['按钮'])
+                       ]
+                   );
+               }          
+      })
+   ------------------------------------------------------------------------
+   我们使用 ES6的导入时候， 对应的组件的格式会
+   所以 const cpn = {
+   	template: <div></div>,
+   	data() {
+           return {
+               
+           }
+       }
+   }
+   对应的!
+   	render: createElement => return cpn;
+   ```
+
+
+#### 1.3 who parses template?
+
+1. 既然 render 替换了 runtimeCompiler的写法形式， 
+
+   对于render而言那存在template `岂不是还是需要将template 转 为 ast ？`
+
+   毕竟 cpn 对象种 还有 template呢。
+
+   ```js
+   答: 
+   	并非我们想象得这样，其 render是不包含 template的！
+       可以打印一下， 在【编译过后】  console.log(App);
+   	你会发现其无 tempate, 反而多了 render这个函数！
+   ```
+
+2. 由第一个问题导致第二个问题
+
+   那 传入的template是谁做了 template => ast => render 呢？
+
+   ```js
+   答： 
+   	vue-loader
+   	vue-template-compiler
+   	这个开发时候的依赖， 将template 转为了 render函数！
+   ```
+
+#### 1.4 $mount
+
+```js
+		new Vue({
+            // el: '#app',
+			render: function(createElement) {
+                return createElement(
+                	'h2',
+                    {class: "class-1",}
+                    ['hello. world!!']
+                );
+            }
+        }).$mount('#app')
+        等价于 el: '#app',  几乎没有区别！
+```
+
+---
+
+### 2 配置去哪里了？
+
+- 查看package.json中的`devDependecies` 有`@vue/cli-serve`来管理插件
+
+  并且隐藏了大量的配置，若我们想更改配置怎么办呢？
+
+- node小知识： 
+
+  package.json中版本中有`^`这个符号代表其是模糊版本，具体版本可以参考【打包】以后的的版本
+
+- 在配置中
+
+  【vue】与【vue-template-compiler】的版本需要一一对应。至少对于vue3是这样的。
+
+  
+
+#### 1  如何在当前项目查看？
+
+- 对应项目有 node_moudles 下 有 @vue
+
+```js
+@vue 
+	=> cli-serve目录
+	=> webpack.config.js  
+		const Service = require('./lib/Service')
+		会发现这个文件引用了同级lib文件夹下的webpack目录下的 Service.js
+
+    => 而 最终在service.js
+		你会发现其引用了各类config的配置
+    const fs = require('fs')
+    const path = require('path')
+    const debug = require('debug')
+    const merge = require('webpack-merge')
+    const Config = require('webpack-chain')
+    const PluginAPI = require('./PluginAPI')
+
+```
+
+#### 2 修改配置?
+
+在项目的根目录下创建 `vue-config.js`这个文件
+
+- 注意 这里会与 `默认配置` 合并
+
+```js
+module.exports = {
+
+}
+```
+
+
+
+#### 3 使用 vue-ui
+
+- 其实我们也可以使用 vue-ui创建一个项目
+
+```js
+#1 
+输入命令`vue ui`    
+    => 打开项目管理器 
+    => 导入我们对应的项目
+	=> 在项目仪表盘中 => 查看插件 (查看依赖 | 查看项目配置)
+#2
+	我们可以在【项目配置】中修改webpack配置
+    
+
+```
+
+### 3 vue-router
+
+1. 路由是： 【路径】 与 【组件】的`映射`
+2. `路径的改变 `即是 `组件的改变`！
+3. 常见的跳转方式
+
+```js
+1 更改hash\
+2 h5新增了history模式，与其一系列方法，以pushState为例
+	# http://192.168.1.11:8080/
+	location.hash="home"  			 =>  # http://192.168.1.11:8080/#home
+	history.pushState({}, '', 'home') => # http://192.168.1.11:8080/home
+    
+	1 pushState
+	2 replaceState
+	3 go
+```
+
+#### 1 初始化
+
+```js
+#1 安装
+	npm install vue-router --save    // 运行时候依旧需要依赖，故是 --save
+#2 
+	导入路由对象，调用 Vue.use(Vue.Router);
+#3 
+	创建【路由实例】， 传入路由映射配置
+#4
+	在Vue实例中【挂载】创建的router实例
+    
+步骤：
+    在 根目录下，src目录下创建文件夹【router】目录，创建【index.js】来配置路由
+
+# router目录中的index.js
+------------------------------------------------------------------------------
+import VueRouter from 'vue-router';
+import Vue 		 from 'vue';
+Vue.use(VueRouter); 			// 1 导入路由对象，调用 Vue.use(Vue.Router);
+const routes = [];  			// 2 路由映射配置
+const router = new VueRouter({	// 3 创建【路由实例】
+    routers,
+})
+export default router;
+
+# main.js 入口文件
+------------------------------------------------------------------------------
+import router from './router'; // 语法，若是导入的是一个目录，则自动寻找idnex.js文件
+......
+new Vue({
+   el: '#app',
+   router,						// 4 在Vue实例中【挂载】创建的router实例
+   render: h => h(App);			
+});
+```
+
+#### 2 呈现
+
+- 创建对应组件，并且对应修改router实例的routes对象
+  1. `router-link`最终会被渲染成一个a标签
+  2. `router-view`会被对应的组件替代, 可以视作 `占位符`
+  3. 路由切换时候， router-view挂载组件改变， 其余内容不变。
+  4. `path` 即前端路由，指向对应组件 to <--> path <--> component 映射关系
+
+```js
+#router目录下的index.js
+const routes  = [{ path: '/home',component: Home, }];
+
+# 入口App.vue
+  <div id="app">
+    <router-link to="/home">home</router-link>
+    <router-link to="/about"> about</router-link>
+    <router-view></router-view>
+  </div>
+```
+
+1. `history模式`
+
+   hash => histroy
+
+   vue-router默认是进行hash跳转的，希望使用history模式跳转
+
+   ```js
+   对应router实例中添加
+   	mode: 'history'
+   ```
+
+2. `<router-link>组件附带的一些属性`
+
+   - 使用replace标签即 改用 history.replaceState模式，而不是history.pushState
+
+   - router-link-active
+
+     使用该标签，当路由匹配成功，会对应修改其 router-link上的class
+
+     默认是 router-link-active, 当然可以通过 router-link-active ="active"来更改
+
+     也可以统一在router实例上配置， `linkActiveClass = "active"`来统一修改
+
+   ```js
+   #属性名  					#解释                            #实例
+   to						  用于指定跳转的路径					to="/home"	
+   tag						  指定router-link以何种形式渲染		tag="button"
+   replace					  不留下history记录				   replace就可
+   router-link-active		  给当前活动路由标签添加样式			
+   ```
+
+3. 使用代码跳转，而非router-link中的to属性跳转
+
+   `push` 与 `replace`
+
+   注意： `this` 指当前组件， vue-router在所有当前组件都添加了一个`$router`属性
+
+   ```js
+   this.$router.push('/home')
+   this.$router.replace('/about')
+   ```
+
+#### 3 动态路由
+
+-  `path`配置的参数 与 `this.$route.params.userId`是映射关系
+- `router`可以认为是 我们创建的router实例， 里面包含所有路由。
+- `route`可以看作是router实例当中， 当前活跃的路由。
+
+```js
+routes 
+#1 在配置时候添加参数
+	{
+		path: '/user/:userId'
+		component: User,
+	}
+
+App.vue
+#2 在传入时候添加参数
+	<router-link to="'/user/' + userId"></router-link>
+   
+# 3 调用 打印这个参数
+	在对应得活动组件， User中
+	console.log(this.$route.params.userId)
+```
+
+#### 4 路由懒加载
+
+- 打包(构建应用时) => Js目录下的文件其实是巨大的，
+
+  1 因为都是集中在bundle,hs来打包，这样会影响页面加载。
+
+  2 所以 将 不同的路由映射的组件 切割成不同的代码块。
+
+  3 当路由被访问时候，在加载对应的组件（包中对应的js代码）
+
+- 实现
+
+  ```js
+  const User = () => import('../components/user')
+  .......
+  {
+  	path: 'user',
+  	component: User,
+  }
+  ```
+
+- 番外(关于打包这件事)，这里记的并不详细
+
+  ```js
+  打包文件有
+  	mainifest.xxx.js	=> 为打包代码做底层支撑， 比如(ES6的语法， commonJs等)
+  	app.xxx.js			=> 主代码
+  	vendor.xxx.js		=> 第三方插件(比如 vue, vue-router， axios)
+  默认有这三个，可能当前webpack打包又变了
+  	若使用路由懒加载后， 对应有几个懒加载组件，打包后便会多出来几个js文件
+  ```
+
+#### 5 嵌套路由
+
+1. 在`routes`，路由配置中 配置对应的子路由
+2. 在其入口路由对应得组件中，使用router-view与router-view
+3. 当然你可以在里面配置默认路由，不再累述。
+
+```js
+#1 配置子路由
+{
+    path: '/home',
+    component: Home,
+    children: [
+      {
+        path: '/home/news',
+        component: HomeNews,
+      },
+      {
+        path: '/home/message',
+        component: HomeMessage,
+      }
+    ]
+  },
+# 2 home.vue这个其 入口路由对应的组件
+<template>
+  <div>
+    hello! home!
+    <router-link to="/home/news">news</router-link>
+    <router-link to="/home/message">message</router-link>
+    
+    <router-view></router-view>
+  </div>
+</template>
+```
+
+#### 6 传递参数
+
+1. `params` , 参考 `动态路由`， 通过路由来传参
+
+2. `query`
+
+   传递时候，`使用query的key`作为传递方式，形式上与类似url传参
+
+   传递后形成的路径： `/router？id=123`
+
+   ```js
+   # 传参
+   <router-link
+   	:to ="{
+   		path: 'profile',
+           query: {
+               name: 'why',
+               age: '18',
+           }
+   	}"
+   />
+   # 调用,对应组件中
+      console.log(this.$route.query);
+   -------------------------------------------------------------------------
+   URL的组成
+   #例：https：//host：80/路径？查询
+   协议(scheme) + 
+   + 主机（服务器地址）
+   + 端口(都存在端口， 不过默认是80时候可以省略) 
+   + 查询（query）
+   
+   ```
+
+   
