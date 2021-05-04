@@ -1,0 +1,8 @@
+原因：
+
+找不到jstl类库中的.tld文件
+
+解决办法：
+
+WEB/INF的lib下，除了导入jstl.jar包，还要导入standard.jar包。另外，解压standard.jar包，把.tld文件放在WEB/INF下。
+也可能是tomcat版本问题。8.0垃圾！

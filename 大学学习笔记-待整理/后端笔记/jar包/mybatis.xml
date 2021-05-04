@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+ <configuration>
+ 	<!-- 加载外部文件 -->
+ 	<properties resource="db.properties">
+ 	</properties>
+ 	<!--加载日志文件 -->
+ 	<settings>
+ 		<setting name="logImpl" value="LOG4J"/>
+ 		<!-- 开启二级（全局）缓存 -->
+ 		<setting name="cacheEnable" value="true"/>
+ 	</settings>
+ 	<typeAliases>
+		<!-- 给user类起别名为u -->
+		<!--typeAlias type="com.bjsxt.pojo.User" alias="u"/-->
+		<!-- <package name="com.bjsxt.pojo"/> -->
+	</typeAliases>
+ 	<environments default="dev">
+ 		<environment id="dev" >
+ 			<transactionManager type="JDBC" ></transactionManager>
+ 			<dataSource type="POOLED" >
+ 				<property name="driver" 	value="${jdbc.driver}"/>
+ 				<property name="url" 		value="${jdbc.url}"/>
+ 				<property name="username" 	value="${jdbc.username}"/>
+ 				<property name="password" 	value="${jdbc.password}"/>
+ 			</dataSource>
+ 		</environment>
+ 	</environments>
+ 	<mappers>
+ 		<package name="com.atguigu.dao"/>
+ 	</mappers>
+ </configuration>
+ 

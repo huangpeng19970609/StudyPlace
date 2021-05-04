@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+</head>
+<style>
+  body {
+    text-align: center;
+  }
+
+  #go_to {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+  }
+</style>
+
+<body>
+
+  <div id="go_to">
+    <a href="#top">A、顶部</a>
+    <button onclick="goToTop();">B、顶部</button>
+    <button onclick="goToJys();">C、静夜思</button>
+    <button onclick="goToCao();">D、草</button>
+  </div>
+
+  <h3 name="top">唐诗300首</h3>
+  <p>《春晓》<br />
+    作者：孟浩然<br />
+    春眠不觉晓，处处闻啼鸟。<br />
+    夜来风雨声，花落知多少。</p>
+  <p> 《鹿柴》<br />
+    作者：王维<br />
+    空山不见人，但闻人语响。<br />
+    返影入深林，复照青苔上。</p>
+  <p> 《相思》<br />
+    作者：王维<br />
+    红豆生南国，春来发几枝。<br />
+    愿君多采撷，此物最相思。</p>
+  <p> 《杂诗》<br />
+    作者：王维<br />
+    君自故乡来，应知故乡事。<br />
+    来日绮窗前，寒梅著花未。</p>
+  <p> 《终南望余雪》<br />
+    作者：祖咏 <br />
+    终南阴岭秀，积雪浮云端。<br />
+    林表明霁色，城中增暮寒。</p>
+  <p id="jys"> 《静夜思》<br />
+    作者：李白<br />
+    床前明月光，疑是地上霜。<br />
+    举头望明月，低头思故乡。</p>
+  <p> 《登鹳雀楼》<br />
+    作者：王之涣<br />
+    白日依山尽，黄河入海流。<br />
+    欲穷千里目，更上一层楼。</p>
+  <p> 《江雪》<br />
+    作者：柳宗元<br />
+    千山鸟飞绝，万径人踪灭。<br />
+    孤舟蓑笠翁，独钓寒江雪。</p>
+  <p> 《登乐游原》<br />
+    作者：李商隐 <br />
+    向晚意不适，驱车登古原。<br />
+    夕阳无限好，只是近黄昏。</p>
+  <p> 《弹琴》<br />
+    作者：刘长卿 <br />
+    泠泠七弦上，静听松风寒。<br />
+    古调虽自爱，今人多不弹。</p>
+  <p> 《八阵图》<br />
+    作者：杜甫<br />
+    功盖三分国，名成八阵图。<br />
+    江流石不转，遣恨失吞吴。</p>
+  <p id="cao"> 《草》<br />
+    作者：白居易<br />
+    离离原上草，一岁一枯荣。<br />
+    野火烧不尽，春风吹又生。<br />
+    远芳侵古道，晴翠接荒城。 <br />
+    又送王孙去，萋萋满别情。</p>
+
+  <p> 《关山月》<br />
+    作者：李白<br />
+    明月出天山，苍茫云海间。<br />
+    长风几万里，吹度玉门关。<br />
+    汉下白登道，胡窥青海湾。<br />
+    由来征战地，不见有人还。<br />
+    戍客望边色，思归多苦颜。<br />
+    高楼当此夜，叹息未应闲。</p>
+
+  <p> 《望月怀远》<br />
+    作者：张九龄<br />
+    海上生明月，天涯共此时。<br />
+    情人怨遥夜，竟夕起相思。<br />
+    灭烛怜光满，披衣觉露滋。<br />
+    不堪盈手赠，还寝梦佳期。</p>
+
+  <p> 《送杜少府之任蜀州》<br />
+    作者：王勃<br />
+    城阙辅三秦，风烟望五津。<br />
+    与君离别意，同是宦游人。<br />
+    海内存知己，天涯若比邻。<br />
+    无为在岐路，儿女共沾巾。</p>
+
+  <p> 《春望》<br />
+    作者：杜 甫<br />
+    国破山河在，城春草木深。<br />
+    感时花溅泪，恨别鸟惊心。<br />
+    烽火连三月，家书抵万金。<br />
+    白头搔更短，浑欲不胜簪。</p>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+  function goToTop() {
+    location.href = "#top";
+  }
+
+  function goToJys() {
+    $("html,body").animate({
+      scrollTop: $("#jys").offset().top
+    }, 500); //定位到《静夜思》
+  }
+
+  function goToCao() {
+    /**
+     * 如果滚动页面也是DOM没有解决的一个问题。为了解决这个问题，浏览器实现了一下方法，
+     * 以方便开发人员如何更好的控制页面的滚动。在各种专有方法中，HTML5选择了scrollIntoView()
+     * 作为标准方法。
+     * scrollIntoView()可以在所有的HTML元素上调用，通过滚动浏览器窗口或某个容器元素，
+     * 调用元素就可以出现在视窗中。如果给该方法传入true作为参数，或者不传入任何参数，那么
+     * 窗口滚动之后会让调动元素顶部和视窗顶部尽可能齐平。如果传入false作为参数，调用元素
+     * 会尽可能全部出现在视口中（可能的话，调用元素的底部会与视口的顶部齐平。）不过顶部
+     * 不一定齐平，例如：
+     * //让元素可见
+     * document.forms[0].scrollIntoView();
+     * 当页面发生变化时，一般会用这个方法来吸引用户注意力。实际上，为某个元素设置焦点也
+     * 会导致浏览器滚动显示获得焦点的元素。
+     * 支持该方法的浏览器有 IE、Firefox、chrome、Safari和Opera。
+     *
+     * 注意这里要使用querySelector选择器
+     * querySelectorAll 在文档内找第一个符合选择器描述的节点包括Element本身
+     * jQuery(element) 在文档内找第一个符合选择器描述的节点不包括Element本身
+     *
+     * 参考：http://www.cnblogs.com/daxian2012/archive/2012/10/18/2729359.html
+     * 参考：http://blog.csdn.net/only_love_strangers/article/details/47264889
+     */
+    document.querySelector("#cao").scrollIntoView();
+    /**
+     * 这里需要注意的是这里的写法是：$("#cao")[0]，而不是：$("#cao")，
+     * 因为$('#cao')取得的是一个jQuery对象，而scrollIntoView()是一个DOM
+     * 属性，所以要把jQuery对象转为DOM对象才行，而数组下标可以将jQuery对象
+     * 转成对象DOM对象。
+     */
+  }
+</script>
+
+</html>

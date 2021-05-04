@@ -1,0 +1,1135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0066)http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html -->
+<HTML><HEAD id="Head"><META http-equiv="Content-Type" content="text/html; charset=UTF-8"><TITLE>
+	DBCP的配置参数 - SIMONE - BlogJava
+</TITLE><META id="metaKeywords" name="keywords" content="DBCP的配置参数"><LINK type="text/css" rel="stylesheet" href="./DBCP的配置参数 - SIMONE - BlogJava_files/common.css"><LINK id="MainCss" type="text/css" rel="stylesheet" href="./DBCP的配置参数 - SIMONE - BlogJava_files/style.css"><LINK id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://www.blogjava.net/wangxinsh55/rss.aspx"><SCRIPT type="text/javascript" src="./DBCP的配置参数 - SIMONE - BlogJava_files/pubads_impl_27.js"></SCRIPT><SCRIPT type="text/javascript" src="./DBCP的配置参数 - SIMONE - BlogJava_files/osd.js"></SCRIPT></HEAD><BODY>
+    <FORM name="Form1" method="post" action="./DBCP的配置参数 - SIMONE - BlogJava_files/DBCP的配置参数 - SIMONE - BlogJava.htm" onsubmit="javascript:return WebForm_OnSubmit();" id="Form1">
+<DIV>
+<INPUT type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<INPUT type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<INPUT type="hidden" name="__VIEWSTATE" id="
+__VIEWSTATE" value="">
+</DIV>
+
+<SCRIPT type="text/javascript" src="./DBCP的配置参数 - SIMONE - BlogJava_files/ga.js"></SCRIPT><SCRIPT type="text/javascript" src="./DBCP的配置参数 - SIMONE - BlogJava_files/gpt.js"></SCRIPT><SCRIPT type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['Form1'];
+if (!theForm) {
+    theForm = document.Form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</SCRIPT>
+
+
+<SCRIPT src="./DBCP的配置参数 - SIMONE - BlogJava_files/WebResource.axd" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="JavaScript">
+									function ctlent(evt,id)
+											{
+												if(evt.ctrlKey && evt.keyCode == 13)
+												{	
+													try
+													{
+														TempSave(id);
+													}
+													catch(ex)
+													{
+													}
+													finally
+													{
+													    __doPostBack('AjaxHolder$PostComment$btnSubmit','')
+													}
+												}
+		
+												}</SCRIPT>
+												<SCRIPT language="JavaScript">function SetReplyAuhor(author){document.getElementById('AjaxHolder_PostComment_tbComment').value+="@"+author+"\n";document.getElementById('AjaxHolder_PostComment_tbComment').focus();return false}</SCRIPT>
+<SCRIPT src="./DBCP的配置参数 - SIMONE - BlogJava_files/ScriptResource.axd" type="text/javascript"></SCRIPT>
+<SCRIPT src="./DBCP的配置参数 - SIMONE - BlogJava_files/ScriptResource(1).axd" type="text/javascript"></SCRIPT>
+<SCRIPT src="./DBCP的配置参数 - SIMONE - BlogJava_files/ScriptResource(2).axd" type="text/javascript"></SCRIPT>
+<SCRIPT type="text/javascript">
+//<![CDATA[
+function WebForm_OnSubmit() {
+if (typeof(ValidatorOnSubmit) == "function" && ValidatorOnSubmit() == false) return false;
+return true;
+}
+//]]>
+</SCRIPT>
+
+        
+<!--done-->
+<TABLE cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+<TBODY><TR>
+	<TD width="184" background="./DBCP的配置参数 - SIMONE - BlogJava_files/banner1.gif">
+	<TD background="./DBCP的配置参数 - SIMONE - BlogJava_files/banner.gif">
+<!--done-->
+<DIV class="header">
+	<DIV class="headerText">
+		<A id="Header1_HeaderTitle" class="headermaintitle" href="http://www.blogjava.net/wangxinsh55/">SIMONE</A><BR>
+		<SPAN style="font-size:12px;color:#4371A6;padding-left:20;"></SPAN>
+	</DIV>
+</DIV>
+</TD>
+	<TD width="295" background="./DBCP的配置参数 - SIMONE - BlogJava_files/banner2.gif">
+</TR>
+</TBODY></TABLE>
+<DIV id="mylinks">
+<!--done-->
+<A id="MyLinks1_HomeLink" class="menu" href="http://www.blogjava.net/">BlogJava</A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_MyHomeLink" class="mainmenu" href="http://www.blogjava.net/wangxinsh55/">首页</A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_NewPostLink" class="mainmenu" href="http://www.blogjava.net/wangxinsh55/admin/EditPosts.aspx?opt=1">新随笔</A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_NewArticleLink" class="mainmenu" href="http://www.blogjava.net/EnterMyBlog.aspx?NewArticle=1">新文章</A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_ContactLink" accesskey="9" class="mainmenu" href="http://www.blogjava.net/wangxinsh55/contact.aspx?id=1">联系</A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_Syndication" class="mainmenu" href="http://www.blogjava.net/wangxinsh55/rss">聚合</A><A id="MyLinks1_XMLLink" href="http://www.blogjava.net/wangxinsh55/rss"><IMG src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml.gif" style="border-width:0px;"></A>&nbsp;&nbsp;&nbsp;<A id="MyLinks1_Admin" class="menu" href="http://www.blogjava.net/wangxinsh55/admin/EditPosts.aspx">管理</A>
+</DIV>
+<DIV id="mytopmenu">
+	
+		<DIV id="mystats">
+			
+<!--done-->
+<DIV class="blogStats">
+posts - 425,comments - 176,trackbacks - 0
+
+</DIV></DIV>
+	
+</DIV>
+<DIV id="leftcontent" style="display: inline; ">
+	
+		<DIV id="leftcontentcontainer">
+			<TABLE id="Calendar1_entryCal" class="Cal" cellspacing="0" cellpadding="0" title="日历" border="0" style="border-width:1px;border-style:solid;border-collapse:collapse;border:0px">
+	<TBODY><TR><TD colspan="7" style="background-color:Transparent;"><TABLE class="CalTitle" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+		<TBODY><TR><TD class="CalNextPrev" style="width:15%;"><A href="javascript:__doPostBack('Calendar1$entryCal','V4077')" style="color:Black" title="转到上一个月">&lt;</A></TD><TD align="center" style="width:70%;">2011年4月</TD><TD class="CalNextPrev" align="right" style="width:15%;"><A href="javascript:__doPostBack('Calendar1$entryCal','V4138')" style="color:Black" title="转到下一个月">&gt;</A></TD></TR>
+	</TBODY></TABLE></TD></TR><TR><TH class="CalDayHeader" align="center" abbr="日" scope="col">日</TH><TH class="CalDayHeader" align="center" abbr="一" scope="col">一</TH><TH class="CalDayHeader" align="center" abbr="二" scope="col">二</TH><TH class="CalDayHeader" align="center" abbr="三" scope="col">三</TH><TH class="CalDayHeader" align="center" abbr="四" scope="col">四</TH><TH class="CalDayHeader" align="center" abbr="五" scope="col">五</TH><TH class="CalDayHeader" align="center" abbr="六" scope="col">六</TH></TR><TR><TD class="CalOtherMonthDay" align="center" style="width:14%;">27</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">28</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">29</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">30</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">31</TD><TD align="center" style="width:14%;">1</TD><TD class="CalWeekendDay" align="center" style="width:14%;">2</TD></TR><TR><TD class="CalWeekendDay" align="center" style="width:14%;">3</TD><TD align="center" style="width:14%;">4</TD><TD align="center" style="width:14%;">5</TD><TD align="center" style="width:14%;">6</TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/07.html"><U>7</U></A></TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/08.html"><U>8</U></A></TD><TD class="CalWeekendDay" align="center" style="width:14%;">9</TD></TR><TR><TD class="CalWeekendDay" align="center" style="width:14%;">10</TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/11.html"><U>11</U></A></TD><TD align="center" style="width:14%;">12</TD><TD align="center" style="width:14%;">13</TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/14.html"><U>14</U></A></TD><TD align="center" style="width:14%;">15</TD><TD class="CalWeekendDay" align="center" style="width:14%;">16</TD></TR><TR><TD class="CalWeekendDay" align="center" style="width:14%;">17</TD><TD align="center" style="width:14%;">18</TD><TD align="center" style="width:14%;">19</TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/20.html"><U>20</U></A></TD><TD align="center" style="width:14%;">21</TD><TD align="center" style="width:14%;"><A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/22.html"><U>22</U></A></TD><TD class="CalWeekendDay" align="center" style="width:14%;">23</TD></TR><TR><TD class="CalWeekendDay" align="center" style="width:14%;">24</TD><TD align="center" style="width:14%;">25</TD><TD align="center" style="width:14%;">26</TD><TD align="center" style="width:14%;">27</TD><TD align="center" style="width:14%;">28</TD><TD align="center" style="width:14%;">29</TD><TD class="CalWeekendDay" align="center" style="width:14%;">30</TD></TR><TR><TD class="CalOtherMonthDay" align="center" style="width:14%;">1</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">2</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">3</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">4</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">5</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">6</TD><TD class="CalOtherMonthDay" align="center" style="width:14%;">7</TD></TR>
+</TBODY></TABLE>
+<BR>
+			
+			
+<H3>常用链接</H3>
+<UL>
+		<LI><A id="SingleColumn1_ctl00_repeaterLinks_ctl01_lnkLinkItem" href="http://www.blogjava.net/wangxinsh55/MyPosts.html">我的随笔</A></LI>
+	
+		<LI><A id="SingleColumn1_ctl00_repeaterLinks_ctl02_lnkLinkItem" href="http://www.blogjava.net/wangxinsh55/MyComments.html">我的评论</A></LI>
+	
+		<LI><A id="SingleColumn1_ctl00_repeaterLinks_ctl03_lnkLinkItem" href="http://www.blogjava.net/wangxinsh55/OtherPosts.html">我的参与</A></LI>
+	
+		<LI><A id="SingleColumn1_ctl00_repeaterLinks_ctl04_lnkLinkItem" href="http://www.blogjava.net/wangxinsh55/RecentComments.html">最新评论</A></LI>
+	</UL>
+<H3>留言簿<SPAN style="font-size:11px;font-weight:normal;">(37)</SPAN></H3>
+<UL>
+	<LI>
+		<A id="SingleColumn1_ctl01_lnkMessages" href="http://www.blogjava.net/wangxinsh55/Contact.aspx?id=1">给我留言</A>
+	</LI><LI>
+		<A id="SingleColumn1_ctl01_lnkPublicMsgView" href="http://www.blogjava.net/wangxinsh55/default.aspx?opt=msg">查看公开留言</A>
+	</LI><LI>
+		<A id="SingleColumn1_ctl01_lnkPrivateMsgView" href="http://www.blogjava.net/wangxinsh55/admin/MyMessages.aspx">查看私人留言</A>
+	</LI>
+</UL>
+
+<!--done-->
+
+		<H1 class="catListTitle">随笔分类<SPAN style="font-size:11px;font-weight:normal">(427)</SPAN></H1>
+		
+				<UL class="catList">
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/19400.html">.NET(14)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_RssLink" title="Subscribe to .NET(14)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/19400.html/rss"><IMG title="Subscribe to .NET(14)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/20256.html">ActiveX控件(3)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_RssLink" title="Subscribe to ActiveX控件(3)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/20256.html/rss"><IMG title="Subscribe to ActiveX控件(3)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9540.html">AJAX(14)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_RssLink" title="Subscribe to AJAX(14)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9540.html/rss"><IMG title="Subscribe to AJAX(14)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/49650.html">android(4)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_RssLink" title="Subscribe to android(4)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/49650.html/rss"><IMG title="Subscribe to android(4)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9194.html">AXIS(31)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_RssLink" title="Subscribe to AXIS(31)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9194.html/rss"><IMG title="Subscribe to AXIS(31)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/20255.html">C++(26)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_RssLink" title="Subscribe to C++(26)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/20255.html/rss"><IMG title="Subscribe to C++(26)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/22930.html">DELL笔记本重装系统(1)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_RssLink" title="Subscribe to DELL笔记本重装系统(1)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/22930.html/rss"><IMG title="Subscribe to DELL笔记本重装系统(1)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/29206.html">flash(14)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_RssLink" title="Subscribe to flash(14)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/29206.html/rss"><IMG title="Subscribe to flash(14)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/53334.html">hbase(7)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_RssLink" title="Subscribe to hbase(7)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/53334.html/rss"><IMG title="Subscribe to hbase(7)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9223.html">JAVA(128)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_RssLink" title="Subscribe to JAVA(128)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9223.html/rss"><IMG title="Subscribe to JAVA(128)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl11_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9541.html">JavaScript(50)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl11_RssLink" title="Subscribe to JavaScript(50)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9541.html/rss"><IMG title="Subscribe to JavaScript(50)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl12_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9224.html">JSP(42)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl12_RssLink" title="Subscribe to JSP(42)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9224.html/rss"><IMG title="Subscribe to JSP(42)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl13_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9195.html">LINUX(17)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl13_RssLink" title="Subscribe to LINUX(17)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9195.html/rss"><IMG title="Subscribe to LINUX(17)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl14_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/49905.html">mysql(4)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl14_RssLink" title="Subscribe to mysql(4)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/49905.html/rss"><IMG title="Subscribe to mysql(4)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl15_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/33868.html">oracle(16)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl15_RssLink" title="Subscribe to oracle(16)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/33868.html/rss"><IMG title="Subscribe to oracle(16)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl16_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/40298.html">PHP(2)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl16_RssLink" title="Subscribe to PHP(2)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/40298.html/rss"><IMG title="Subscribe to PHP(2)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl17_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/30592.html">rmi(2)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl17_RssLink" title="Subscribe to rmi(2)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/30592.html/rss"><IMG title="Subscribe to rmi(2)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl18_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9356.html">Ruby on rails(1)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl18_RssLink" title="Subscribe to Ruby on rails(1)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9356.html/rss"><IMG title="Subscribe to Ruby on rails(1)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl19_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/52093.html">solr(5)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl19_RssLink" title="Subscribe to solr(5)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/52093.html/rss"><IMG title="Subscribe to solr(5)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl20_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9196.html">SQL SERVER(11)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl20_RssLink" title="Subscribe to SQL SERVER(11)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9196.html/rss"><IMG title="Subscribe to SQL SERVER(11)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl21_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/14223.html">struts(13)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl21_RssLink" title="Subscribe to struts(13)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/14223.html/rss"><IMG title="Subscribe to struts(13)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl22_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/24824.html">tomcat(6)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl22_RssLink" title="Subscribe to tomcat(6)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/24824.html/rss"><IMG title="Subscribe to tomcat(6)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl23_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/27662.html">vista(3)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl23_RssLink" title="Subscribe to vista(3)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/27662.html/rss"><IMG title="Subscribe to vista(3)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl24_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9197.html">收藏(13)</A><A id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl24_RssLink" title="Subscribe to 收藏(13)" class="listitem" href="http://www.blogjava.net/wangxinsh55/category/9197.html/rss"><IMG title="Subscribe to 收藏(13)" src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml(1).gif" style="border-width:0px;"></A></LI>
+			
+				</UL>
+			
+	
+		<H1 class="catListTitle">随笔档案<SPAN style="font-size:11px;font-weight:normal">(425)</SPAN></H1>
+		
+				<UL class="catList">
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl01_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2013/03.html">2013年3月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl02_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2013/02.html">2013年2月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl03_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2013/01.html">2013年1月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl04_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/12.html">2012年12月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl05_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/11.html">2012年11月 (8)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl06_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/10.html">2012年10月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl07_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/09.html">2012年9月 (9)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl08_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/08.html">2012年8月 (5)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl09_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/07.html">2012年7月 (10)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl10_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/06.html">2012年6月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl11_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/05.html">2012年5月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl12_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/04.html">2012年4月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl13_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/03.html">2012年3月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl14_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/02.html">2012年2月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl15_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2012/01.html">2012年1月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl16_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/11.html">2011年11月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl17_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/10.html">2011年10月 (16)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl18_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/09.html">2011年9月 (8)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl19_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/08.html">2011年8月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl20_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/07.html">2011年7月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl21_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/06.html">2011年6月 (5)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl22_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/05.html">2011年5月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl23_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/04.html">2011年4月 (12)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl24_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/03.html">2011年3月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl25_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2011/02.html">2011年2月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl26_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/12.html">2010年12月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl27_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/11.html">2010年11月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl28_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/10.html">2010年10月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl29_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/09.html">2010年9月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl30_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/08.html">2010年8月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl31_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/07.html">2010年7月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl32_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/06.html">2010年6月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl33_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/05.html">2010年5月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl34_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/04.html">2010年4月 (12)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl35_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/02.html">2010年2月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl36_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2010/01.html">2010年1月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl37_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/11.html">2009年11月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl38_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/09.html">2009年9月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl39_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/08.html">2009年8月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl40_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/07.html">2009年7月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl41_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/06.html">2009年6月 (8)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl42_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/05.html">2009年5月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl43_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/03.html">2009年3月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl44_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/02.html">2009年2月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl45_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2009/01.html">2009年1月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl46_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/11.html">2008年11月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl47_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/08.html">2008年8月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl48_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/07.html">2008年7月 (9)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl49_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/05.html">2008年5月 (5)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl50_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/04.html">2008年4月 (4)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl51_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/03.html">2008年3月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl52_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/02.html">2008年2月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl53_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2008/01.html">2008年1月 (5)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl54_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/12.html">2007年12月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl55_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/11.html">2007年11月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl56_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/10.html">2007年10月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl57_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/09.html">2007年9月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl58_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/08.html">2007年8月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl59_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/07.html">2007年7月 (3)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl60_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/06.html">2007年6月 (9)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl61_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/05.html">2007年5月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl62_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/04.html">2007年4月 (2)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl63_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/03.html">2007年3月 (11)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl64_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/02.html">2007年2月 (10)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl65_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2007/01.html">2007年1月 (6)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl66_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/12.html">2006年12月 (30)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl67_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/11.html">2006年11月 (7)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl68_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/10.html">2006年10月 (11)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl69_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/09.html">2006年9月 (18)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl70_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/08.html">2006年8月 (31)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl71_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/07.html">2006年7月 (8)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl72_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/06.html">2006年6月 (5)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl73_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/05.html">2006年5月 (1)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl74_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/04.html">2006年4月 (19)</A></LI>
+			
+				<LI class="catListItem"> <A id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl75_Link" class="listitem" href="http://www.blogjava.net/wangxinsh55/archive/2006/03.html">2006年3月 (10)</A></LI>
+			
+				</UL>
+			
+	
+
+
+<H3>最新随笔</H3>
+<DIV class="RecentComment">
+<UL style="word-break:break-all">
+	
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/03/28/397110.html">1.&nbsp;(转)Hadoop 解除 "Name node is in safe mode"  </A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/03/28/397108.html">2.&nbsp;hadoop集群处理</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/03/28/397107.html">3.&nbsp;成功编译hadoop eclipse插件。此方式适用于win 7</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395592.html">4.&nbsp;【MYSQL数据库】MYSQL学习笔记-mysql分区基本操作</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395593.html">5.&nbsp;Hazelcast作为hibernate缓存和业务缓存</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395572.html">6.&nbsp;在HBase里使用MapReduce例子</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl03_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395570.html">7.&nbsp;Hadoop学习笔记之在Eclipse中远程调试Hadoop</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl04_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395569.html">8.&nbsp;Hadoop作业提交分析（五）</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl05_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/02/22/395568.html">9.&nbsp;HBASE的MAPREDUCE任务运行异常解决办法，无需CYGWIN，纯WINDOWS环境</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/01/18/394419.html">10.&nbsp;ganymed 连接SSH2</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/12/14/392992.html">11.&nbsp;jconsole连接远程进程</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/22/391729.html">12.&nbsp;Spring MVC</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl04_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/22/391728.html">13.&nbsp;pring MVC 3 深入总结 </A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/12/391193.html">14.&nbsp;三、解析QueryParser.jj</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/12/391191.html">15.&nbsp;Lucene学习总结之八：Lucene的查询语法，JavaCC及QueryParser</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/12/391192.html">16.&nbsp;Lucene学习总结之八：Lucene的查询语法，JavaCC及QueryParser(1)</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl06_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/07/390958.html">17.&nbsp;enum与int、String之间的转换</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl07_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/05/390829.html">18.&nbsp;表达式计算: 分析与设计</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl07_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/11/05/390828.html">19.&nbsp;表达式解析引擎的设计 </A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl08_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/10/31/390508.html">20.&nbsp;【支持动态gif格式】基于java实现图像裁剪以及生成缩略图功能</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl09_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/10/16/389664.html">21.&nbsp;hibernate.current_session_context_class属性配置</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl10_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/27/388695.html">22.&nbsp;Maven系列2--pom.xml 配置详解</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl11_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/24/388420.html">23.&nbsp;JacksonDemo及使用方法</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl12_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/17/387898.html">24.&nbsp;10 个交互式图形图表的 jQuery 插件</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/06/387179.html">25.&nbsp;Java JSON（一）Jackson区别于竞争对手的7个杀手锏</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/06/387180.html">26.&nbsp;Java JSON（二）5分钟学会Jackson</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/06/387178.html">27.&nbsp;jackson的使用总结 一</A></LI>
+		
+		
+	
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/05/387082.html">28.&nbsp;SpringMVC 中整合JSON、XML视图二</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/05/387081.html">29.&nbsp;SpringMVC 中整合JSON、XML视图一</A></LI>
+		
+			<LI><A id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2012/09/05/387080.html">30.&nbsp;Spring REST</A></LI>
+		
+	
+</UL>
+</DIV>
+
+<SCRIPT language="JavaScript">
+function SearchGoogle(key,evt,site)
+		{
+			if(evt.keyCode==13 || evt.keyCode==0 || evt.type =='click')
+			{
+				key.focus();
+				var keystr = encodeURIComponent(key.value);
+				url = "http://www.google.com/search?q=";
+				url = url+keystr;
+				url += "&ie=UTF-8&oe=GB2312&hl=zh-CN&domains="+site+"&sitesearch="+site;
+				window.location=url;
+				return false;
+			}
+		}
+</SCRIPT>
+<H3>搜索</H3>
+<UL>
+	<LI>
+		</LI><LI><INPUT style="WIDTH: 130px" type="text" name="q" id="q" onkeydown="return SearchGoogle(document.getElementById(&#39;q&#39;),event,&#39;www.blogjava.net/wangxinsh55&#39;)">&nbsp;<INPUT onclick="SearchGoogle(document.getElementById(&#39;q&#39;),event,&#39;www.blogjava.net/wangxinsh55&#39;)" type="button" value="搜索" name="sa">
+	</LI>
+</UL>
+
+<H3>积分与排名</H3>
+<UL>
+	<LI>
+		积分 -
+		668760
+	</LI><LI>
+		排名 -
+		17
+	</LI>
+</UL>
+
+<H3>最新评论
+	<A id="SingleColumn1__3e14858_RSSHyperlink1" href="http://www.blogjava.net/wangxinsh55/CommentsRSS.aspx"><IMG src="./DBCP的配置参数 - SIMONE - BlogJava_files/xml.gif" style="border-width:0px;"></A></H3>
+<DIV class="RecentComment">
+	
+			<UL>
+		
+			<LI style="word-break:break-all">
+				<A id="SingleColumn1__3e14858_CommentList_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/09/17/348310.html#404196">1.&nbsp;re: ORA-01033: ORACLE 正在初始化或关闭</A>
+			</LI>
+			<LI style="word-break:break-all">
+				为什么我的不能完成介质恢复，好像我的数据库中表存在
+			</LI>
+			<LI style="text-align:right;margin-right:4px">
+				--ca</LI>
+		
+			<LI style="word-break:break-all">
+				<A id="SingleColumn1__3e14858_CommentList_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/09/11/100751.html#403934">2.&nbsp;re: aspjpeg组件安装使用</A>
+			</LI>
+			<LI style="word-break:break-all">
+				说明很详细，操作性强。谢谢博主 
+			</LI>
+			<LI style="text-align:right;margin-right:4px">
+				--shishiqiushi4</LI>
+		
+			<LI style="word-break:break-all">
+				<A id="SingleColumn1__3e14858_CommentList_ctl03_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/08/23/105743.html#403228">3.&nbsp;re: window.close关闭窗口，不弹出系统提示，直接关闭</A>
+			</LI>
+			<LI style="word-break:break-all">
+				评论内容较长,点击标题查看
+			</LI>
+			<LI style="text-align:right;margin-right:4px">
+				--sdfsdf</LI>
+		
+			<LI style="word-break:break-all">
+				<A id="SingleColumn1__3e14858_CommentList_ctl04_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/08/22/190605.html#403187">4.&nbsp;re: java RMI 相关</A>
+			</LI>
+			<LI style="word-break:break-all">
+				@劳资<BR>服务端和客户端分离，怎么通信 ？
+			</LI>
+			<LI style="text-align:right;margin-right:4px">
+				--ekkny</LI>
+		
+			<LI style="word-break:break-all">
+				<A id="SingleColumn1__3e14858_CommentList_ctl05_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2013/06/05/105743.html#400253">5.&nbsp;re: window.close关闭窗口，不弹出系统提示，直接关闭</A>
+			</LI>
+			<LI style="word-break:break-all">
+				adsf
+			</LI>
+			<LI style="text-align:right;margin-right:4px">
+				--asd</LI>
+		
+			</UL>
+		
+</DIV>
+
+<H3>阅读排行榜</H3>
+<DIV class="RecentComment">
+	
+			<UL style="word-break:break-all">
+		
+			<LI>
+				<A id="SingleColumn1__3a5d2af_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2008/11/24/242295.html">1.&nbsp;JQuery-Dialog(弹出窗口，遮蔽窗口)(92969)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__3a5d2af_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2010/01/31/311396.html">2.&nbsp;CKeditor 配置使用(30985)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__3a5d2af_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2006/04/04/39219.html">3.&nbsp;JTree用法及JTree使用经验总结(28418)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__3a5d2af_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2007/03/23/105743.html">4.&nbsp;window.close关闭窗口，不弹出系统提示，直接关闭(25118)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__3a5d2af_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2011/03/22/346787.html">5.&nbsp;tesseract-ocr识别中文扫描图片实例讲解 (18862)</A>
+			</LI>
+		
+			</UL>
+		
+</DIV>
+
+<H3>评论排行榜</H3>
+<DIV class="RecentComment">
+	
+			<UL style="word-break:break-all">
+		
+			<LI>
+				<A id="SingleColumn1__2ab3cd5_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2007/03/23/105743.html">1.&nbsp;window.close关闭窗口，不弹出系统提示，直接关闭(18)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__2ab3cd5_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2008/11/24/242295.html">2.&nbsp;JQuery-Dialog(弹出窗口，遮蔽窗口)(9)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__2ab3cd5_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2010/01/31/311396.html">3.&nbsp;CKeditor 配置使用(8)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__2ab3cd5_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/06/10/281143.html">4.&nbsp;我写的javascript常用静态方法类，分享大家(7)</A>
+			</LI>
+		
+			<LI>
+				<A id="SingleColumn1__2ab3cd5_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2006/04/27/43535.html">5.&nbsp;Windows Media Player 网页播放器 参数含义(7)</A>
+			</LI>
+		
+			</UL>
+		
+</DIV>
+</DIV>
+	
+</DIV>
+<DIV id="centercontent">
+	
+					
+<!--done-->
+<DIV class="post">
+	<DIV class="postTitle">
+		<A id="viewpost1_TitleUrl" class="postTitle2" href="./DBCP的配置参数 - SIMONE - BlogJava_files/DBCP的配置参数 - SIMONE - BlogJava.htm">DBCP的配置参数</A>
+	</DIV>
+	<P>tomcatde DHCP的配置<BR>
+&lt;Resource driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver" <BR>
+logAbandoned="true" maxActive="20" maxIdle="2" maxWait="5000" name="system" <BR>
+removeAbandonedTimeout="60" removeAbandoned="true" <BR>
+password="xx" type="javax.sql.DataSource"<BR>
+url="jdbc:sqlserver://127.0.0.1:1433;DatabaseName=base" <BR>
+username="sa"/&gt;<BR>
+当中的<BR>
+logAbandoned="true"&nbsp; removeAbandoned="true" removeAbandonedTimeout="60"<BR>
+就是用来配置数据库断开后自动连接的。</P>
+<P><BR>
+数据库连接池会在启动时就建立所需的若干连接，并一直保持连接状态，<BR>
+但是当数据库服务停止后，这些连接就被外部因素给中断了<BR>
+网上优化了的配置信息：<BR>
+&lt;bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"&gt;&nbsp; <BR>
+&lt;property name="driverClassName" value="${db.driverClassName}"/&gt;&nbsp; <BR>
+&lt;property name="url" value="${db.url}"/&gt;&nbsp; <BR>
+&lt;property name="username" value="${db.username}"/&gt;&nbsp; <BR>
+&lt;property name="password" value="${db.password}"/&gt;&nbsp; <BR>
+&lt;!--initialSize: 初始化连接--&gt;&nbsp; <BR>
+&lt;property name="initialSize" value="5"/&gt;&nbsp; <BR>
+&lt;!--maxIdle: 最大空闲连接--&gt;&nbsp; <BR>
+&lt;property name="maxIdle" value="10"/&gt;&nbsp; <BR>
+&lt;!--minIdle: 最小空闲连接--&gt;&nbsp; <BR>
+&lt;property name="minIdle" value="5"/&gt;&nbsp; <BR>
+&lt;!--maxActive: 最大连接数量--&gt;&nbsp; <BR>
+&lt;property name="maxActive" value="15"/&gt;&nbsp; <BR>
+&lt;!--removeAbandoned: 是否自动回收超时连接--&gt;&nbsp; <BR>
+&lt;property name="removeAbandoned" value="true"/&gt;&nbsp; <BR>
+&lt;!--removeAbandonedTimeout: 超时时间(以秒数为单位)--&gt;&nbsp; <BR>
+&lt;property name="removeAbandonedTimeout" value="180"/&gt;&nbsp; <BR>
+&lt;!--maxWait: 超时等待时间以毫秒为单位 6000毫秒/1000等于60秒--&gt;&nbsp; <BR>
+&lt;property name="maxWait" value="3000"/&gt;&nbsp; <BR>
+&lt;property name="validationQuery"&gt;&nbsp; <BR>
+&lt;value&gt;SELECT 1&lt;/value&gt;&nbsp; <BR>
+&lt;/property&gt;&nbsp; <BR>
+&lt;property name="testOnBorrow"&gt;&nbsp; <BR>
+&lt;value&gt;true&lt;/value&gt;&nbsp; <BR>
+&lt;/property&gt;&nbsp; <BR>
+&lt;/bean&gt;&nbsp;&nbsp; </P>
+<P>dbcp配置中文版本，自apache 官方文档<BR>
+原文请见http://commons.apache.org/dbcp/configuration.html。</P>
+<P>参数 &nbsp;描述<BR>
+username &nbsp;传递给JDBC驱动的用于建立连接的用户名<BR>
+password &nbsp;传递给JDBC驱动的用于建立连接的密码<BR>
+url &nbsp;传递给JDBC驱动的用于建立连接的URL<BR>
+driverClassName &nbsp;使用的JDBC驱动的完整有效的java 类名<BR>
+connectionProperties &nbsp;当建立新连接时被发送给JDBC驱动的连接参数，<BR>
+格式必须是 [propertyName=property;]*<BR>
+注意 ：参数user/password将被明确传递，所以不需要包括在这里。</P>
+<P>参数 &nbsp;默认值 &nbsp;描述<BR>
+defaultAutoCommit &nbsp;true &nbsp;连接池创建的连接的默认的auto-commit状态<BR>
+defaultReadOnly &nbsp;driver default &nbsp;连接池创建的连接的默认的read-only状态. <BR>
+如果没有设置则setReadOnly方法将不会被调用. (某些驱动不支持只读模式,比如:Informix)<BR>
+defaultTransactionIsolation &nbsp;driver default &nbsp;连接池创建的连接的默认的TransactionIsolation状态. <BR>
+下面列表当中的某一个: (参考javadoc)</P>
+<P>&nbsp;&nbsp;&nbsp; * NONE<BR>
+&nbsp;&nbsp;&nbsp; * READ_COMMITTED<BR>
+&nbsp;&nbsp;&nbsp; * READ_UNCOMMITTED<BR>
+&nbsp;&nbsp;&nbsp; * REPEATABLE_READ<BR>
+&nbsp;&nbsp;&nbsp; * SERIALIZABLE</P>
+<P>defaultCatalog &nbsp;&nbsp;连接池创建的连接的默认的catalog</P>
+<P>参数 &nbsp;默认值 &nbsp;描述<BR>
+initialSize &nbsp;0 &nbsp;初始化连接:连接池启动时创建的初始化连接数量,1.2版本后支持<BR>
+maxActive &nbsp;8 &nbsp;最大活动连接:连接池在同一时间能够分配的最大活动连接的数量, <BR>
+如果设置为非正数则表示不限制<BR>
+maxIdle &nbsp;8 &nbsp;最大空闲连接:连接池中容许保持空闲状态的最大连接数量,超过的空闲连接将被释放,<BR>
+如果设置为负数表示不限制<BR>
+minIdle &nbsp;0 &nbsp;最小空闲连接:连接池中容许保持空闲状态的最小连接数量,低于这个数量将创建新的连接,<BR>
+如果设置为0则不创建<BR>
+maxWait &nbsp;无限 &nbsp;最大等待时间:当没有可用连接时,连接池等待连接被归还的最大时间(以毫秒计数),<BR>
+超过时间则抛出异常,如果设置为-1表示无限等待</P>
+<P>参数 &nbsp;默认值 &nbsp;描述<BR>
+validationQuery &nbsp;&nbsp;SQL查询,用来验证从连接池取出的连接,在将连接返回给调用者之前.如果指定,<BR>
+则查询必须是一个SQL SELECT并且必须返回至少一行记录<BR>
+testOnBorrow &nbsp;true &nbsp;指明是否在从池中取出连接前进行检验,如果检验失败,<BR>
+则从池中去除连接并尝试取出另一个.<BR>
+注意: 设置为true后如果要生效,validationQuery参数必须设置为非空字符串<BR>
+testOnReturn &nbsp;false &nbsp;指明是否在归还到池中前进行检验<BR>
+注意: 设置为true后如果要生效,validationQuery参数必须设置为非空字符串<BR>
+testWhileIdle &nbsp;false &nbsp;指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,<BR>
+则连接将被从池中去除.<BR>
+注意: 设置为true后如果要生效,validationQuery参数必须设置为非空字符串<BR>
+timeBetweenEvictionRunsMillis &nbsp;-1 &nbsp;在空闲连接回收器线程运行期间休眠的时间值,以毫秒为单位.<BR>
+&nbsp;如果设置为非正数,则不运行空闲连接回收器线程<BR>
+numTestsPerEvictionRun &nbsp;3 &nbsp;在每次空闲连接回收器线程(如果有)运行时检查的连接数量<BR>
+minEvictableIdleTimeMillis &nbsp;1000 * 60 * 30 &nbsp;连接在池中保持空闲而不被空闲连接回收器线程<BR>
+(如果有)回收的最小时间值，单位毫秒</P>
+<P>参数 &nbsp;默认值 &nbsp;描述<BR>
+poolPreparedStatements &nbsp;false &nbsp;开启池的prepared statement 池功能<BR>
+maxOpenPreparedStatements &nbsp;不限制 &nbsp;statement池能够同时分配的打开的statements的最大数量, <BR>
+如果设置为0表示不限制</P>
+<P><BR>
+这里可以开启PreparedStatements池. 当开启时, 将为每个连接创建一个statement池,<BR>
+并且被下面方法创建的PreparedStatements将被缓存起来:<BR>
+&nbsp;&nbsp;&nbsp; * public PreparedStatement prepareStatement(String sql)<BR>
+&nbsp;&nbsp;&nbsp; * public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)<BR>
+注意: 确认连接还有剩余资源可以留给其他statement<BR>
+参数 &nbsp;默认值 &nbsp;描述<BR>
+accessToUnderlyingConnectionAllowed &nbsp;false &nbsp;控制PoolGuard是否容许获取底层连接</P>
+<P><BR>
+如果容许则可以使用下面的方式来获取底层连接:<BR>
+&nbsp;&nbsp;&nbsp; Connection conn = ds.getConnection();<BR>
+&nbsp;&nbsp;&nbsp; Connection dconn = ((DelegatingConnection) conn).getInnermostDelegate();<BR>
+&nbsp;&nbsp;&nbsp; ...<BR>
+&nbsp;&nbsp;&nbsp; conn.close();</P>
+<P>默认false不开启, 这是一个有潜在危险的功能, 不适当的编码会造成伤害.<BR>
+(关闭底层连接或者在守护连接已经关闭的情况下继续使用它).请谨慎使用,<BR>
+并且仅当需要直接访问驱动的特定功能时使用.<BR>
+注意: 不要关闭底层连接, 只能关闭前面的那个.<BR>
+参数 &nbsp;默认值 &nbsp;描述<BR>
+removeAbandoned &nbsp;false &nbsp;标记是否删除泄露的连接,如果他们超过了removeAbandonedTimout的限制.<BR>
+如果设置为true, 连接被认为是被泄露并且可以被删除,如果空闲时间超过removeAbandonedTimeout. <BR>
+设置为true可以为写法糟糕的没有关闭连接的程序修复数据库连接.<BR>
+removeAbandonedTimeout &nbsp;300 &nbsp;泄露的连接可以被删除的超时值, 单位秒<BR>
+logAbandoned &nbsp;false &nbsp;标记当Statement或连接被泄露时是否打印程序的stack traces日志。<BR>
+被泄露的Statements和连接的日志添加在每个连接打开或者生成新的Statement,<BR>
+因为需要生成stack trace。</P>
+<P><BR>
+如果开启"removeAbandoned",那么连接在被认为泄露时可能被池回收. 这个机制在(getNumIdle() &lt; 2)<BR>
+&nbsp;and (getNumActive() &gt; getMaxActive() - 3)时被触发.<BR>
+举例当maxActive=20, 活动连接为18,空闲连接为1时可以触发"removeAbandoned".<BR>
+但是活动连接只有在没有被使用的时间超过"removeAbandonedTimeout"时才被删除,默认300秒.<BR>
+在resultset中游历不被计算为被使用.<BR>
+</P>
+
+	<DIV class="postDesc">posted on 2011-04-14 10:58 <A href="http://www.blogjava.net/wangxinsh55/">SIMONE</A> 阅读(5753) <A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html#Post">评论(0)</A> &nbsp;<A href="http://www.blogjava.net/wangxinsh55/admin/EditPosts.aspx?postid=348277">编辑</A> &nbsp;<A href="http://www.blogjava.net/wangxinsh55/AddToFavorite.aspx?id=348277">收藏</A>  所属分类: <A href="http://www.blogjava.net/wangxinsh55/category/9224.html">JSP</A> </DIV>
+</DIV>
+<IMG src="./DBCP的配置参数 - SIMONE - BlogJava_files/348277.html" width="1" height="1">
+
+<!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+rdf:about="http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html"
+dc:identifier="http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html"
+dc:title="DBCP的配置参数"
+trackback:ping="http://www.blogjava.net/wangxinsh55/services/trackbacks/348277.aspx" />
+</rdf:RDF>
+-->
+
+<SCRIPT type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('AjaxHolder$scriptmanager1', document.getElementById('Form1'));
+Sys.WebForms.PageRequestManager.getInstance()._updateControls(['tAjaxHolder$UpdatePanel1'], [], [], 90);
+//]]>
+</SCRIPT>
+
+<DIV id="AjaxHolder_UpdatePanel1">
+	    
+    
+<STYLE>
+td { font-size: 12px }
+.commentTextBox 
+{ 
+    font-family : Verdana; 
+    font-size: 13px;
+ }
+</STYLE>
+<!--Beging Temp Save-->
+<STYLE>.userData { BEHAVIOR: url(#default#userdata) }
+	</STYLE>
+<DIV class="userData" id="CommentsPersistDiv"></DIV>
+
+<SCRIPT type="text/javascript">
+function pageLoad()
+{
+    Sys.WebForms.PageRequestManager.getInstance().add_initializeRequest(handleInitializeRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(handleEndRequest);
+}
+
+function handleInitializeRequest(sender, args)
+{
+    var prm = Sys.WebForms.PageRequestManager.getInstance();
+    var eid = args.get_postBackElement().id;
+    if (eid.indexOf("DeleteLink")>0) 
+    {
+       args.get_postBackElement().innerHTML = "<font color='red'>正在删除...</font>";         
+    }    
+    else if (eid.indexOf("btnSubmit")>0) 
+    {
+       document.getElementById("AjaxHolder_PostComment_ltSubmitMsg").innerHTML="正在提交...";
+       document.getElementById("AjaxHolder_PostComment_btnSubmit").disabled = true;       
+    }   
+    else if(eid.indexOf("refreshList")>0)
+    {
+        document.getElementById("AjaxHolder_PostComment_refreshList").innerHTML="<font color='red'>正在刷新...</font>";
+    }
+   
+}	
+
+function TempSave(ElementID)
+{
+	try
+	{
+	CommentsPersistDiv.setAttribute("CommentContent",document.getElementById(ElementID).value);
+	CommentsPersistDiv.save("CommentXMLStore");
+	}
+	catch(ex)
+	{
+	}
+	
+}
+function Restore(ElementID)
+{
+	CommentsPersistDiv.load("CommentXMLStore");
+	document.getElementById(ElementID).value=CommentsPersistDiv.getAttribute("CommentContent");
+}	
+			
+			
+</SCRIPT>
+<!--Ene TempSave-->
+<DIV id="divRefreshComments" style="text-align:right;margin-right:10px;margin-bottom:5px;font-size:12px"><A href="http://www.blogjava.net/RequireRegister.aspx">新用户注册</A>&nbsp;&nbsp;<A id="AjaxHolder_PostComment_refreshList" href="javascript:__doPostBack('AjaxHolder$PostComment$refreshList','')">刷新评论列表</A>&nbsp;&nbsp;</DIV>
+<DIV class="commentform">
+<SPAN id="AjaxHolder_PostComment_ltSubmitMsg" style="color:Red;"></SPAN>
+<BR>
+<A name="Feedback"></A>
+	<DIV id="AjaxHolder_PostComment_divCommnentArea">
+		</DIV><TABLE cellspacing="1" cellpadding="1" border="0">	
+		<TBODY><TR>
+		<TD id="AjaxHolder_PostComment_tdOnCommentForm" colspan="3" style="line-height:1.5">
+		<A href="http://q.cnblogs.com/" target="_blank">程序员问答平台，解决您的技术难题</A><BR>
+		<!--<a href="http://zt.cnblogs.com/training/2012/" target="_blank">国家职业资格证书-Java高级程序设计员免费培训（上海）</a>-->
+		<!--<div>
+		技术专题：<br/>
+		<a href="http://kb.cnblogs.com/zt/jquery/" title="jQuery" target="_blank">jQuery</a>&nbsp; &nbsp;<a href="http://kb.cnblogs.com/zt/android/" title="Android" target="_blank">Android</a>&nbsp; &nbsp;<a href="http://kb.cnblogs.com/zt/ipad/" title="iPad" target="_blank">iPad</a>
+		</div>-->
+		</TD>
+	
+		</TR>
+		<TR>
+			<TD colspan="3">
+		</TR>
+		<TR>
+			<TD width="75">
+			<TD>
+			<TD>
+		</TR>
+		<TR>
+			<TD>
+			<TD colspan="2">
+			<A href="http://www.cnblogs.com/" target="_blank">博客园</A>&nbsp;  <A href="http://q.cnblogs.com/" target="_blank">博问</A>&nbsp; <A href="http://news.cnblogs.com/" target="_blank">IT新闻</A>&nbsp; <!--<a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a>&nbsp;  <a href="http://a4.yeshj.com/rd/36007/" target="_blank">学英语</a>&nbsp;  --><A href="http://job.cnblogs.com/cate-java_programmer/" target="_blank">Java程序员招聘</A>
+			</TD>
+		</TR>
+		<TR>
+			<TD width="55">标题</TD>
+			<TD><INPUT name="AjaxHolder$PostComment$tbTitle" type="text" value="re: DBCP的配置参数" id="AjaxHolder_PostComment_tbTitle" class="commenttb" style="width:320"></TD>
+			<TD><SPAN id="AjaxHolder_PostComment_RequiredFieldValidator1" style="color:Red;visibility:hidden;">请输入标题</SPAN></TD>
+		</TR>
+		<TR>
+			<TD>姓名</TD>
+			<TD><INPUT name="AjaxHolder$PostComment$tbName" type="text" id="AjaxHolder_PostComment_tbName" class="commenttb" style="width:320"></TD>
+			<TD><SPAN id="AjaxHolder_PostComment_RequiredFieldValidator2" style="color:Red;visibility:hidden;">请输入你的姓名</SPAN></TD>
+		</TR>
+		<TR>
+			<TD>主页</TD>
+			<TD><INPUT name="AjaxHolder$PostComment$tbUrl" type="text" id="AjaxHolder_PostComment_tbUrl" class="commenttb" style="width:320"></TD>
+			<TD><FONT face="宋体"></FONT></TD>
+		</TR>
+		<TR>
+			<TD align="left" colspan="3">
+				<TABLE id="AjaxHolder_PostComment_tbCaptchaImage" class="CommentForm" cellspacing="0" cellpadding="0" border="0">
+		<TBODY><TR>
+			<TD colspan="3">
+							<SPAN id="AjaxHolder_PostComment_Requiredfieldvalidator4" style="color:Red;display:none;">请输入验证码</SPAN>
+							<SPAN id="AjaxHolder_PostComment_lblImage" style="color:Red;font-weight:bold;"></SPAN>
+						</TD>
+		</TR>
+		<TR>
+			<TD width="78">验证码</TD>
+			<TD><INPUT name="AjaxHolder$PostComment$CodeNumberTextBox" type="text" id="AjaxHolder_PostComment_CodeNumberTextBox">*&nbsp;&nbsp;<IMG src="./DBCP的配置参数 - SIMONE - BlogJava_files/JpegImage.aspx"></TD>
+			<TD align="left">
+		</TR>
+	</TBODY></TABLE>
+	
+			</TD>
+		</TR>
+		<TR>
+			<TD colspan="3">内容(请不要发表任何与政治相关的内容)
+				<SPAN id="AjaxHolder_PostComment_RequiredFieldValidator3" style="color:Red;visibility:hidden;">请输入评论内容</SPAN><BR>
+				<TEXTAREA name="AjaxHolder$PostComment$tbComment" rows="10" cols="50" id="AjaxHolder_PostComment_tbComment" class="commentTextBox" onkeydown="ctlent(event,&#39;AjaxHolder_PostComment_tbComment&#39;)" style="Width:480;Height:220"></TEXTAREA></TD>
+		</TR>
+		<TR>
+			<TD colspan="3">
+		<SPAN id="AjaxHolder_PostComment_Message" style="color:Red;"></SPAN>
+		</TD>
+		</TR><TR>
+			<TD colspan="3"><INPUT id="AjaxHolder_PostComment_chkRemember" type="checkbox" name="AjaxHolder$PostComment$chkRemember" checked="checked" tabindex="-1"><LABEL for="AjaxHolder_PostComment_chkRemember">Remember Me?</LABEL></TD>
+		</TR>
+		<TR>
+			<TD height="23"><INPUT type="submit" name="AjaxHolder$PostComment$btnSubmit" value="提交" onclick="TempSave(&#39;AjaxHolder_PostComment_tbComment&#39;);WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;AjaxHolder$PostComment$btnSubmit&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="AjaxHolder_PostComment_btnSubmit" class="commentButton">
+				</TD>
+			<TD colspan="2" height="23">&nbsp;
+				<A id="AjaxHolder_PostComment_lnkLogin" href="http://www.blogjava.net/login.aspx?ReturnURL=http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html&SourceURL=/wangxinsh55/archive/2011/04/14/348277.html">登录</A>&nbsp;&nbsp;<!--<a id="AjaxHolder_PostComment_linkLoginComment" OnClick="if(document.getElementById('AjaxHolder_PostComment_tbComment').value != '') return confirm('未提交的评论内容将会丢失, 你真的要进入高级评论吗?');" href="http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html?login=1#Post">使用高级评论</a>&nbsp;&nbsp;<a href="http://www.blogjava.net/RequireRegister.aspx">新用户注册</a>&nbsp;&nbsp;<A href="#Top">返回页首</A>&nbsp;&nbsp;<a id="AjaxHolder_PostComment_lbRestore" OnClick="Restore('AjaxHolder_PostComment_tbComment'); return false;" href="/wangxinsh55/archive/2011/04/14/348277.html#Post">恢复上次提交</a>&nbsp;&nbsp;-->&nbsp;&nbsp;&nbsp;&nbsp;
+				</TD>
+		</TR>
+		<TR>
+			<TD colspan="3"><LABEL class="CtrlEnter">[使用Ctrl+Enter键可以直接提交]</LABEL></TD>
+		</TR>
+		
+		
+		<TR>
+			<TD colspan="3"><!----></TD>
+		</TR>
+		<!--
+		<TR>
+			<TD colSpan="3" height="5"></TD>
+		</TR>	
+		-->	
+		<TR>
+		<TD colspan="3">
+		
+<SCRIPT type="text/javascript">
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') + 
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
+</SCRIPT>
+
+<SCRIPT type="text/javascript">
+googletag.cmd.push(function() {
+googletag.defineSlot('/1090369/blogjava_blogpost_bottom', [300, 250], 'div-gpt-ad-1364133350381-0').addService(googletag.pubads());
+googletag.pubads().enableSingleRequest();
+googletag.enableServices();
+});
+</SCRIPT>
+<!-- blogjava_blogpost_bottom -->
+<DIV id="div-gpt-ad-1364133350381-0" style="width:300px; height:250px;">
+<SCRIPT type="text/javascript">
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1364133350381-0'); });
+</SCRIPT>
+<IFRAME id="google_ads_iframe_/1090369/blogjava_blogpost_bottom_0" name="google_ads_iframe_/1090369/blogjava_blogpost_bottom_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; vertical-align: bottom; " src="javascript:"<html><body style='background:transparent'></body></html>""></IFRAME><IFRAME id="google_ads_iframe_/1090369/blogjava_blogpost_bottom_0__hidden__" name="google_ads_iframe_/1090369/blogjava_blogpost_bottom_0__hidden__" width="0" height="0" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; vertical-align: bottom; visibility: hidden; display: none; " src="javascript:"<html><body style='background:transparent'></body></html>""></IFRAME></DIV>
+<BR>
+
+		</TD>
+		</TR>
+		<TR>			
+		<TD colspan="3">
+		
+		</TD>
+		</TR>
+		<TR>
+		<TD colspan="3">
+		</TR>
+		<TR>
+			<TD colspan="3" height="1">网站导航:<DIV id="blogsite">
+			<A href="http://www.cnblogs.com/" title="程序员的网上家园">博客园</A>&nbsp;&nbsp;
+			<A href="http://news.cnblogs.com/">IT新闻</A>&nbsp;&nbsp;
+			<A href="http://kb.cnblogs.com/">知识库</A>&nbsp;&nbsp;
+			<A href="http://www.cppblog.com/">C++博客</A>&nbsp;&nbsp;
+			<A href="http://job.cnblogs.com/">程序员招聘</A>&nbsp;&nbsp;
+			<A href="http://www.blogjava.net/wangxinsh55/archive/2011/04/14/348277.html?opt=admin">管理</A>
+			</DIV>
+		</TD>
+		</TR>
+		<TR>
+			<TD colspan="3" height="5">
+<DIV id="divRelativePosts">
+相关文章:
+	
+			<UL style="margin-top:0px;padding-left:0px;">
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl01_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2011/10/17/361409.html">Spring的注入方法小结</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl02_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2011/10/14/361283.html">根据静态类生成自定义JSTL标签TDL</A>
+			</LI>
+		
+			<LI style="list-style:none;display:none">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl03_Hyperlink1" href="./DBCP的配置参数 - SIMONE - BlogJava_files/DBCP的配置参数 - SIMONE - BlogJava.htm">DBCP的配置参数</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl04_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2010/08/25/329886.html">使用hibernate SQLQuery实现动态表</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl05_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/08/13/290961.html">J2SE API读取Properties文件的六种方法</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl06_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/07/28/288690.html">通过正则表达式将URL串中的参数名-值进行分解（符合特殊字符的处理如&amp;?）</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl07_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/05/15/270872.html">struts2+spring发送mail</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl08_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/01/07/250232.html">怎样用Java来获取真实的IP地址</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl09_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2009/01/07/250227.html">跨域(cross-domain)访问 cookie （读取和设置）</A>
+			</LI>
+		
+			<LI style="list-style:none;">
+				<A id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl10_Hyperlink1" href="http://www.blogjava.net/wangxinsh55/archive/2008/08/26/224559.html">FreeMarker概述</A>
+			</LI>
+		
+			</UL>
+		
+</DIV>
+</TD>
+		</TR>	
+		<TR>
+			<TD colspan="3">&nbsp;</TD>
+		</TR>
+		<TR>
+			<TD colspan="3" height="5">
+		</TR>
+		<TR>
+			<TD colspan="3">
+				</TD>
+		</TR>		
+	</TBODY></TABLE>	
+</DIV>
+<DIV id="AjaxHolder_PostComment_ValidationSummary1" style="color:Red;display:none;">
+
+	</DIV>
+
+</DIV>
+
+				
+</DIV>
+
+<!--done-->
+<DIV class="footer">
+	
+	Copyright ©2013 SIMONE Powered By<A href="http://www.blogjava.net/">博客园</A> 模板提供：<A href="http://blog.hjenglish.com/">沪江博客</A>
+</DIV><SCRIPT type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F0f40c2e633ac18bd05df208bba192663' type='text/javascript'%3E%3C/script%3E"));
+</SCRIPT><SCRIPT src="./DBCP的配置参数 - SIMONE - BlogJava_files/h.js" type="text/javascript"></SCRIPT><A href="http://tongji.baidu.com/hm-web/welcome/ico?s=0f40c2e633ac18bd05df208bba192663" target="_blank"><IMG border="0" src="./DBCP的配置参数 - SIMONE - BlogJava_files/21.gif" width="20" height="20"></A>
+    
+<SCRIPT type="text/javascript">
+//<![CDATA[
+var Page_ValidationSummaries =  new Array(document.getElementById("AjaxHolder_PostComment_ValidationSummary1"));
+var Page_Validators =  new Array(document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator1"), document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator2"), document.getElementById("AjaxHolder_PostComment_Requiredfieldvalidator4"), document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator3"));
+//]]>
+</SCRIPT>
+
+<SCRIPT type="text/javascript">
+//<![CDATA[
+var AjaxHolder_PostComment_RequiredFieldValidator1 = document.all ? document.all["AjaxHolder_PostComment_RequiredFieldValidator1"] : document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator1");
+AjaxHolder_PostComment_RequiredFieldValidator1.controltovalidate = "AjaxHolder_PostComment_tbTitle";
+AjaxHolder_PostComment_RequiredFieldValidator1.errormessage = "请输入标题";
+AjaxHolder_PostComment_RequiredFieldValidator1.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+AjaxHolder_PostComment_RequiredFieldValidator1.initialvalue = "";
+var AjaxHolder_PostComment_RequiredFieldValidator2 = document.all ? document.all["AjaxHolder_PostComment_RequiredFieldValidator2"] : document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator2");
+AjaxHolder_PostComment_RequiredFieldValidator2.controltovalidate = "AjaxHolder_PostComment_tbName";
+AjaxHolder_PostComment_RequiredFieldValidator2.errormessage = "请输入你的姓名";
+AjaxHolder_PostComment_RequiredFieldValidator2.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+AjaxHolder_PostComment_RequiredFieldValidator2.initialvalue = "";
+var AjaxHolder_PostComment_Requiredfieldvalidator4 = document.all ? document.all["AjaxHolder_PostComment_Requiredfieldvalidator4"] : document.getElementById("AjaxHolder_PostComment_Requiredfieldvalidator4");
+AjaxHolder_PostComment_Requiredfieldvalidator4.controltovalidate = "AjaxHolder_PostComment_CodeNumberTextBox";
+AjaxHolder_PostComment_Requiredfieldvalidator4.errormessage = "请输入验证码";
+AjaxHolder_PostComment_Requiredfieldvalidator4.display = "Dynamic";
+AjaxHolder_PostComment_Requiredfieldvalidator4.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+AjaxHolder_PostComment_Requiredfieldvalidator4.initialvalue = "";
+var AjaxHolder_PostComment_RequiredFieldValidator3 = document.all ? document.all["AjaxHolder_PostComment_RequiredFieldValidator3"] : document.getElementById("AjaxHolder_PostComment_RequiredFieldValidator3");
+AjaxHolder_PostComment_RequiredFieldValidator3.controltovalidate = "AjaxHolder_PostComment_tbComment";
+AjaxHolder_PostComment_RequiredFieldValidator3.errormessage = "请输入评论内容";
+AjaxHolder_PostComment_RequiredFieldValidator3.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+AjaxHolder_PostComment_RequiredFieldValidator3.initialvalue = "";
+var AjaxHolder_PostComment_ValidationSummary1 = document.all ? document.all["AjaxHolder_PostComment_ValidationSummary1"] : document.getElementById("AjaxHolder_PostComment_ValidationSummary1");
+AjaxHolder_PostComment_ValidationSummary1.showmessagebox = "True";
+AjaxHolder_PostComment_ValidationSummary1.showsummary = "False";
+//]]>
+</SCRIPT>
+
+
+<SCRIPT type="text/javascript">
+//<![CDATA[
+
+var Page_ValidationActive = false;
+if (typeof(ValidatorOnLoad) == "function") {
+    ValidatorOnLoad();
+}
+
+function ValidatorOnSubmit() {
+    if (Page_ValidationActive) {
+        return ValidatorCommonOnSubmit();
+    }
+    else {
+        return true;
+    }
+}
+        
+document.getElementById('AjaxHolder_PostComment_ValidationSummary1').dispose = function() {
+    Array.remove(Page_ValidationSummaries, document.getElementById('AjaxHolder_PostComment_ValidationSummary1'));
+}
+Sys.Application.initialize();
+
+document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator1').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator1'));
+}
+
+document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator2').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator2'));
+}
+
+document.getElementById('AjaxHolder_PostComment_Requiredfieldvalidator4').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('AjaxHolder_PostComment_Requiredfieldvalidator4'));
+}
+
+document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator3').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('AjaxHolder_PostComment_RequiredFieldValidator3'));
+}
+//]]>
+</SCRIPT>
+</FORM>
+    <SCRIPT type="text/javascript" src="./DBCP的配置参数 - SIMONE - BlogJava_files/ShowHidden.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-476124-3']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</SCRIPT>
+
+
+</BODY></HTML>

@@ -1,0 +1,6 @@
+1、jar版本注意下,会导致无放动态web。Project Facets调整下
+2、index.jsp提示连接不到servlet：
+	①、右击web工程-》属性或Build Path-》Java Build Path->Libraries-> Add Libray...->Server Runtime -》Tomcat Server
+	②、切换到Java Build Path界面中的Orader and Export，选择Tomcat。
+3、没有web.xml怎么办。Project Facets下的dynamic web项目下面有一个选项。
+ 
