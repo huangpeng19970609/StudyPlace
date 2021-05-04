@@ -1,1 +1,0 @@
-对应jsp的头部要加  isErrorPage="true"
