@@ -1,8 +1,13 @@
 ## Flex layout
-#### 1 <span style="color: red">justify-content</span> 控制主轴
+#### 1 <span style="color: red">justify-content</span>
+
+ 控制主轴
+
    >解释: 将flex元素和主轴以某方向对齐；
 
    > 主轴的判断依赖 <span style="color: red"> flex-direction </span>属性。
+
+  
 
 值|解释
 :-|:-|
@@ -13,9 +18,9 @@ space-between|对齐方向: 两端对齐,且间隔相等.(即首与末元素有�
 space-around | 对齐方向: 环绕对齐,间隔相等.(即首与末元素有间隔)
 ---
 
+#### 2 <span style="color: red">align-items</span> 
 
-
-#### 2 <span style="color: red">align-items</span> 控制 交叉轴（元素角度。items）
+控制 交叉轴（元素角度。items）
 
   > align-items属性定义 *项目* 在交叉轴上如何对齐。
 
@@ -34,7 +39,9 @@ stretch | 交叉轴的默认对齐方式: 若无对应宽或高，则每个元�
 
 
 
-#### 3  <span style="color: red">flex-direction</span> 控制轴方向
+#### 3  <span style="color: red">flex-direction</span> 
+
+控制轴方向
 
 >决定主轴的的方向
 
@@ -48,7 +55,9 @@ column-reverse|以列为主轴，但自下而上
 
 
 
-#### 4 <span style="color: red">flex-wrap</span> 控制主轴换行规则
+#### 4 <span style="color: red">flex-wrap</span>
+
+ 控制主轴换行规则
 
 > 1 若多个元素都在同一轴上，且元素本身宽度大于父元素宽度，按理应该自动换行。但是flex-wrap的默认属性为nowrap，故会对这些元素进行缩放的操作，让其可以放在同一行上。
 
@@ -61,7 +70,9 @@ wrap-reverse | 翻转换行. 顾名思义
 
 
 
-#### 5<span style="color: red"> align-content</span>控制交叉轴的对齐方向（flex容器角度， 故为content）
+#### 5<span style="color: red"> align-content</span>
+
+控制交叉轴的对齐方向（flex容器角度， 故为content）
 
 > align-content属性定义了 *多根轴线*  的对齐方式
 
@@ -130,7 +141,7 @@ stretch（默认值）| 轴线占满整个交叉轴。
 
 
 
-#### 7 <span style="color: red">align-items</span> 与 <span style="color: red">align-content</span>的区别
+#### 7 <span style="color: red">align-items</span> 与 <span style="color: red">align-content</span>
 
 ##### 1 若存在多行,且flex容器没有自己的高度
 1. align-items设置align-item为center情况下
