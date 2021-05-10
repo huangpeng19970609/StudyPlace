@@ -1,12 +1,72 @@
 ### 一、前言：
 
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
-
 + 浏览器必须支持WebGL
++ 当前最新git下载地址： https://github.com/CesiumGS/cesium
 
-### 二、入门教程
+#### 1 Cesium目录框架结构
 
-#### 0、初次使用
+- Source/: Cesium应用程序代码及数据
+- ThirdParty/：外部依赖库，不同于Cesium的第三方库
+- LICENSE.md：Cesium的License介绍
+- index.html：Web首页，需要按照Cesium要求定义页面，同时添加Cesium依赖库
+- server.js：基于node.js的web服务应用
+
+#### 2  一些重要知识汇总
+
+1. scene 是 Cesium虚拟场景中所有3D图形对象和状态的容器
+
+   ```js
+   故我们经常会在 实例化viewer以后，通过scene的成员进行一系列的操作。
+   例子：
+   var layers = viewer.scene.imageryLayers;
+   var blackMarble = layers.addImageryProvider(
+     new Cesium.IonImageryProvider({ assetId: 3812 })
+   );
+   ```
+
+2. 查询 成员【imageryLayers】有哪些方法
+
+   先 search "scene" 并在 members中搜索到 【imageryLayers 】其有【[ImageryLayerCollection](http://cesium.xin/cesium/cn/Documentation1.62/ImageryLayerCollection.html)】此链接。便是对此实体类的解释。
+
+3. Cesium.knock能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
+
+   
+
+   
+
+#### 3 快速查询的自定义表格
+
+获取将在地球上渲染的图像图层的集合  
+
+```js
+var layers = viewer.scene.imageryLayers;
+```
+
+显示帧速 => 即网络频率与刷新的fps（参考王者荣耀的右上角的网络情况）
+
+```js
+viewer.scene.debugShowFramesPerSecond = true; 
+```
+
+### 二、创建Cesium Viewer
+
++ 任何Cesium应用程序的基础都是`Viewer`
+
+> Hello World （省略html）
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer");
+```
+
+提供如下的功能
+
+1. 左键拖拽 - 让相机在数字地球平面平移
+2. 右键拖拽 - 放缩相机
+3. 滚轮滑动 - 放缩相机
+4. 中键拖拽 - 在当前地球的屏幕中间点，旋转相机
+
+0、初次使用
 
 ```js
 <!DOCTYPE html>
@@ -44,7 +104,7 @@
 
 
 
-#### 1、默认的Viewer自带了一些有用的组件：
+#### 1、默认的Viewer自带的9个控件：
 
 ![](.\images\cesium-1.png)
 
@@ -58,17 +118,40 @@
 8. Timeline : 展示当前时间和允许用户在进度条上拖动到任何一个指定的时间。
 9. FullscreenButton : 视察全屏按钮。
 
-#### 2、Viewer一些基本的参数
+#### 2、Viewer小控件
+
+中文API文档为 
+
+http://cesium.xin/cesium/cn/Documentation1.62/Viewer.html?classFilter=viewer
+
+内部viewer有涉及viewer所有参数的配置。
 
 ```js
-var viewer = new Cesium.Viewer("cesiumContainer", {
-    animation: true, //是否显示动画控件(左下方那个)
-    baseLayerPicker: true, //是否显示图层选择控件
-    geocoder: true, //是否显示地名查找控件
-    timeline: true, //是否显示时间线控件
-    sceneModePicker: true, //是否显示投影方式控件
-    navigationHelpButton: false, //是否显示帮助信息控件
-    infoBox: true, //是否显示点击要素之后显示的信息
+通过代码来配置视窗组件，在我们初始化视窗的时候，通过配置参数添加/移除相关组件
+   
+var viewer = new Cesium.Viewer('cesiumContainer',{
+    geocoder:false,				 //是否显示地名查找控件
+    homeButton:false,
+    sceneModePicker:false,		 //是否显示投影方式控件
+    baseLayerPicker:false, 		 //是否显示图层选择控件
+    navigationHelpButton:false,
+    animation:false, 			 //是否显示动画控件(左下方那个)
+    creditContainer:"credit",	//是否显示帮助信息控件
+    timeline:false,  			//是否显示时间线控件
+    fullscreenButton:false,
+    vrButton:false,
+    infoBox: true, 				//是否显示点击要素之后显示的信息
+    // skyBox : new Cesium.SkyBox({
+    //     sources : {
+    //     positiveX : 'stars/TychoSkymapII.t3_08192x04096_80_px.jpg',
+    //     negativeX : 'stars/TychoSkymapII.t3_08192x04096_80_mx.jpg',
+    //     positiveY : 'stars/TychoSkymapII.t3_08192x04096_80_py.jpg',
+    //     negativeY : 'stars/TychoSkymapII.t3_08192x04096_80_my.jpg',
+    //     positiveZ : 'stars/TychoSkymapII.t3_08192x04096_80_pz.jpg',
+    //     negativeZ : 'stars/TychoSkymapII.t3_08192x04096_80_mz.jpg'
+        //     }
+        // })
+    });
 });
 ```
 
@@ -80,3 +163,153 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 
 设置可见之后也可以更改其中的图层为自定义图层。 随便你。
 
+> 部分的显示也可以通过如下的css代码实现隐藏。但注意【全屏按钮】设置display为none不会成功，是因为行内样式的优先级问题。
+
+```css
+      /* 不占据空间，无法点击 */
+      .cesium-viewer-toolbar,             /* 右上角按钮组 */
+      .cesium-viewer-animationContainer,  /* 左下角动画控件 */
+      .cesium-viewer-timelineContainer,   /* 时间线 */
+      .cesium-viewer-bottom               /* logo信息 */
+      {
+        display: none;
+      }
+      .cesium-viewer-fullscreenContainer  /* 全屏按钮 */
+      { position: absolute; top: -999em;  }
+
+```
+
+#### 3 图层 
+
+Cesium应用程序另一个关键元素是`Imagery(图层)`
+
+瓦片图集合根据不同的投影方式映射到虚拟的三维数字地球表面。
+
+依赖于相机指向地表的方向和距离，Cesium会去请求和渲染不同层级的图层详细信息
+
+多种图层能够被添加、移除、排序和适应到Cesium中
+
+> helloWorld 一个基础的添加图层的示范
+>
+> https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  // 当前基础影像图层的视图模型
+  baseLayerPicker: false,  
+  // 要使用的图像提供者， 前置条件： baseLayerPicker的配置为false
+  imageryProvider: Cesium.createWorldImagery({
+    style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
+  }),
+});
+
+/* 
+  提醒： 此时该 viewer已经是一个 Cesium viewer实例了
+  addImageryProvider => 使用给定的ImageryProvider创建一个新层，并将其添加到集合中
+  						其 return 的是一个 新创建的图层
+*/
+
+var layers = viewer.scene.imageryLayers; // 获取将在地球上渲染的图像图层的集合。
+
+
+// blackMarble便是我们生成的图层
+var blackMarble = layers.addImageryProvider(
+   // 使用Cesium ion REST API提供平铺的图像
+   // assetId 为离子图像资产ID；
+  new Cesium.IonImageryProvider({ assetId: 3812 })
+);
+
+// 我们可以给图层定义一些属性
+blackMarble.alpha = 0.5; // 该层的alpha混合值
+
+blackMarble.brightness = 2.0; // 该层的亮度
+
+layers.addImageryProvider(
+  new Cesium.SingleTileImageryProvider({
+    url: "../images/Cesium_Logo_overlay.png",
+    rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
+  })
+); 
+```
+
+####  4 图层 knockout
+
+
+
+> 自适应图层适应颜色
+>
+> https://sandcastle.cesium.com/index.html?src=Imagery%20Adjustment.html
+>
+> 此外也可以参考这篇csdn
+>
+> https://blog.csdn.net/liu844133828/article/details/82690217
+
+```js
+// 创建 Cesium球
+var viewer = new Cesium.Viewer("cesiumContainer");
+// 获取将在地球上渲染的图像图层的集合。
+var imageryLayers = viewer.imageryLayers; 
+
+// The viewModel tracks the state of our mini application.
+var viewModel = {
+  brightness: 0,
+  contrast: 0,
+  hue: 0,
+  saturation: 0,
+  gamma: 0,
+};
+// Convert the viewModel members into knockout observables.
+// Cesium.knock能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
+Cesium.knockout.track(viewModel); // 即 监测viewModel中的属性
+
+// Bind the viewModel to the DOM elements of the UI that call for it.
+// 激活属性,将viewModel对象与html控件绑定， 可以理解为双向绑定。
+var toolbar = document.getElementById("toolbar");
+Cesium.knockout.applyBindings(viewModel, toolbar);
+
+// Make the active imagery layer a subscriber of the viewModel.
+// //4.监听控件值的变化, 
+function subscribeLayerParameter(name) {
+  Cesium.knockout
+    .getObservable(viewModel, name)
+    .subscribe(function (newValue) {
+      //value值改变后会赋值给imagelayer的相应属性
+      if (imageryLayers.length > 0) {
+        var layer = imageryLayers.get(0);
+        layer[name] = newValue;
+      }
+    });
+}
+// 注册这些属性
+subscribeLayerParameter("brightness");
+subscribeLayerParameter("contrast");
+subscribeLayerParameter("hue");
+subscribeLayerParameter("saturation");
+subscribeLayerParameter("gamma");
+
+// Make the viewModel react to base layer changes.
+function updateViewModel() {
+  if (imageryLayers.length > 0) {
+    // //获取当前地球影像
+    var layer = imageryLayers.get(0);
+    viewModel.brightness = layer.brightness;
+    viewModel.contrast = layer.contrast;
+    viewModel.hue = layer.hue;
+    viewModel.saturation = layer.saturation;
+    viewModel.gamma = layer.gamma;
+  }
+}
+// 将图层添加到集合中时引发的事件。事件处理程序传递给已添加，并添加了索引。
+imageryLayers.layerAdded.addEventListener(updateViewModel);
+// 当图层更改集合中的位置时引发的事件。事件处理程序传递给被移动，移动后的新索引以及移动前的旧索引。
+imageryLayers.layerRemoved.addEventListener(updateViewModel);
+// 从集合中移除图层时引发的事件。事件处理程序传递给被删除，并从中删除索引。
+imageryLayers.layerMoved.addEventListener(updateViewModel);
+
+updateViewModel();
+
+```
+
+
+
+#### 5 s
