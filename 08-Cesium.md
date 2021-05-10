@@ -14,7 +14,7 @@
 
 #### 2  一些重要知识汇总
 
-1. scene 是 Cesium虚拟场景中所有3D图形对象和状态的容器
+1. `scene`是 Cesium虚拟场景中所有3D图形对象和状态的容器
 
    ```js
    故我们经常会在 实例化viewer以后，通过scene的成员进行一系列的操作。
@@ -25,15 +25,64 @@
    );
    ```
 
-2. 查询 成员【imageryLayers】有哪些方法
+2. 如何`查询` 成员【imageryLayers】有哪些方法
 
    先 search "scene" 并在 members中搜索到 【imageryLayers 】其有【[ImageryLayerCollection](http://cesium.xin/cesium/cn/Documentation1.62/ImageryLayerCollection.html)】此链接。便是对此实体类的解释。
 
-3. Cesium.knock能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
+3. `Cesium.knock`能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
 
-   
+4. `经纬度与世界坐标`
 
+   > **\*经纬度转换为世界坐标\***
+
+   ```js
+   1.
+    Cesium.Cartesian3.fromDegrees(longitude, latitude, height, ellipsoid, result) 
    
+   2.
+    var ellipsoid=viewer.scene.globe.ellipsoid;
+   
+    var cartographic=Cesium.Cartographic.fromDegrees(lng,lat,alt);
+   
+    var cartesian3=ellipsoid.cartographicToCartesian(cartographic);
+   
+   ```
+
+   > 世界坐标转换为经纬度
+
+   ```js
+   var ellipsoid=viewer.scene.globe.ellipsoid;
+   
+   var cartesian3=new Cesium.cartesian3(x,y,z);
+   
+   var cartographic=ellipsoid.cartesianToCartographic(cartesian3);
+   
+   var lat=Cesium.Math.toDegrees(cartograhphic.latitude);
+   
+   var lng=Cesium.Math.toDegrees(cartograhpinc.longitude);
+   
+   var alt=cartographic.height;
+   
+   2.Cartographic.fromCartesian
+   ```
+
+   > 屏幕坐标和世界坐标相互转换
+
+   ```js
+   1.var pick1= new Cesium.Cartesian2(0,0); 
+   
+   var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(pick1),viewer.scene);
+   
+   2.Cesium.SceneTransforms.wgs84ToWindowCoordinates(scene, Cartesian3);
+   ```
+
+5. 移动当前的视觉
+
+   ```js
+   viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
+   ```
+
+6. 
 
 #### 3 快速查询的自定义表格
 
@@ -268,7 +317,7 @@ var toolbar = document.getElementById("toolbar");
 Cesium.knockout.applyBindings(viewModel, toolbar);
 
 // Make the active imagery layer a subscriber of the viewModel.
-// //4.监听控件值的变化, 
+// 4.监听控件值的变化, 
 function subscribeLayerParameter(name) {
   Cesium.knockout
     .getObservable(viewModel, name)
@@ -307,9 +356,272 @@ imageryLayers.layerRemoved.addEventListener(updateViewModel);
 imageryLayers.layerMoved.addEventListener(updateViewModel);
 
 updateViewModel();
-
 ```
 
 
 
-#### 5 s
+#### 5 添加实体
+
+> 请参考 http://cesium.xin/wordpress/archives/102.html 底部的图形
+>
+> 中文API文档 http://cesium.xin/cesium/cn/Documentation1.62/Entity.html
+
+> 1. 绘制形状, 使用entities配置实现
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+var redBox = viewer.entities.add({
+  name : 'Red box with black outline',
+  position: Cesium.Cartesian3.fromDegrees(-107.0, 40.0, 300000.0), // 盒子的位置
+  box : {
+    dimensions : new Cesium.Cartesian3(400000.0, 300000.0, 500000.0), // box三维
+    material : Cesium.Color.RED.withAlpha(0.5),
+    outline : true,
+    outlineColor : Cesium.Color.BLACK
+  }
+});
+
+viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
+```
+
+> 一个label的示范，具体其他的api参数请参阅对应的 实例参数
+
+```js
+label : {
+    text : 'Citizens Bank Park',
+    font : '14pt monospace',
+    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+    outlineWidth : 2,
+    verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+    pixelOffset : new Cesium.Cartesian2(0, -9)
+}
+```
+
+> 2. 绘制形状，使用czml实现
+
+```js
+var czml = [{
+    "id" : "document",
+    "name" : "box",
+    "version" : "1.0"
+},{
+    "id" : "shape2",
+    "name" : "Red box with black outline",
+    "position" : {
+        "cartographicDegrees" : [-107.0, 40.0, 300000.0]
+    },
+    "box" : {
+        "dimensions" : {
+            "cartesian": [400000.0, 300000.0, 500000.0]
+        },
+        "material" : {
+            "solidColor" : {
+                "color" : {
+                    "rgba" : [255, 0, 0, 128]
+                }
+            }
+        },
+        "outline" : true,
+        "outlineColor" : {
+            "rgba" : [0, 0, 0, 255]
+        }
+    }
+}];
+
+var viewer = new Cesium.Viewer('cesiumContainer');
+var dataSourcePromise = Cesium.CzmlDataSource.load(czml);
+viewer.dataSources.add(dataSourcePromise);
+viewer.zoomTo(dataSourcePromise);
+```
+
+#### 6 实例的 增、查、删、实体集变化回调事件、描述信息与选中事件
+
+> 1. `增`实体
+
+```js
+//方法一
+	// 1 创建实例
+var entity = new Entity({
+    id : 'uniqueId'
+});
+	// 2 在viewer上的实体集合上新增它
+viewer.entities.add(entity);
+
+// 简写
+viewer.entities.add({
+    id : 'uniqueId'
+});
+
+----------------------------------------
+//方法二
+var entity = viewer.entities.getOrCreateEntity('uniqueId');
+```
+
+
+
+> 2. `查`找实体
+
+```js
+var entity = viewer.entities.getById('uniqueId');
+```
+
+> 3. `删`
+
+```js
+//方法一，先查后删
+var entity = viewer.entities.getById('uniqueId');
+viewer.entities.remove(entity) 
+//方法二，直接删除
+viewer.entities.removeById('uniqueId')
+//方法三，删除所有
+viewer.entities.removeAll()
+```
+
+> 4. `变化`
+
+```js
+function onChanged(collection, added, removed, changed){
+  var msg = 'Added ids';
+  for(var i = 0; i < added.length; i++) {
+    msg += '\n' + added[i].id;
+  }
+  console.log(msg);
+}
+viewer.entities.collectionChanged.addEventListener(onChanged);
+```
+
+> `修改描述信息`
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+var wyoming = viewer.entities.add({
+  name : 'Wyoming',
+  polygon : {
+   ...............
+  },
+  description:'divID'//方法一
+});
+viewer.zoomTo(wyoming);
+
+//方法二
+wyoming.description = '\
+<img\
+  width="50%"\
+  style="float:left; margin: 0 1em 1em 0;"\
+  src="//cesiumjs.org/images/2015/02-02/Flag_of_Wyoming.svg"/>\
+<p>\
+  Wyoming is a state in the mountain region of the Western \
+  United States.\
+</p>\';
+```
+
+
+
+
+
+
+
+#### 7 3D Tiles数据集
+
+入门（六）(七)没看懂。可以回去结合代码去观看。
+
+> http://cesium.xin/wordpress/archives/104.html
+
+3D Tiles用于流式传输3D内容，包括建筑物、树木和矢量数据。
+
+`ModelMatrix`
+
+
+
+
+
+#### 8 设置材质
+
+`http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
+
+1. 构建 Cesium.Material对象来实现。
+
+> https://sandcastle.cesium.com/?src=Materials.html&label=CZML  官方的示范
+>
+> http://cesium.xin/cesium/cn/Documentation1.62/Material.html?classFilter=Material 中文API
+
+2. 通过【MaterialProperty】的来直接构建属性。
+
+其下又有七个子类，来可以控制材质的不同显示.如下例子
+
+```js
+//方法一，构造时赋材质
+var entity = viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(-103.0, 40.0),
+  ellipse : {
+    semiMinorAxis : 250000.0,
+    semiMajorAxis : 400000.0,
+    material : Cesium.Color.BLUE.withAlpha(0.5)//可设置不同的MaterialProperty
+  }
+});
+
+//方法二，构造后赋材质
+var ellipse = entity.ellipse;
+ellipse.material = Cesium.Color.RED;
+```
+
+---
+
+> 1. 颜色材质 类名为 ColorMaterialProperty
+>
+>    ```js
+>    var ellipse = entities.ellipse;
+>    ellipse.material = Cesium.Color.RED; // Cesium.Color.RED.withAlpha(0.1),
+>    ---------------------------------------------------------------------------
+>        
+>    // 当然也可以这样, 这种情况不再累述。
+>    var redBox = viewer.entities.add({
+>      name: "Red box with black outline",
+>      position: Cesium.Cartesian3.fromDegrees(-107.0, 40.0, 300000.0),
+>      box: {
+>        dimensions: new Cesium.Cartesian3(400000.0, 300000.0, 500000.0),
+>        material: Cesium.Color.RED.withAlpha(0.1),
+>        outline: true,
+>        outlineColor: Cesium.Color.BLACK,
+>      },
+>    });
+>    ```
+
+
+
+> 2. 图片材质 类名为 ImageMaterialProperty
+>
+>    ```js
+>    常用的属性 
+>    	images => 可以是URL、Canvas 或 Video 
+>        repeat => 代表x与y方向的重复次数
+>    	color  => 颜色
+>        
+>    //完整的这么写
+>    ellipse.material = new Cesium.ImageMaterialProperty({
+>        image:'../images/cats.jpg',
+>        color: Cesium.Color.BLUE,
+>        repeat : new Cesium.Cartesian2(4, 4)
+>    });
+>    
+>    //也可以简单的写成
+>    ellipse.material = '../images/cats.jpg';
+>    ```
+
+> 3. 棋盘材质 类名为 Checkerboard-Material-Property
+>
+> ```js
+> evenColor: 默认为白
+> oddColor:  默认黑
+> repeat: new Cesium.Cartesian2(4, 4) 重复次数
+> 
+> ellipse.material = new Cesium.CheckerboardMaterialProperty({
+>   evenColor : Cesium.Color.WHITE,
+>   oddColor : Cesium.Color.BLACK,
+>   repeat : new Cesium.Cartesian2(4, 4)
+> });
+> 
+> ```
+
+`其他` http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
