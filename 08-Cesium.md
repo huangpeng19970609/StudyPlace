@@ -516,6 +516,16 @@ wyoming.description = '\
 </p>\';
 ```
 
+> `选中`
+>
+> 选中由 scene提供的方法来实现选中的。其提供了两个方法，且参数相同。
+
+```js
+scene.pickEntity(viewer, windowPosition);
+
+scene.drillPickEntities(viewer, windowPosition);
+```
+
 
 
 
