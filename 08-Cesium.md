@@ -331,7 +331,6 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 
 var layers = viewer.scene.imageryLayers; // 获取将在地球上渲染的图像图层的集合。
 
-
 // blackMarble便是我们生成的图层
 var blackMarble = layers.addImageryProvider(
    // 使用Cesium ion REST API提供平铺的图像
@@ -365,29 +364,6 @@ layers.addImageryProvider(
 > https://blog.csdn.net/liu844133828/article/details/82690217
 
 ```js
-// 创建 Cesium球
-var viewer = new Cesium.Viewer("cesiumContainer");
-// 获取将在地球上渲染的图像图层的集合。
-var imageryLayers = viewer.imageryLayers; 
-
-// The viewModel tracks the state of our mini application.
-var viewModel = {
-  brightness: 0,
-  contrast: 0,
-  hue: 0,
-  saturation: 0,
-  gamma: 0,
-};
-// Convert the viewModel members into knockout observables.
-// Cesium.knock能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
-Cesium.knockout.track(viewModel); // 即 监测viewModel中的属性
-
-// Bind the viewModel to the DOM elements of the UI that call for it.
-// 激活属性,将viewModel对象与html控件绑定， 可以理解为双向绑定。
-var toolbar = document.getElementById("toolbar");
-Cesium.knockout.applyBindings(viewModel, toolbar);
-
-// Make the active imagery layer a subscriber of the viewModel.
 // 4.监听控件值的变化, 
 function subscribeLayerParameter(name) {
   Cesium.knockout
@@ -854,9 +830,11 @@ Cesium.knockout
 <select data-bind="options: colors, value: color"></select>
 ```
 
-#### 4 viewer.camera
+#### 4 camera（相机）
 
 viewer.camera提供
+
+1. 相机的控制
 
 > `scene.screenSpaceCameraController` 根据对画布的鼠标输入来修改相机的位置和方向
 >
@@ -865,7 +843,9 @@ viewer.camera提供
 >  `camera.frustum.near`可见空间区域的大小
 
 ```js
-// 获取相机
+// 相机
+var camera = viewer.camera; 
+// 获取相机的控制器
 var controller = scene.screenSpaceCameraController; //
 
 //  当前的相机视图是该模型的两倍
@@ -874,10 +854,11 @@ var r = 2.0 * Math.max(model.boundingSphere.radius, camera.frustum.near);
 // 相机最小倍的视图 是其 模型的0.5倍 （最小缩放到此）
 controller.minimumZoomDistance = r * 0.5;
 
+// 计算矩阵与 Cartesian3 的乘积 [Matrix4的矩阵、cartesian、result]
 var center = Cesium.Matrix4.multiplyByPoint(
   model.modelMatrix,
   model.boundingSphere.center,
-  new Cesium.Cartesian3()
+  new Cesium.Cartesian3(),	
 );
 
 var heading = Cesium.Math.toRadians(230.0); // 转为角度
@@ -887,13 +868,92 @@ camera.lookAt(center, new Cesium.HeadingPitchRange(heading, pitch, r * 2.0));
 
 ```
 
+2. `viewer.scene.camera.flyTo`
+
+   + 第一个参数 [Cartesian3 ](http://cesium.xin/cesium/cn/Documentation1.62/Cartesian3.html)| [Rectangle](http://cesium.xin/cesium/cn/Documentation1.62/Rectangle.html)类型
+   + orientation 包含方向和向上属性或航向，俯仰和横滚属性的对象。
+
+   `Cesium.Cartesian3.fromRadians `从以弧度给出的经度和纬度值返回Cartesian3位置。
+
+```js
+viewer.scene.camera.flyTo({
+          destination: Cesium.Cartesian3.fromRadians(
+            -2.6399828792482234,
+            1.0993550795541742,
+            5795
+          ),
+          orientation: {
+            heading: 3.8455,
+            pitch: -0.4535,
+            roll: 0.0,
+          },
+});
+```
+
+
+
+
+
+#### 5.  imageryLayers（图层）
+
+> 添加图层 更推荐的实例为： Imagery Layers manipulation
+
+```js
+// Add a bump layer with adjustable threshold
+var singleTileLayer = layers.addImageryProvider(
+  new Cesium.SingleTileImageryProvider({
+    url: "../images/earthbump1k.jpg",
+    rectangle: Cesium.Rectangle.fromDegrees(-180.0, -90.0, 180.0, 90.0),
+  })
+);
+singleTileLayer.colorToAlpha = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
+singleTileLayer.colorToAlphaThreshold = 0.1;
+```
+
+> 参考的实例为： Imagery Adjustment， 为图层的自适应颜色
+
+```js
+var imageryLayers = scene.imageryLayers;
+
+var layer = imageryLayers.get(0); // ImageryLayerCollection.get当前的图层, 返回ImageryLayer
+layer.brightness = viewMode.brightness;
+
+顾名思义， 当图层发生变化的时候触发以下事件
+imageryLayers.layerAdded.addEventListener(updateViewModel);
+imageryLayers.layerRemoved.addEventListener(updateViewModel);
+imageryLayers.layerMoved.addEventListener(updateViewModel);
+```
+
+####  6 切割图层 + 操作图层
+
+>切割图层： https://sandcastle.cesium.com/index.html?src=Imagery%20Layers%20Split.html
+>
+>操作图层： https://sandcastle.cesium.com/index.html?src=Imagery%20Layers%20Manipulation.html
+
+#### 7 地形
+
+> 使用地形
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  terrainProvider: new Cesium.CesiumTerrainProvider({
+    url: Cesium.IonResource.fromAssetId(3956),
+  }),
+});
+
+```
+
+
+
+
+
 
 
 ### 四、 公司代码
 
 > 目录： huitong项目中  src\components\map\cesium-map-viewer.vue
 
-
+---
 
 > 我的意见：由于笔记有限，大部分代码会被省略（很多内容应该理解，潜移默化）。
 >
