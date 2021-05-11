@@ -3,6 +3,7 @@
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
 + 浏览器必须支持WebGL
 + 当前最新git下载地址： https://github.com/CesiumGS/cesium
++ Cesium内提供的类真的是太多了，太多了！好在它也知道这个问题，提供了大量的实例参考。
 
 #### 1 Cesium目录框架结构
 
@@ -12,7 +13,7 @@
 - index.html：Web首页，需要按照Cesium要求定义页面，同时添加Cesium依赖库
 - server.js：基于node.js的web服务应用
 
-#### 2  一些重要知识汇总
+#### 2  重要知识汇总
 
 1. `scene`是 Cesium虚拟场景中所有3D图形对象和状态的容器
 
@@ -32,6 +33,26 @@
 3. `Cesium.knock`能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
 
 4. `经纬度与世界坐标`
+
+   >HeadingPitchRoll
+
+   + heading指头部的左右摇摆
+   + pitch指 头的上下摇摆
+   + roll 以自身轴线旋转
+
+   ```js
+   
+   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+   var origin = Cesium.Cartesian3.fromDegrees(
+       -123.0744619,
+       44.0503706,
+       height
+     );
+   var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(
+       origin,
+       hpr
+     );
+   ```
 
    > **\*经纬度转换为世界坐标\***
 
@@ -82,9 +103,59 @@
    viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
    ```
 
-6. 
+6. `Entity API和Primitive API`
 
-#### 3 快速查询的自定义表格
+   + Entity API。高级别的数据驱动的API。管理一组相关性的可视化对象,
+
+     其底层使用Primitive API；
+
+   + Primitive API： 面向图形开发人员的底层API。需要具有图形学编程的知识
+
+   > Cesium提供Entity API来绘制空间数据.
+   >
+   > 例如点、标记、标签、线、3D模型、形状、立体形状（volume）.
+
+   ```js
+   var viewer = new Cesium.Viewer('cesiumContainer'); //创建一个查看器（Viewer widget
+   //添加一个实体，仅需要传递一个简单JSON对象，返回值是一个Entity对
+   var wyoming = viewer.entities.add({  
+     name : 'Wyoming',
+     polygon : {
+       hierarchy : Cesium.Cartesian3.fromDegreesArray([//一组地理坐
+                                 -109.080842,45.002073,
+                                 -105.91517,45.002073,
+                                 -104.058488,44.996596,
+                                 -104.053011,43.002989,
+                                 -104.053011,41.003906,
+                                 -105.728954,40.998429,
+                                 -107.919731,41.003906,
+                                 -109.04798,40.998429,
+                                 -111.047063,40.998429,
+                                 -111.047063,42.000709,
+                                 -111.047063,44.476286,
+                                 -111.05254,45.002073]),
+       material : Cesium.Color.RED.withAlpha(0.5), //材
+       outline : true, //是否显示轮
+       outlineColor: Cesium.Color.BLACK, //轮廓的颜
+       }
+    }
+   );
+   viewer.zoomTo(wyoming);//缩放、平移视图使实体可见 
+   ```
+
+   1. `viewer.entities.add()简称为方法1`通过指定 model 的 position 和 orientation 来控制模型的位置，对模型进行精确变换的难度较大；`viewer.scene.primitives.add()简称为方法2`通过 modelMatrix 控制模型的位置和方向，可进行较为精确的模型变换。
+   2. 对相机操作时`方法 1`提供了较为方便的 viewer.trackedEntity 函数；`方法 2`追踪 model 较为复杂，需要手动操作相机变换。
+   3. 对模型进行缩放、变换等操作，`方法 1` 需要修改 object.id(Entity 类型) 中 model(ModelGraphics 类型) 的 scale 和 nodeTransformations；`方法 2` 可以直接修改 object.primitive(model 类型) 中的 scale 和 modelMatrix。
+
+   两种方法本质上是相通的，`方法 1`对`方法 2`在某种程度上进行了封装。
+
+   > 不同的是，`方法 2` 中的 id 对象为用户自定义对象，`方法 1` 中的 Entity 对象。
+   >
+   > 因此`方法 1`相当于首先通过 `方法 2` 中的 Cesium.Model.fromGltf() 函数建立 Model，通过该 Model 建立对应的 Entity（方法暂未尝试，因为 Entity 构造函数中的 options.model 接收的是 ModelGraphics 类型，而不是 Model 类型），将 Entity 赋予对象的 id 属性，实现双向绑定，具体的实现可能要参考 viewer.entities.add() 的源码实现。
+
+7. 
+
+#### 3 其他
 
 获取将在地球上渲染的图像图层的集合  
 
@@ -180,7 +251,7 @@ http://cesium.xin/cesium/cn/Documentation1.62/Viewer.html?classFilter=viewer
    
 var viewer = new Cesium.Viewer('cesiumContainer',{
     geocoder:false,				 //是否显示地名查找控件
-    homeButton:false,
+    homeButton:false,			 // 右上角的 View home功能。
     sceneModePicker:false,		 //是否显示投影方式控件
     baseLayerPicker:false, 		 //是否显示图层选择控件
     navigationHelpButton:false,
@@ -281,7 +352,7 @@ layers.addImageryProvider(
 ); 
 ```
 
-####  4 图层 knockout
+####  4 图层与 knockout的互绑
 
 
 
@@ -635,3 +706,219 @@ ellipse.material = Cesium.Color.RED;
 > ```
 
 `其他` http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
+
+
+
+
+
+### 三、官方代码学习
+
+```js
+图层示范
+https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
+```
+
+
+
+#### 1 前言
+
+>  `development/3D Models ` 非常典型的一个实例，其中涉及到了非常多的示范
+
+> `knockout`本意是击打， 但这里更偏向于 `引入注目`的 toolbar的含义
+
+上述有一个问题便是 `model`如何来的？
+
+> 官方的`create a Model`的？
+
+> Cesium.defaultValue
+>
+> ```js
+> height = Cesium.defaultValue(height, 0.0);  // 返回 第一个参数或者第二个参数，仅此而已
+> ```
+
+---
+
+#### 2 created a model
+
++ 这份代码应该从需求出发。其实是很有逻辑的。故此处顺序的是从逻辑出发。
+
++ 但我们写代码的时候一般都是先搭建好基础，再去写后面的。所以写的时候往往是从后往前。
+
+  
+
+1. 我们需要的`scene上增加一个 model`，比如 url 对应的glf是一架飞机
+
+   ```js
+   scene.primitives.add(model); 
+   ```
+
+2. `创建一个model`
+
+   Cesium提供了一个model类
+
+   #### `Cesium.Model.fromGltf` (options) 目前我了解的到的生成model实例方法！
+
+   > 从glTF资产创建模型。当模型准备好渲染时，即当外部二进制图像并下载着色器文件并创建WebGL资源，即可解析 [`Model＃readyPromise `](http://cesium.xin/cesium/cn/Documentation1.62/Model.html#readyPromise)。
+   >
+   > 该模型可以是扩展名为.gltf的传统glTF资产，也可以是扩展名为.glb的Binary glTF。
+
+   ```js
+   var tempModel = Cesium.Model.fromGltf(
+   	url: url,
+       modelMartrix: modelMartrix,
+   )
+   ```
+
+3. 创建一个`modelMartrix`。 ``fromGltf``至少需要两个属性。 url 与 modelMartirx
+
+   url 即 为我们的资源。"../../SampleData/models/CesiumAir/Cesium_Air.glb"
+
+   modelMartirx参数要求 是一个 `Martirx（矩阵）	`类型的。 用于控制其位置与姿态
+
+   ```js
+   // 生成一个 HeadingPitchRoll实例
+   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+   
+   // 从以度为单位的经度和纬度值返回Cartesian3位置。是Cartesian3我们需要笛卡尔坐标
+   通俗点就是 此函数就是将经纬度与高度 变为了 x, y, z
+   var origin = Cesium.Cartesian3.fromDegrees(
+       -123.0744619,
+       44.0503706,
+       height
+    );
+   
+   var modelMartrix = Cesium.Transforms.headingPitchRollToFixedFrame(
+   	origin, // Cartesian 类型
+       hpr		// HeadingPitchRoll类型
+   );
+   
+   ```
+
+4. 实际代码
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer");
+var scene = viewer.scene; // 3d容器
+var model; // 我们将要生成的一个 模型（实体）
+
+
+var height = 5000.0;
+var heading = 0.0;
+var pitch = Cesium.Math.toRadians(10.0);
+var roll = Cesium.Math.toRadians(-20.0);
+createModel(
+  "../../SampleData/models/CesiumAir/Cesium_Air.glb",
+  height, heading, pitch, roll
+);
+
+function createModel(url, height, heading, pitch, roll) {
+  var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+  var origin = Cesium.Cartesian3.fromDegrees(
+    -123.0744619,
+    44.0503706,
+    height
+  );
+  var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(
+    origin,
+    hpr
+  );
+  scene.primitives.removeAll();
+  model = scene.primitives.add(
+    Cesium.Model.fromGltf({
+      url: url,
+      modelMatrix: modelMatrix,
+      minimumPixelSize: 128,
+    })
+  );
+}
+```
+
+#### 3 create a toolbar
+
+```js
+Cesium.knockout.track(viewModel); // => viewModel中的属性 变为观察者
+
+var toolbar = document.getElementById("toolbar");
+Cesium.knockout.applyBindings(viewModel, toolbar); // => 与dom互相绑定
+
+// 注册事件
+Cesium.knockout
+  .getObservable(viewModel, "color") // 获得观察者
+  .subscribe(function (newValue) {   // 
+    model.color = Cesium.Color.fromAlpha(
+      Cesium.Color[newValue.toUpperCase()],
+      1
+  );
+});
+// html的前提
+<select data-bind="options: colors, value: color"></select>
+```
+
+#### 4 viewer.camera
+
+viewer.camera提供
+
+> `scene.screenSpaceCameraController` 根据对画布的鼠标输入来修改相机的位置和方向
+>
+> `model.boundingSphere.radius`模型在其局部坐标系中的边界球的半径
+>
+>  `camera.frustum.near`可见空间区域的大小
+
+```js
+// 获取相机
+var controller = scene.screenSpaceCameraController; //
+
+//  当前的相机视图是该模型的两倍
+var r = 2.0 * Math.max(model.boundingSphere.radius, camera.frustum.near);
+
+// 相机最小倍的视图 是其 模型的0.5倍 （最小缩放到此）
+controller.minimumZoomDistance = r * 0.5;
+
+var center = Cesium.Matrix4.multiplyByPoint(
+  model.modelMatrix,
+  model.boundingSphere.center,
+  new Cesium.Cartesian3()
+);
+
+var heading = Cesium.Math.toRadians(230.0); // 转为角度
+var pitch = Cesium.Math.toRadians(-20.0); // 转为角度
+
+camera.lookAt(center, new Cesium.HeadingPitchRange(heading, pitch, r * 2.0));
+
+```
+
+
+
+### 四、 公司代码
+
+> 目录： huitong项目中  src\components\map\cesium-map-viewer.vue
+
+
+
+> 我的意见：由于笔记有限，大部分代码会被省略（很多内容应该理解，潜移默化）。
+>
+> 本次学习公司代码 目的是从 真正的实践代码与业务代码中明白这样一件事情——Cesium的在实际业务中如何去应用？、
+
+#### 0 疑问
+
+1. id名为cesiumContainer的dom内部还可以存在组件即其他dom元素， 此dom是否只是一个背景板？
+2. 
+
+
+
+#### 1. cesium-map-viewer.vue
+
+在【mounted】进行 init 的函数操作，将Cesium实例渲染上去。
+
+```js
+1 new Viewer => 其本质是 new Cesium.Viewer 只不过我们按需导出, 也更加简洁。
+
+2 通过 new Viewer的配置 隐藏大部分Viewer自带的控件。
+
+并设置 baseLayerPicker 为 false, 则可以i
+```
+
+
+
+
+
