@@ -1,9 +1,18 @@
 ### 一、前言：
 
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
+
 + 浏览器必须支持WebGL
+
 + 当前最新git下载地址： https://github.com/CesiumGS/cesium
+
 + Cesium内提供的类真的是太多了，太多了！好在它也知道这个问题，提供了大量的实例参考。
+
++ 今天是5月12号，看ceisum的第四天，记录下： 
+
+  官网的英语文档是最好的入门教程！可以去找下对应的中文文档。不过它一定是要是官网的翻译！
+
++ 
 
 #### 1 Cesium目录框架结构
 
@@ -97,13 +106,9 @@
    2.Cesium.SceneTransforms.wgs84ToWindowCoordinates(scene, Cartesian3);
    ```
 
-5. 移动当前的视觉
+   
 
-   ```js
-   viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
-   ```
-
-6. `Entity API和Primitive API`
+5. `Entity API和Primitive API`
 
    + Entity API。高级别的数据驱动的API。管理一组相关性的可视化对象,
 
@@ -153,21 +158,87 @@
    >
    > 因此`方法 1`相当于首先通过 `方法 2` 中的 Cesium.Model.fromGltf() 函数建立 Model，通过该 Model 建立对应的 Entity（方法暂未尝试，因为 Entity 构造函数中的 options.model 接收的是 ModelGraphics 类型，而不是 Model 类型），将 Entity 赋予对象的 id 属性，实现双向绑定，具体的实现可能要参考 viewer.entities.add() 的源码实现。
 
-7. 
+   
 
-#### 3 其他
+#### 3 常用操作
 
-获取将在地球上渲染的图像图层的集合  
+##### 1 获取图层集合与图层 
 
 ```js
-var layers = viewer.scene.imageryLayers;
+// 图层集合
+var imageryLayers = viewer.scene.imageryLayers;
+
+// 当前图层
+var nightLayer = imageryLayers.get(0);
+
+// 朝里面添加图层，也是可以通过回调获取到该图层的
+var dayLayer = imageryLayers.addImageryProvider(
+  new Cesium.IonImageryProvider({
+    assetId: 3845,
+  })
+);
 ```
 
 显示帧速 => 即网络频率与刷新的fps（参考王者荣耀的右上角的网络情况）
 
+##### 2 显示帧速
+
 ```js
 viewer.scene.debugShowFramesPerSecond = true; 
 ```
+
+##### 3 去除底部的token提示
+
+```js
+viewer._cesiumWidget._creditContainer.style.display = "none";
+```
+
+##### 4 移动当前的照相机
+
+当然 camera也可以做到！详情看 【官方代码】学习的camera
+
+```js
+viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
+```
+
+##### 5 时间倍速【clock】
+
+```js
+viewer.clock.multiplier = 4000;
+```
+
+#####  6 地球环境设置
+
+```js
+// 开启全球光照
+viewer.scene.globe.enableLighting = true;
+```
+
+
+
+##### 7 CallbackProperty
+
+````js
+var colorProperty = new Cesium.CallbackProperty(function (
+      time,
+      result
+    ) {
+      if (pickedEntities.contains(entity)) {
+        return pickColor.clone(result);
+      }
+      return color.clone(result);
+    },
+false);
+````
+
+##### 8 图形挤压为体
+
+````js
+wyoming.polygon.height = 200000;
+wyoming.polygon.extrudedHeight = 250000;
+````
+
+
 
 ### 二、创建Cesium Viewer
 
@@ -238,7 +309,7 @@ var viewer = new Cesium.Viewer("cesiumContainer");
 8. Timeline : 展示当前时间和允许用户在进度条上拖动到任何一个指定的时间。
 9. FullscreenButton : 视察全屏按钮。
 
-#### 2、Viewer小控件
+#### 2、Viewer一部分参数配置
 
 中文API文档为 
 
@@ -481,105 +552,7 @@ viewer.dataSources.add(dataSourcePromise);
 viewer.zoomTo(dataSourcePromise);
 ```
 
-#### 6 实例的 增、查、删、实体集变化回调事件、描述信息与选中事件
-
-> 1. `增`实体
-
-```js
-//方法一
-	// 1 创建实例
-var entity = new Entity({
-    id : 'uniqueId'
-});
-	// 2 在viewer上的实体集合上新增它
-viewer.entities.add(entity);
-
-// 简写
-viewer.entities.add({
-    id : 'uniqueId'
-});
-
-----------------------------------------
-//方法二
-var entity = viewer.entities.getOrCreateEntity('uniqueId');
-```
-
-
-
-> 2. `查`找实体
-
-```js
-var entity = viewer.entities.getById('uniqueId');
-```
-
-> 3. `删`
-
-```js
-//方法一，先查后删
-var entity = viewer.entities.getById('uniqueId');
-viewer.entities.remove(entity) 
-//方法二，直接删除
-viewer.entities.removeById('uniqueId')
-//方法三，删除所有
-viewer.entities.removeAll()
-```
-
-> 4. `变化`
-
-```js
-function onChanged(collection, added, removed, changed){
-  var msg = 'Added ids';
-  for(var i = 0; i < added.length; i++) {
-    msg += '\n' + added[i].id;
-  }
-  console.log(msg);
-}
-viewer.entities.collectionChanged.addEventListener(onChanged);
-```
-
-> `修改描述信息`
-
-```js
-var viewer = new Cesium.Viewer('cesiumContainer');
-
-var wyoming = viewer.entities.add({
-  name : 'Wyoming',
-  polygon : {
-   ...............
-  },
-  description:'divID'//方法一
-});
-viewer.zoomTo(wyoming);
-
-//方法二
-wyoming.description = '\
-<img\
-  width="50%"\
-  style="float:left; margin: 0 1em 1em 0;"\
-  src="//cesiumjs.org/images/2015/02-02/Flag_of_Wyoming.svg"/>\
-<p>\
-  Wyoming is a state in the mountain region of the Western \
-  United States.\
-</p>\';
-```
-
-> `选中`
->
-> 选中由 scene提供的方法来实现选中的。其提供了两个方法，且参数相同。
-
-```js
-scene.pickEntity(viewer, windowPosition);
-
-scene.drillPickEntities(viewer, windowPosition);
-```
-
-
-
-
-
-
-
-#### 7 3D Tiles数据集
+#### 6 3D Tiles数据集
 
 入门（六）(七)没看懂。可以回去结合代码去观看。
 
@@ -591,9 +564,7 @@ scene.drillPickEntities(viewer, windowPosition);
 
 
 
-
-
-#### 8 设置材质
+#### 7 设置材质
 
 `http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
 
@@ -832,6 +803,18 @@ Cesium.knockout
 
 #### 4 camera（相机）
 
+可以参考这篇文档中camera的例子 https://www.cnblogs.com/cesium1/p/10062990.html
+
+> 一些最常用的方法:
+
+- [`Camera.setView(options)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#setView) : 立即设置相机位置和朝向。
+- [`Camera.zoomIn(amount)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#zoomIn) : 沿着相机方向移动相机。
+- [`Camera.zoomOut(amount)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#zoomOut) : 沿着相机方向远离
+- [`Camera.flyTo(options)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#flyTo) : 创建从一个位置到另一个位置的相机飞行动画。
+- [`Camera.lookAt(target, offset)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#lookAt) : 依据目标偏移来设置相机位置和朝向。
+- [`Camera.move(direction, amount)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#move) : 沿着direction方向移动相机。
+- [`Camera.rotate(axis, angle)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#rotate) : 绕着任意轴旋转相机。
+
 viewer.camera提供
 
 1. 相机的控制
@@ -890,11 +873,63 @@ viewer.scene.camera.flyTo({
 });
 ```
 
+3. `viewer.zoomTo`viewer提供了一种相机方法
+
+   ````js
+   var heading = Cesium.Math.toRadians(90);
+   var pitch = Cesium.Math.toRadians(-30);
+   viewer.zoomTo(wyoming, new Cesium.HeadingPitchRange(heading, pitch));
+   ````
+
+   
+
+#### 5 时间控制(Clock)
+
+```js
+// 设置时钟和时间线
+viewer.clock.shouldAnimate = true; // 当viewer开启后，启动动画
+viewer.clock.startTime = Cesium.JulianDate.fromIso8601("2017-07-11T16:00:00Z");
+viewer.clock.stopTime = Cesium.JulianDate.fromIso8601("2017-07-11T16:20:00Z");
+viewer.clock.currentTime = Cesium.JulianDate.fromIso8601("2017-07-11T16:00:00Z");
+
+viewer.clock.multiplier = 2; // 设置加速倍率
+viewer.clock.clockStep = Cesium.ClockStep.SYSTEM_CLOCK_MULTIPLIER; // tick computation mode(还没理解具体含义)
+viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; // 循环播放
+viewer.timeline.zoomTo(viewer.clock.startTime, viewer.clock.stopTime); // 设置时间的可见范围
+```
+
+
+
 
 
 
 
 #### 5.  imageryLayers（图层）
+
+
+
+> 参考文章： https://www.cnblogs.com/fuckgiser/p/5647429.html
+>
+> 地图图层 若是细分便是 瓦片数据。
+
+```JS
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  skyBox: false, // 天空
+  skyAtmosphere: false,
+  contentOptions: {
+    // 创建WebGL上下文的对象
+    webgl: {
+      // 应用程序需要使用alpha混合在其他HTML元素上方合成Cesium设置为true
+      alpha: true,
+    }
+  }
+});
+// 仅在skyBox: false的时候生效, 设置背景色（天空）的颜色
+viewer.scene.backgroundColor = Cesium.Color.PINK;
+
+// 在没有可用图像时获取或设置地球的颜色
+viewer.scene.globe.baseColor = Cesium.Color.PINK;
+```
 
 > 添加图层 更推荐的实例为： Imagery Layers manipulation
 
@@ -930,30 +965,592 @@ imageryLayers.layerMoved.addEventListener(updateViewModel);
 >
 >操作图层： https://sandcastle.cesium.com/index.html?src=Imagery%20Layers%20Manipulation.html
 
-#### 7 地形
+#### 7 多个图层 与 局部覆盖
 
-> 使用地形
+> 参考实例： `Imagery Layers`
+
++ blackMarble是后添加的并且覆盖了整个地球， Black Marble 图层完全盖住了Esri图层, 现在我们不想让他覆盖。
+
+  ```js
+  办法1： blackMarble.alpha = 0.5; // 通过透明度。图层和Esri图层混合
+  
+  办法2： layers.lower(blackMarble); // 把Black Marble图层移到下面
+  
+  办法3： layers.lowerToBottom(blackMarble);
+  ```
+
++ 指定某图层覆盖某一块地方`rectangle`
+
+  ```js
+  rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
+  ```
 
 ```js
 var viewer = new Cesium.Viewer("cesiumContainer", {
-  terrainProvider: new Cesium.CesiumTerrainProvider({
-    url: Cesium.IonResource.fromAssetId(3956),
+  imageryProvider: Cesium.createWorldImagery({
+    style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
   }),
+  baseLayerPicker: false,
 });
 
+var layers = viewer.scene.imageryLayers;
+var blackMarble = layers.addImageryProvider(
+  new Cesium.IonImageryProvider({ assetId: 3812 })
+);
+
+blackMarble.alpha = 0.5;
+
+blackMarble.brightness = 2.0; // 增加亮度
+
+// 这是一个单一图片的图层，他只会覆盖一个范围
+layers.addImageryProvider(
+  new Cesium.SingleTileImageryProvider({
+    url: "../images/Cesium_Logo_overlay.png",
+    rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
+  })
+); 
 ```
 
 
 
 
 
+#### 9 地形
+
+> 使用地形
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  terrainProvider: new Cesium.CesiumTerrainProvider({
+    url: Cesium.IonResource.fromAssetId(3956), // 试试3957
+  }),
+});
+```
+
+> - [Terrain display options](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Terrain.html&label=Showcases) : 一些地形数据配置和格式
+> - [Terrain exaggeration](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Terrain Exaggeration.html&label=Showcases) : 是地形间的高度差异更加的优雅艺术
 
 
-### 四、 公司代码
 
-> 目录： huitong项目中  src\components\map\cesium-map-viewer.vue
+#### 10 ⭐Entities(实体)
+
+##### 1 初次使用
+
+ [`Entity`](https://cesiumjs.org/Cesium/Build/Documentation/Entity.html)是一种对几何图形做空间和时间展示的数据对象。sandcastle 里提供了[很多简单的entity](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Box.html&label=Geometries)。
+
+可以在实例去搜索 `geometries` 该标签页。  汉译为几何学, 提供了大量的实体类。
+
+- [`Polygon`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polygon.html&label=Geometries)
+- [`Polyline`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polyline.html&label=Geometries)
+- [`Billboard`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Billboards.html&label=Beginner)
+- [`Label`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Labels.html&label=Beginner)
+
+> 步骤 
+
+1. 得有Cesium应用程序的基础对象 viewer.widget
+
+2. 使用 viewer.entites.add新增一个entity。此方法也会返回当前的entity。
+
+   此 add的参数是 【是一个符合Eneity构造函数的初始化配置对象】
+
+3. viewer.toZoom(theEntity); // 移动到这里
+
+```js
+// 放一个卡车，并且移动过去
+var modelEntity = viewer.entities.add({
+    name: "milktruck",
+    position: Cesium.Cartesian3.fromDegrees(-123.0744619, 44.0503706),
+    model: {
+      uri:
+        "../../SampleData/models/CesiumMilkTruck/CesiumMilkTruck.glb",
+    },
+  });
+ viewer.zoomTo(modelEntity);
+```
+
+##### 2. Entity集合增删改查
+
+> 1. `增`实体
+
+```js
+//方法一
+	// 1 创建实例
+var entity = new Entity({
+    id : 'uniqueId'
+});
+	// 2 在viewer上的实体集合上新增它
+viewer.entities.add(entity);
+
+// 简写
+viewer.entities.add({
+    id : 'uniqueId'
+});
+
+----------------------------------------
+//方法二
+var entity = viewer.entities.getOrCreateEntity('uniqueId');
+```
+
+> 2. `查`找实体
+
+```js
+var entity = viewer.entities.getById('uniqueId');
+```
+
+> 3. `删`
+
+```js
+//方法一，先查后删
+var entity = viewer.entities.getById('uniqueId');
+viewer.entities.remove(entity) 
+//方法二，直接删除
+viewer.entities.removeById('uniqueId')
+//方法三，删除所有
+viewer.entities.removeAll()
+```
+
+> 4. `变化`
+
+```js
+function onChanged(collection, added, removed, changed){
+  var msg = 'Added ids';
+  for(var i = 0; i < added.length; i++) {
+    msg += '\n' + added[i].id;
+  }
+  console.log(msg);
+}
+viewer.entities.collectionChanged.addEventListener(onChanged);
+```
+
+> `修改描述信息`
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+var wyoming = viewer.entities.add({
+  name : 'Wyoming',
+  polygon : {
+   ...............
+  },
+  description:'divID'//方法一
+});
+viewer.zoomTo(wyoming);
+
+//方法二
+wyoming.description = '\
+<img\
+  width="50%"\
+  style="float:left; margin: 0 1em 1em 0;"\
+  src="//cesiumjs.org/images/2015/02-02/Flag_of_Wyoming.svg"/>\
+<p>\
+  Wyoming is a state in the mountain region of the Western \
+  United States.\
+</p>\';
+```
+
+> `选中`
+>
+> 选中由 scene提供的方法来实现选中的。其提供了两个方法，且参数相同。
+
+```js
+scene.pickEntity(viewer, windowPosition);
+
+scene.drillPickEntities(viewer, windowPosition);
+```
+
+##### 3 Entity管理
+
+
+
+
+
+
+
+但更加复杂的怎么办呢？非常非常多的不能由我们一个个写吧？故可以通过kml文件去导入。
+
+#### 11 DataSource (entities)
+
+1. 【重点】使用KmlDataSource来从KML文件中读取点位数据。
+
+2. 为了能在scene中使用这些载入的entity
+
+   只有当这个promise的then回调中才可以把`KmlDataSource`添加到 [`viewer.datasources`](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html?classFilter=viewer#dataSources)。
+
+````js
+var viewer = new Cesium.Viewer("cesiumContainer");
+var options = {
+  camera: viewer.scene.camera,
+  canvas: viewer.scene.canvas,
+  clampToGround : false // 选项控制数据是否贴地,
+};
+
+var geocachePromise = Cesium.KmlDataSource.load(
+  "../../SampleData/kml/facilities/facilities.kml",
+  options
+);
+// load加载完毕
+geocachePromise.then(function (dataSource) {
+  // 把所有entities添加到viewer中显示
+  viewer.dataSources.add(dataSource);
+    
+  // 获得entity列表
+  var geocacheEntities = dataSource.entities.values;
+  
+  for (var i = 0; i < geocacheEntities.length; i++) {
+     var entity = geocacheEntities[i];
+     if (Cesium.defined(entity.billboard)) {
+     	    // 调整垂直方向的原点，保证图标里的针尖对着地表位置 
+            entity.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+            // 去掉文字的显示
+            entity.label = undefined;
+            // 设置可见距离
+            entity.billboard.distanceDisplayCondition = new 			Cesium.DistanceDisplayCondition(10.0, 20000.0);
+     }
+  }  
+});
+````
+
+我们可以对kml中的entities进行更加复杂的操作
+
+```js
+ if (Cesium.defined(entity.billboard)) {
+           
+            entity.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; 
+            entity.label = undefined; 
+            entity.billboard.distanceDisplayCondition = new Cesium.DistanceDisplayCondition(10.0, 20000.0);
+            // 计算经度和纬度（角度表示）
+            var cartographicPosition = Cesium.Cartographic.fromCartesian(entity.position.getValue(Cesium.JulianDate.now()));
+            var longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+            var latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+            // 修改描述信息 
+            var description = '<table class="cesium-infoBox-defaultTable cesium-infoBox-defaultTable-lighter"><tbody>' +
+                '<tr><th>' + "经度" + '</th><td>' + longitude.toFixed(5) + '</td></tr>' +
+                '<tr><th>' + "纬度" + '</th><td>' + latitude.toFixed(5) + '</td></tr>' +
+                '</tbody></table>';
+            entity.description = description;
+        }
+```
+
+此处的示范复杂【无人机飞跃城市上空的高科技效果】：没有实例。
+
+ https://www.cnblogs.com/cesium1/p/10062990.html 
+
+#### 11 3DTiles 略。 同上链接的示范
+
+此处略掉，若有需要可以参考。
+
+#### 12 ⭐交互(pcik)
+
+即 与 `scene`进行交互。
+
++ Scene.pick ：      返回窗口坐标对应的图元的第一个对象 
++ Scene.drillPick :  返回窗口坐标对应的所有对象列表
++ Globe.pick :         返回一条射线和地形的相交位置点
+
+> `movement.endPositions` 是一个 `Cartesian2`的实例！
+
+以下四个实例都是参考:
+
+> http://localhost:8080/Apps/Sandcastle/index.html?src=Picking.html&label=Tutorials Picking
+
+##### 1 地球上mouseover显示经纬度
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  selectionIndicator: false,
+  infoBox: false,
+});
+var scene = viewer.scene;
+
+// 1 检测当前浏览器是否支持 scene.pick功能
+if (!scene.pickPositionSupported) {
+  window.alert("This browser does not support pickPosition.");
+}
+
+var handler;
+var entity = viewer.entities.add({
+  label: {
+    show: false,
+    showBackground: true,
+    font: "14px monospace",
+    horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+    verticalOrigin: Cesium.VerticalOrigin.TOP,
+    pixelOffset: new Cesium.Cartesian2(15, 0),
+  },
+});
+/* 
+*  Mouse over the globe to see the cartographic position
+*  ScreenSpaceEventHandler 
+*  是一个可以添加自定义用户输入输出事件的对象
+*  第二个参数为 Cesium.ScreenSpaceEventType.MOUSE_MOV
+*  canvas: 用于为其创建场景的HTML canvas元素
+*/
+handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+// 设置要在输入事件上执行的功能。
+handler.setInputAction(function (movement) {
+  // pickEllipsoid 选择一个椭球或地图。返回Catesian3类型。
+  var cartesian = viewer.camera.pickEllipsoid(
+    movement.endPosition, // 像素的x和y坐标: Cartesian2
+    scene.globe.ellipsoid // 要拾取的椭球: 地球这个椭圆体
+  );
+
+  if (cartesian) {
+    // 从笛卡尔位置创建一个新的制图实例 目的是获得经度与纬度
+    var cartographic = Cesium.Cartographic.fromCartesian(cartesian); //
+    // 经度
+    var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(
+      2
+    );
+    // 纬度
+    var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(
+      2
+    );
+    entity.position = cartesian;
+    entity.label.show = true;
+    entity.label.text =
+      "Lon: " +
+      ("   " + longitudeString).slice(-7) +
+      "\u00B0" +
+      "\nLat: " +
+      ("   " + latitudeString).slice(-7) +
+      "\u00B0";
+  } else {
+    entity.label.show = false;
+  }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+```
+
+##### 2 billboard的高光显示
+
+```js
+Sandcastle.addToolbarButton("Pick Entity", function () {
+  var entity = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+    billboard: {
+      image: "../images/Cesium_Logo_overlay.png",
+    },
+  });
+
+  // If the mouse is over the billboard, change its scale and color
+  handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+  handler.setInputAction(function (movement) {
+    var pickedObject = scene.pick(movement.endPosition);
+    if (Cesium.defined(pickedObject) && pickedObject.id === entity) {
+      entity.billboard.scale = 2.0;
+      entity.billboard.color = Cesium.Color.YELLOW;
+    } else {
+      entity.billboard.scale = 1.0;
+      entity.billboard.color = Cesium.Color.WHITE;
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+});
+
+```
+
+##### 3 drill-down-picking（一个鼠标触发了两个实体）
+
+````js
+// Move the primitive that the mouse is over to the top.
+  handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+  handler.setInputAction(function (movement) {
+    // get an array of all primitives at the mouse position
+    var pickedObjects = scene.drillPick(movement.endPosition);
+    if (Cesium.defined(pickedObjects)) {
+      //Update the collection of picked entities.
+      pickedEntities.removeAll();
+      for (var i = 0; i < pickedObjects.length; ++i) {
+        var entity = pickedObjects[i].id;
+        pickedEntities.add(entity);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+````
+
+##### 4 小卡车上上显示固定的经纬度
+
+````js
+Sandcastle.addToolbarButton("Pick position", function () {
+  var modelEntity = viewer.entities.add({
+    name: "milktruck",
+    position: Cesium.Cartesian3.fromDegrees(-123.0744619, 44.0503706),
+    model: {
+      uri:
+        "../../SampleData/models/CesiumMilkTruck/CesiumMilkTruck.glb",
+    },
+  });
+  viewer.zoomTo(modelEntity);
+
+  var labelEntity = viewer.entities.add({
+    label: {
+      show: false,
+      showBackground: true,
+      font: "14px monospace",
+      horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+      verticalOrigin: Cesium.VerticalOrigin.TOP,
+      pixelOffset: new Cesium.Cartesian2(15, 0),
+    },
+  });
+
+  // Mouse over the globe to see the cartographic position
+  handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+  handler.setInputAction(function (movement) {
+    var foundPosition = false;
+    var scene = viewer.scene;
+    // scene.mode 当前设置场景的模式
+    // 其SceneMode有几种模式，MORPHING为模式变形。例如2D到3D模式变形
+    if (scene.mode !== Cesium.SceneMode.MORPHING) {
+      // 返回具有primitive属性的对象
+      var pickedObject = scene.pick(movement.endPosition);
+      if (
+        scene.pickPositionSupported &&
+        Cesium.defined(pickedObject) &&
+        pickedObject.id === modelEntity
+      ) {
+        // 根据Cartesian2来获取 Cartesian3的位置
+        var cartesian = viewer.scene.pickPosition(movement.endPosition);
+        // defined只是判断它是否存在而已，源码如此
+        if (Cesium.defined(cartesian)) {
+          // Cartesian3 转为 Cartographic经纬度
+          var cartographic = Cesium.Cartographic.fromCartesian(
+            cartesian
+          );
+          var longitudeString = Cesium.Math.toDegrees(
+            cartographic.longitude
+          ).toFixed(2);
+          var latitudeString = Cesium.Math.toDegrees(
+            cartographic.latitude
+          ).toFixed(2);
+          var heightString = cartographic.height.toFixed(2);
+
+          labelEntity.position = cartesian;
+          labelEntity.label.show = true;
+          labelEntity.label.text =
+            "Lon: " +
+            ("   " + longitudeString).slice(-7) +
+            "\u00B0" +
+            "\nLat: " +
+            ("   " + latitudeString).slice(-7) +
+            "\u00B0" +
+            "\nAlt: " +
+            ("   " + heightString).slice(-7) +
+            "m";
+
+          labelEntity.label.eyeOffset = new Cesium.Cartesian3(
+            0.0,
+            0.0,
+            -cartographic.height *
+              (scene.mode === Cesium.SceneMode.SCENE2D ? 1.5 : 1.0)
+          );
+
+          foundPosition = true;
+        }
+      }
+    }
+
+    if (!foundPosition) {
+      labelEntity.label.show = false;
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+});
+````
+
+##### 5 pick到了一个 billboard对象
+
+> 我觉得这样的写法更好理解！👇
+
+````js
+// 当鼠标移到了我们关注的图标上，修改entity 的billboard 缩放和颜色
+handler.setInputAction(function(movement) {
+    var pickedPrimitive = viewer.scene.pick(movement.endPosition); //primitive属性
+    // 其pickedPrimitive.id就是该实体
+    var pickedEntity = (Cesium.defined(pickedPrimitive)) ? pickedPrimitive.id : undefined;
+    // Highlight the currently picked entity
+    if (Cesium.defined(pickedEntity) && Cesium.defined(pickedEntity.billboard)) {
+        pickedEntity.billboard.scale = 2.0;
+        pickedEntity.billboard.color = Cesium.Color.ORANGERED;
+    }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+这是不完善的代码，因为光标离开的时候，并没有把高光取消。
+````
+
+
+
+#### 13 相机模式（追踪实体）
+
+相机模式指的是【自由模式】与【无人机模式】
+
+1. 无人机模式
+
+```js
+ viewer.trackedEntity = theEntites;
+
+跟随一个entity要求position属性必须存在
+```
+
+2. 自由模式
+
+   默认便是自由模式
+
+   ```js
+   viewer.trackedEntity = undefined;
+   viewer.scene.camera.flyTo(homeCameraView); // 在切换来视图
+   ```
+
+   
+
+
 
 ---
+
+### ？
+
+#### 1. Animation主题
+
++ 首先添加一个CSS文件，并将其导入
+
+  因为CSS实现原因，一般我们会给与 document.body.className = "cesium-lighter"
+
++ `viewer.animation.applyThemeChanges(); `  
+
+  如果不执行，主题变换不完全(部分变成黑色主题，部分还是亮色主题).
+
+#### 2 天地图提供的图层
+
++ 大体如下，
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
+    url: "http://t0.tianditu.com/img_w/wmts?",
+    layer: "img",
+    style: "default",
+    format: "tiles",
+    tileMatrixSetID: "w",
+    credit: new Cesium.Credit("天地图全球影像服务"),
+    maximumLevel: 18,
+  }),
+  baseLayerPicker: false,
+});
+```
+
+#### 3 
+
+
+
+
+
+
+
+
+
+---
+
+### 五、 公司代码
+
+> 目录： huitong项目中  src\components\map\cesium-map-viewer.vue
+>
+
 
 > 我的意见：由于笔记有限，大部分代码会被省略（很多内容应该理解，潜移默化）。
 >
