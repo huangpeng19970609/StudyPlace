@@ -24,6 +24,74 @@
 
 #### 2  重要知识汇总
 
+0.  Cesium程序结构(cesiumWidget) 细分为`五部分`
+
+   + `lock
+
+     记录时间、三维场景的动态展示，需要clock来确定某帧内容
+
+   + container:   domId
+
+   + canvas:    在container上构建的Canvas对象（即这个宇宙）
+
+   + `【screenSpaceEventHandler 】`为 Canvas对象上的鼠标交互事件的封装
+
+   + secne  承载三维场景的对象
+
+   ---
+
+> 【对`scene`进行细致的划分】
+
++ globe
+
+  __surface(QuadtreePrimitive)
+
++ `primitives`自定义图元组  （普通三维）
+
++ groundPrimitives` 自定义图元组 （贴地的三维）
+
++ 环境对象
+
+  skyBox |  skyAtmosphere  |  sun  |  sunBloom  | moon  |  backgroudColor
+
+  ----
+
+> 很重要
+>
+> `【scene.Primitives】`可以存在下列， 即 可放置 primitives中的图元也被划分了很多的类型
+
+ + Globe
+
+   
+
+ + `Model(gltf)`
+
+   
+
+ + ``Primitive:` 不要被名称误解，它只是图元的一种
+
+   ```javascript
+   PrimitiveCollection
+   ```
+
+   可以自定义集合体 Geoetry
+
+   可以定义表皮的外观 Appearance
+
+ + `Billboards | Labels | Poiints`： 注意他们add时候是需要一个先 add 一个 Collection的。整体概念。
+
+   ````js
+   BillboardCollection
+   LabelCollection
+   
+   ````
+
+   
+
+	+ ViewpordQuard: 三维内容的窗体，不常用
+
+---
+
 1. `scene`是 Cesium虚拟场景中所有3D图形对象和状态的容器
 
    ```js
@@ -685,7 +753,7 @@ https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
 
 ---
 
-#### 2 created a model
+#### 2  ⭐ model in primitives 
 
 + 这份代码应该从需求出发。其实是很有逻辑的。故此处顺序的是从逻辑出发。
 
@@ -699,7 +767,7 @@ https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
    scene.primitives.add(model); 
    ```
 
-2. `创建一个model`
+2. `如何创建一个model呢？`
 
    Cesium提供了一个model类
 
@@ -780,6 +848,45 @@ function createModel(url, height, heading, pitch, roll) {
 }
 ```
 
+> model.readyPromise
+
+````js
+model.readyPromise.then(function(model) => {
+  model.Alpha = 0.5;
+})
+
+````
+
+5. 若一个model大量重复怎么办？
+
+   目的是 三维性能问题，这样添加三维性能不会很卡。
+
+   > 参考sancards为 3D Models Instancing
+   >
+   > ModelInstanceCollection 的API请查看源码，api文档不提供将其设置为private。
+
+   ```js
+     var collection = scene.primitives.add(
+       new Cesium.ModelInstanceCollection({
+         url: url,
+         instances: instances, // instance是一个model数组
+       })
+     );
+   ```
+
+6. Model子节点的控制
+
+   3D Models Nodes Explorer
+
+   ````js
+   //  遍历其节点的所有子节点
+   var options = Object.keys(model._runtime.nodesByName).map(function(nodeName) {
+     return nodeName;
+   });
+   ````
+
+   
+
 #### 3 create a toolbar
 
 ```js
@@ -825,6 +932,10 @@ viewer.camera提供
 >
 >  `camera.frustum.near`可见空间区域的大小
 
+
+
+`camera.lookAt`
+
 ```js
 // 相机
 var camera = viewer.camera; 
@@ -848,7 +959,8 @@ var heading = Cesium.Math.toRadians(230.0); // 转为角度
 var pitch = Cesium.Math.toRadians(-20.0); // 转为角度
 
 camera.lookAt(center, new Cesium.HeadingPitchRange(heading, pitch, r * 2.0));
-
+// lookAt会绑定 鼠标左键的旋转角
+camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 ```
 
 2. `viewer.scene.camera.flyTo`
@@ -1015,9 +1127,13 @@ layers.addImageryProvider(
 
 
 
-#### 9 地形
+#### 9 地形 terrainProvider
 
-> 使用地形
+> 使用地形 
+>
+> 地形虽然是 隶属于scene.globe下的，但是开发者为了方便使用，将其也放在scene下terrainProvider 
+>
+> 后续版本似乎又放在了scene.globe.terrainProvider 下
 
 ```js
 var viewer = new Cesium.Viewer("cesiumContainer", {
@@ -1164,11 +1280,9 @@ scene.drillPickEntities(viewer, windowPosition);
 
 
 
-
-
-但更加复杂的怎么办呢？非常非常多的不能由我们一个个写吧？故可以通过kml文件去导入。
-
 #### 11 DataSource (entities)
+
+但entities更加复杂的怎么办呢？非常非常多的不能由我们一个个写吧？故可以通过kml文件去导入。
 
 1. 【重点】使用KmlDataSource来从KML文件中读取点位数据。
 
@@ -1235,11 +1349,171 @@ geocachePromise.then(function (dataSource) {
 
  https://www.cnblogs.com/cesium1/p/10062990.html 
 
+
+
+#### 11 billboards | labels
+
+> 重要解释。 
+>
+> primitives中数组可以放置 
+>
+> `globe | model | primitive | billboards/lables/points/ | viewporQuard`
+>
+> 我们当可以通过 scene.entities去快速的add一个billboard、label这类。
+>
+> entities去实现和 scene.primitives去add的效果确实是一样的。entites是高等级的数据驱动。
+
+##### 基本示范
+
+> 例子：development/billboards 
+
+````js
+var billboards = scene.primitives.add(
+  new Cesium.BillboardCollection()
+);
+billboards.add({
+  image: "../images/Cesium_Logo_overlay.png",
+  position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+});
+````
+
+##### 创建时可以添加属性
+
+````js
+billboards.add({
+    image: "../images/Cesium_Logo_overlay.png", // default: undefined
+    show: true, // default
+    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+    pixelOffset: new Cesium.Cartesian2(0, -50), // default: (0, 0)
+    eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
+    horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
+    verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // default: CENTER
+    scale: 2.0, // default: 1.0
+    color: Cesium.Color.LIME, // default: WHITE
+    rotation: Cesium.Math.PI_OVER_FOUR, // default: 0.0
+    alignedAxis: Cesium.Cartesian3.ZERO, // default
+    width: 100, // default: undefined
+    height: 25, // default: undefined
+    sizeInMeters: false, // default
+  });
+````
+
+##### add后也可以更改属性
+
+````js
+billboardsItem.scale = 3.0;
+````
+
+##### 设置实际大小
+
+```js
+sizeInMeters: true
+```
+
+##### ⭐Scale by viewer
+
+
+
+`NearFarScalar`方法的四个参数
+
++ 参数一： 最近的距离 (near)
+  参数二： 最小比例 (minScale)
+  参数三： 最远距离 (far)
+  参数四： 最大缩放比 （maxScale）
+
+1. `distance的线性变化`
+
+````js
+billboards.add({
+    image: "../images/facility.gif",
+    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+    scaleByDistance: new Cesium.NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
+ });
+````
+
+`offset by viewer offeset`
+
+`偏移的线性变化`
+
+````js
+ 
+pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+          1.0e3,
+          1.0,
+          1.5e6,
+          0.0
+ ),
+````
+
+`透明度的线性变化` => `translucencyByDistance`
+
+```js
+    	// 根据广告牌到相机的距离获取或设置广告牌的近和远半透明属性
+        translucencyByDistance: new Cesium.NearFarScalar(
+          1.0e3,
+          1.0,
+          1.5e6,
+          0.1
+        ),
+```
+
+
+
+##### ⭐ 设置相对点 （in reference frame）
+
+默认的 初点是地球的中心，所以 Cartesian的三个值都很大
+
+=> 更好的方案，通过偏移来控制它们的位置
+
+0. 关于 `Cesium.Transforms.eastNorthUpToFixedFrame`
+
+   一般开发与实际中我们也只会用此坐标系。即 x 朝东， y朝北。
+
+   sandCastle也提供了一个例子示范： `LocalToFixedFrame`
+
+   > 备注： 在之前我们的代码中，我们可以知道 要创建一个modelMartrix您应该有 postion 与 hpr。
+   >
+   > 但这里是通过 eastNorthToFixedFrame去生成的，那么即帮你确认了方向为 x朝向东，y朝向北这件事情。所以可以略hpr，只传position。
+   >
+   > 
+   >
+   > modelMartrix 需要方向的原因，因为你站在地球的任何一个点上，其面向东的方向都会不一样，这是一个三维的世界。
+   >
+   > 若是二维地图则是上北下南永远不变。
+
+1. 第一步，设置 billboardCollection的 modelMartrix
+
+   ```js
+     var billboards = scene.primitives.add(
+       new Cesium.BillboardCollection()
+     );
+     var center = Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883);
+     billboards.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+       center // Cartesian3 类型
+     );
+   ```
+
+2. 
+
+
+
+#####  add canvas on billboards
+
+可以通过js创建一个canvase的dom元素，然后添加至 billboards上也是可以实现的。
+
+配置 image为 此dom对象即可。
+
+---
+
 #### 11 3DTiles 略。 同上链接的示范
 
 此处略掉，若有需要可以参考。
 
-#### 12 ⭐交互(pcik)
+
+
+---
+
+#### 12 ⭐交互(pick)
 
 即 与 `scene`进行交互。
 
@@ -1472,6 +1746,12 @@ handler.setInputAction(function(movement) {
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 这是不完善的代码，因为光标离开的时候，并没有把高光取消。
+````
+
+##### 6 判断是一个 model
+
+````js
+if (Cesium.defined(pick) && Cesium.defined(pick.node) && Cesium.defined(pick.mesh))
 ````
 
 
