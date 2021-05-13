@@ -1,4 +1,4 @@
-### 一、前言：
+一、前言：
 
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
 
@@ -56,8 +56,8 @@
 
   ----
 
-> 很重要
->
+
+
 > `【scene.Primitives】`可以存在下列， 即 可放置 primitives中的图元也被划分了很多的类型
 
  + Globe
@@ -261,12 +261,14 @@ viewer.scene.debugShowFramesPerSecond = true;
 viewer._cesiumWidget._creditContainer.style.display = "none";
 ```
 
-##### 4 移动当前的照相机
+##### 4 移动与追踪当前的照相机
 
 当然 camera也可以做到！详情看 【官方代码】学习的camera
 
 ```js
 viewer.zoomTo(viewer.entities); // 移动到该 viewer的实体
+
+viewer.trackedEntity = theEntity;
 ```
 
 ##### 5 时间倍速【clock】
@@ -281,8 +283,6 @@ viewer.clock.multiplier = 4000;
 // 开启全球光照
 viewer.scene.globe.enableLighting = true;
 ```
-
-
 
 ##### 7 CallbackProperty
 
@@ -438,59 +438,7 @@ var viewer = new Cesium.Viewer('cesiumContainer',{
 
 ```
 
-#### 3 图层 
-
-Cesium应用程序另一个关键元素是`Imagery(图层)`
-
-瓦片图集合根据不同的投影方式映射到虚拟的三维数字地球表面。
-
-依赖于相机指向地表的方向和距离，Cesium会去请求和渲染不同层级的图层详细信息
-
-多种图层能够被添加、移除、排序和适应到Cesium中
-
-> helloWorld 一个基础的添加图层的示范
->
-> https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
-
-```js
-var viewer = new Cesium.Viewer("cesiumContainer", {
-  // 当前基础影像图层的视图模型
-  baseLayerPicker: false,  
-  // 要使用的图像提供者， 前置条件： baseLayerPicker的配置为false
-  imageryProvider: Cesium.createWorldImagery({
-    style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
-  }),
-});
-
-/* 
-  提醒： 此时该 viewer已经是一个 Cesium viewer实例了
-  addImageryProvider => 使用给定的ImageryProvider创建一个新层，并将其添加到集合中
-  						其 return 的是一个 新创建的图层
-*/
-
-var layers = viewer.scene.imageryLayers; // 获取将在地球上渲染的图像图层的集合。
-
-// blackMarble便是我们生成的图层
-var blackMarble = layers.addImageryProvider(
-   // 使用Cesium ion REST API提供平铺的图像
-   // assetId 为离子图像资产ID；
-  new Cesium.IonImageryProvider({ assetId: 3812 })
-);
-
-// 我们可以给图层定义一些属性
-blackMarble.alpha = 0.5; // 该层的alpha混合值
-
-blackMarble.brightness = 2.0; // 该层的亮度
-
-layers.addImageryProvider(
-  new Cesium.SingleTileImageryProvider({
-    url: "../images/Cesium_Logo_overlay.png",
-    rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
-  })
-); 
-```
-
-####  4 图层与 knockout的互绑
+####  3 图层与 knockout的互绑
 
 
 
@@ -546,7 +494,7 @@ updateViewModel();
 
 
 
-#### 5 添加实体
+#### 4 添加实体
 
 > 请参考 http://cesium.xin/wordpress/archives/102.html 底部的图形
 >
@@ -620,7 +568,7 @@ viewer.dataSources.add(dataSourcePromise);
 viewer.zoomTo(dataSourcePromise);
 ```
 
-#### 6 3D Tiles数据集
+#### 5 3D Tiles数据集
 
 入门（六）(七)没看懂。可以回去结合代码去观看。
 
@@ -629,100 +577,6 @@ viewer.zoomTo(dataSourcePromise);
 3D Tiles用于流式传输3D内容，包括建筑物、树木和矢量数据。
 
 `ModelMatrix`
-
-
-
-#### 7 设置材质
-
-`http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
-
-1. 构建 Cesium.Material对象来实现。
-
-> https://sandcastle.cesium.com/?src=Materials.html&label=CZML  官方的示范
->
-> http://cesium.xin/cesium/cn/Documentation1.62/Material.html?classFilter=Material 中文API
-
-2. 通过【MaterialProperty】的来直接构建属性。
-
-其下又有七个子类，来可以控制材质的不同显示.如下例子
-
-```js
-//方法一，构造时赋材质
-var entity = viewer.entities.add({
-  position: Cesium.Cartesian3.fromDegrees(-103.0, 40.0),
-  ellipse : {
-    semiMinorAxis : 250000.0,
-    semiMajorAxis : 400000.0,
-    material : Cesium.Color.BLUE.withAlpha(0.5)//可设置不同的MaterialProperty
-  }
-});
-
-//方法二，构造后赋材质
-var ellipse = entity.ellipse;
-ellipse.material = Cesium.Color.RED;
-```
-
----
-
-> 1. 颜色材质 类名为 ColorMaterialProperty
->
->    ```js
->    var ellipse = entities.ellipse;
->    ellipse.material = Cesium.Color.RED; // Cesium.Color.RED.withAlpha(0.1),
->    ---------------------------------------------------------------------------
->        
->    // 当然也可以这样, 这种情况不再累述。
->    var redBox = viewer.entities.add({
->      name: "Red box with black outline",
->      position: Cesium.Cartesian3.fromDegrees(-107.0, 40.0, 300000.0),
->      box: {
->        dimensions: new Cesium.Cartesian3(400000.0, 300000.0, 500000.0),
->        material: Cesium.Color.RED.withAlpha(0.1),
->        outline: true,
->        outlineColor: Cesium.Color.BLACK,
->      },
->    });
->    ```
-
-
-
-> 2. 图片材质 类名为 ImageMaterialProperty
->
->    ```js
->    常用的属性 
->    	images => 可以是URL、Canvas 或 Video 
->        repeat => 代表x与y方向的重复次数
->    	color  => 颜色
->        
->    //完整的这么写
->    ellipse.material = new Cesium.ImageMaterialProperty({
->        image:'../images/cats.jpg',
->        color: Cesium.Color.BLUE,
->        repeat : new Cesium.Cartesian2(4, 4)
->    });
->    
->    //也可以简单的写成
->    ellipse.material = '../images/cats.jpg';
->    ```
-
-> 3. 棋盘材质 类名为 Checkerboard-Material-Property
->
-> ```js
-> evenColor: 默认为白
-> oddColor:  默认黑
-> repeat: new Cesium.Cartesian2(4, 4) 重复次数
-> 
-> ellipse.material = new Cesium.CheckerboardMaterialProperty({
->   evenColor : Cesium.Color.WHITE,
->   oddColor : Cesium.Color.BLACK,
->   repeat : new Cesium.Cartesian2(4, 4)
-> });
-> 
-> ```
-
-`其他` http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
-
-
 
 
 
@@ -771,7 +625,7 @@ https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
 
    Cesium提供了一个model类
 
-   #### `Cesium.Model.fromGltf` (options) 目前我了解的到的生成model实例方法！
+   #### `Cesium.Model.fromGltf` (options) 目前我了解的到的生成3D model实例方法！
 
    > 从glTF资产创建模型。当模型准备好渲染时，即当外部二进制图像并下载着色器文件并创建WebGL资源，即可解析 [`Model＃readyPromise `](http://cesium.xin/cesium/cn/Documentation1.62/Model.html#readyPromise)。
    >
@@ -908,11 +762,15 @@ Cesium.knockout
 <select data-bind="options: colors, value: color"></select>
 ```
 
-#### 4 camera（相机）
+#### 4 ⭐ camera（相机）
 
-可以参考这篇文档中camera的例子 https://www.cnblogs.com/cesium1/p/10062990.html
+还有【屏幕控件相机控制器】【[ScreenSpaceCameraController](https://cesiumjs.org/Cesium/Build/Documentation/ScreenSpaceCameraController.html) 】
 
-> 一些最常用的方法:
+> 可以参考这篇文档中camera的例子 https://www.cnblogs.com/cesium1/p/10062990.html
+>
+> 这些方法除了应用在单独一个entity上，也可以作用在 [EntityCollection](https://cesiumjs.org/Cesium/Build/Documentation/EntityCollection.html)对象上或者一个普通的js entity数组。这些方法会自动计算一个视图，确保所有所有传到方法里的entity都可见，相机朝向正北，以45°倾斜俯视。
+
+一些最常用的方法:
 
 - [`Camera.setView(options)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#setView) : 立即设置相机位置和朝向。
 - [`Camera.zoomIn(amount)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#zoomIn) : 沿着相机方向移动相机。
@@ -922,19 +780,15 @@ Cesium.knockout
 - [`Camera.move(direction, amount)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#move) : 沿着direction方向移动相机。
 - [`Camera.rotate(axis, angle)`](https://cesiumjs.org/Cesium/Build/Documentation/Camera.html#rotate) : 绕着任意轴旋转相机。
 
-viewer.camera提供
+相机的控制
 
-1. 相机的控制
++ `scene.screenSpaceCameraController` 根据对画布的鼠标输入来修改相机的位置和方向
 
-> `scene.screenSpaceCameraController` 根据对画布的鼠标输入来修改相机的位置和方向
->
-> `model.boundingSphere.radius`模型在其局部坐标系中的边界球的半径
->
->  `camera.frustum.near`可见空间区域的大小
++ `model.boundingSphere.radius`模型在其局部坐标系中的边界球的半径
 
++ ` camera.frustum.near`可见空间区域的大小
 
-
-`camera.lookAt`
+##### 1 camera.lookAt
 
 ```js
 // 相机
@@ -953,7 +807,7 @@ var center = Cesium.Matrix4.multiplyByPoint(
   model.modelMatrix,
   model.boundingSphere.center,
   new Cesium.Cartesian3(),	
-);
+);	
 
 var heading = Cesium.Math.toRadians(230.0); // 转为角度
 var pitch = Cesium.Math.toRadians(-20.0); // 转为角度
@@ -963,12 +817,14 @@ camera.lookAt(center, new Cesium.HeadingPitchRange(heading, pitch, r * 2.0));
 camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 ```
 
-2. `viewer.scene.camera.flyTo`
+##### 2 camera.flyTo
 
-   + 第一个参数 [Cartesian3 ](http://cesium.xin/cesium/cn/Documentation1.62/Cartesian3.html)| [Rectangle](http://cesium.xin/cesium/cn/Documentation1.62/Rectangle.html)类型
-   + orientation 包含方向和向上属性或航向，俯仰和横滚属性的对象。
+执行一个相机动画渐变过去
 
-   `Cesium.Cartesian3.fromRadians `从以弧度给出的经度和纬度值返回Cartesian3位置。
++ 第一个参数 [Cartesian3 ](http://cesium.xin/cesium/cn/Documentation1.62/Cartesian3.html)| [Rectangle](http://cesium.xin/cesium/cn/Documentation1.62/Rectangle.html)类型
++ orientation 包含方向和向上属性或航向，俯仰和横滚属性的对象。
+
+`Cesium.Cartesian3.fromRadians `从以弧度给出的经度和纬度值返回Cartesian3位置。
 
 ```js
 viewer.scene.camera.flyTo({
@@ -985,15 +841,79 @@ viewer.scene.camera.flyTo({
 });
 ```
 
-3. `viewer.zoomTo`viewer提供了一种相机方法
+##### 3 viewer.zoomTo
 
-   ````js
-   var heading = Cesium.Math.toRadians(90);
-   var pitch = Cesium.Math.toRadians(-30);
-   viewer.zoomTo(wyoming, new Cesium.HeadingPitchRange(heading, pitch));
-   ````
+viewer提供了一种相机方法, 显示一个特定的entity
 
+````js
+var heading = Cesium.Math.toRadians(90);
+var pitch = Cesium.Math.toRadians(-30);
+viewer.zoomTo(wyoming, new Cesium.HeadingPitchRange(heading, pitch));
+````
+
+##### 4. 飞行结束后选中
+
+zoomTo 与 flyTo都是异步，都会返回promise对象
+
+```js
+viewer.flyTo(wyoming).then(function(result){
+    if (result) {
+        viewer.selectedEntity = wyoming;
+    }
+});
+```
+
+##### 5  相机模式（追踪实体）
+
+相机模式指的是【自由模式】与【无人机模式】
+
+1. 无人机模式
+
+```js
+ viewer.trackedEntity = theEntites;
+
+跟随一个entity要求position属性必须存在
+```
+
+2. 自由模式
+
+   默认便是自由模式
+
+   + 设置undefined可以变回自由模式
+   + 调用flyTo 与 zoomTo也可以变回自由模式
+
+   ```js
+   viewer.trackedEntity = undefined; // 这样就可以切回来
    
+   viewer.scene.camera.flyTo(homeCameraView); // 在切换来视图
+   ```
+
+
+##### 6 setView (调整相机姿态)
+
+```js
+camera.setView({
+    // destination：Cesium.Rectangle.fromDegrees(west, south, east, north)也可以！
+    destination : new Cesium.Cartesian3(x, y, z),
+    orientation: {
+        heading : headingAngle || 0.0,
+        pitch : pitchAngle ||  -Cesium.Math.PI_OVER_TWO, // 正北朝向
+        roll : rollAngle || 0.0 
+    }
+});
+```
+
+##### 7 自定义相机的 鼠标\键盘事件
+
+> sandcastle代码: https://sandcastle.cesium.com/index.html?src=Camera%20Tutorial.html
+>
+> 讲解此处sandcastle代码： https://www.cnblogs.com/cesium1/p/10063020.html
+
+有点多。略了。下次一定！
+
+
+
+---
 
 #### 5 时间控制(Clock)
 
@@ -1012,13 +932,102 @@ viewer.timeline.zoomTo(viewer.clock.startTime, viewer.clock.stopTime); // 设置
 
 
 
+#### 5 ⭐imageryLayers(影像图层）
+
+https://www.cnblogs.com/cesium1/p/10063008.html 底部的sandcastle示范很重要。
+
+> Cesium应用程序另一个关键元素是`Imagery(图层)`
+>
+> 瓦片图集合根据不同的投影方式映射到虚拟的三维数字地球表面。
 
 
 
+> 依赖于相机指向地表的方向和距离，Cesium会去请求和渲染不同层级的图层详细信息
+>
+> 多种图层能够被添加、移除、排序和适应到Cesium中
 
-#### 5.  imageryLayers（图层）
 
 
+> Cesium`支持多种服务来源`的高精度影像（地图）数据的加载和渲染
+>
+> 这就代表了` new Cesium.ArcGisMapServerImageryProvider`这种服务供应商类很多.
+
+
+
+> 依据切片的组织形式和请求形式不同, Cesium支持很多标准， 哪些呢？自行查阅。 
+
+##### 1 初次了解 
+
+> helloWorld 一个基础的添加图层的示范
+>
+> https://sandcastle.cesium.com/index.html?src=Imagery%20Layers.html
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  // 当前基础影像图层的视图模型
+  baseLayerPicker: false,  
+  // 要使用的图像提供者， 前置条件： baseLayerPicker的配置为false
+  imageryProvider: Cesium.createWorldImagery({
+    style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
+  }),
+});
+
+/* 
+  提醒： 此时该 viewer已经是一个 Cesium viewer实例了
+  addImageryProvider => 使用给定的ImageryProvider创建一个新层，并将其添加到集合中
+  						其 return 的是一个 新创建的图层
+*/
+
+var layers = viewer.scene.imageryLayers; // 获取将在地球上渲染的图像图层的集合。
+
+// blackMarble便是我们生成的图层
+var blackMarble = layers.addImageryProvider(
+   // 使用Cesium ion REST API提供平铺的图像
+   // assetId 为离子图像资产ID；
+  new Cesium.IonImageryProvider({ assetId: 3812 })
+);
+
+// 我们可以给图层定义一些属性
+blackMarble.alpha = 0.5; // 该层的alpha混合值
+
+blackMarble.brightness = 2.0; // 该层的亮度
+
+layers.addImageryProvider(
+  new Cesium.SingleTileImageryProvider({
+    url: "../images/Cesium_Logo_overlay.png",
+    rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
+  })
+); 
+```
+
+##### 2 一些参数设置
+
+1. 透明度
+
+   ````js
+   blackMarble.alpha = 0.5;
+   ````
+
+2. 亮度
+
+   ````js
+   blackMarble.brightness = 2.0;
+   ````
+
+3. 指定覆盖范围
+
+   ````js
+   layers.addImageryProvider(
+     new Cesium.SingleTileImageryProvider({
+       url: "../images/Cesium_Logo_overlay.png",
+       rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
+     })
+   ); 
+   ````
+
+
+
+##### 3 瓦片数据
 
 > 参考文章： https://www.cnblogs.com/fuckgiser/p/5647429.html
 >
@@ -1071,13 +1080,34 @@ imageryLayers.layerRemoved.addEventListener(updateViewModel);
 imageryLayers.layerMoved.addEventListener(updateViewModel);
 ```
 
-####  6 切割图层 + 操作图层
+> 天地图图层
+
+```js
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
+    url: "http://t0.tianditu.com/img_w/wmts?",
+    layer: "img",
+    style: "default",
+    format: "tiles",
+    tileMatrixSetID: "w",
+    credit: new Cesium.Credit("天地图全球影像服务"),
+    maximumLevel: 18,
+  }),
+  baseLayerPicker: false,
+});
+```
+
+
+
+#####  4 切割图层 + 操作图层
 
 >切割图层： https://sandcastle.cesium.com/index.html?src=Imagery%20Layers%20Split.html
 >
 >操作图层： https://sandcastle.cesium.com/index.html?src=Imagery%20Layers%20Manipulation.html
 
-#### 7 多个图层 与 局部覆盖
+
+
+##### 5 多个图层 
 
 > 参考实例： `Imagery Layers`
 
@@ -1091,11 +1121,7 @@ imageryLayers.layerMoved.addEventListener(updateViewModel);
   办法3： layers.lowerToBottom(blackMarble);
   ```
 
-+ 指定某图层覆盖某一块地方`rectangle`
-
-  ```js
-  rectangle: Cesium.Rectangle.fromDegrees(-75.0, 28.0, -67.0, 29.75),
-  ```
++ 示范
 
 ```js
 var viewer = new Cesium.Viewer("cesiumContainer", {
@@ -1129,7 +1155,7 @@ layers.addImageryProvider(
 
 #### 9 地形 terrainProvider
 
-> 使用地形 
+> 使用地形  示范： https://sandcastle.cesium.com/index.html?src=Terrain.html
 >
 > 地形虽然是 隶属于scene.globe下的，但是开发者为了方便使用，将其也放在scene下terrainProvider 
 >
@@ -1141,6 +1167,8 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     url: Cesium.IonResource.fromAssetId(3956), // 试试3957
   }),
 });
+// 也可以这样
+viewer.terrainProvider = Cesium.createWorldTerrain(); // 差不多
 ```
 
 > - [Terrain display options](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Terrain.html&label=Showcases) : 一些地形数据配置和格式
@@ -1148,7 +1176,24 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 
 
 
+地形光照 与 水面效果
+
+> Cesium全球地形也包含了地形光照数据，以及水面效果需要的海岸线数据。
+
+```js
+var terrainProvider = Cesium.createWorldTerrain({
+    requestVertexNormals: true, // 需要VertexNormals扩展。
+});
+viewer.scene.globe.enableLighting = true;
+```
+
+
+
+---
+
 #### 10 ⭐Entities(实体)
+
++ mesh 自定义三角网 也是判断是否是entities的依据之一。后续会看到此处属性。
 
 ##### 1 初次使用
 
@@ -1156,10 +1201,12 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 
 可以在实例去搜索 `geometries` 该标签页。  汉译为几何学, 提供了大量的实体类。
 
-- [`Polygon`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polygon.html&label=Geometries)
-- [`Polyline`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polyline.html&label=Geometries)
-- [`Billboard`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Billboards.html&label=Beginner)
-- [`Label`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Labels.html&label=Beginner)
+- [`Polygon`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polygon.html&label=Geometries)多边形
+- [`Polyline`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Polyline.html&label=Geometries)折线
+- [`Billboard`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Billboards.html&label=Beginner)广告牌
+- [`Label`](https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/index.html?src=Labels.html&label=Beginner)文字
+- `Volume（柱体） | Rectangle（矩形）| Ellipsoid （球和椭球） |`
+- ` Wall （墙） | Box （六面体盒子）`
 
 > 步骤 
 
@@ -1184,9 +1231,11 @@ var modelEntity = viewer.entities.add({
  viewer.zoomTo(modelEntity);
 ```
 
-##### 2. Entity集合增删改查
 
-> 1. `增`实体
+
+##### 2  增
+
+> 我们并没有指定这个id，Cesium会自动生成一个 [GUID](http://en.wikipedia.org/wiki/Globally_unique_identifier) , 类似`182bdba4-2b3e-47ae-bf0b-83f6fde285fd` 填充到id属性里
 
 ```js
 //方法一
@@ -1197,23 +1246,19 @@ var entity = new Entity({
 	// 2 在viewer上的实体集合上新增它
 viewer.entities.add(entity);
 
-// 简写
-viewer.entities.add({
-    id : 'uniqueId'
-});
-
 ----------------------------------------
-//方法二
+//方法二  getOrCreateEntity 
+总会返回以传入的参数为id的对象实例， 如果id不存在，那么会新建一个，并且增加到entity集合里，然后返回。
 var entity = viewer.entities.getOrCreateEntity('uniqueId');
 ```
 
-> 2. `查`找实体
+#####   3 查
 
 ```js
-var entity = viewer.entities.getById('uniqueId');
+var entity = viewer.entities.getById('uniqueId'); // 若没有返回undefined
 ```
 
-> 3. `删`
+#####   4 删
 
 ```js
 //方法一，先查后删
@@ -1225,9 +1270,12 @@ viewer.entities.removeById('uniqueId')
 viewer.entities.removeAll()
 ```
 
-> 4. `变化`
+#####   5 变
+
+`collectionChanged 变化通知`
 
 ```js
+// 打印所有新增的 entities的id
 function onChanged(collection, added, removed, changed){
   var msg = 'Added ids';
   for(var i = 0; i < added.length; i++) {
@@ -1238,7 +1286,25 @@ function onChanged(collection, added, removed, changed){
 viewer.entities.collectionChanged.addEventListener(onChanged);
 ```
 
-> `修改描述信息`
+#####  5.1 性能提升
+
+先调用 [viewer.entities.suspendEvents](https://cesiumjs.org/Cesium/Build/Documentation/EntityCollection.html#suspendEvents)，修改完之后再调用 [viewer.entities.resumeEvents](https://cesiumjs.org/Cesium/Build/Documentation/EntityCollection.html#resumeEvents).
+
+当一次性更新的数量过多的时候，先一个个更新，最后统一发消息效率更高.
+
+这样就是优化了性能，变为了最后统一的发送消息。
+
+注意： suspend和resume必须是匹配的
+
+````js
+viewer.entities.suspendEvents();
+.................
+viewer.entities.resumeEvents();
+````
+
+
+
+ `修改描述信息`
 
 ```js
 var viewer = new Cesium.Viewer('cesiumContainer');
@@ -1264,7 +1330,7 @@ wyoming.description = '\
 </p>\';
 ```
 
-> `选中`
+ `选中`
 >
 > 选中由 scene提供的方法来实现选中的。其提供了两个方法，且参数相同。
 
@@ -1274,13 +1340,117 @@ scene.pickEntity(viewer, windowPosition);
 scene.drillPickEntities(viewer, windowPosition);
 ```
 
-##### 3 Entity管理
 
 
 
 
 
-#### 11 DataSource (entities)
+
+
+
+#### 11 设置材质(entites)
+
+*entity* 中 默认fill：true;  outline：false
+
+`fill` 为boolean类型，控制表面是否填充
+
+ `outline` 属性控制是否有外边界。
+
+1. `方法一：` 构建 Cesium.Material对象来实现。
+
+> `http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
+>
+> https://sandcastle.cesium.com/?src=Materials.html&label=CZML  官方的示范
+>
+> http://cesium.xin/cesium/cn/Documentation1.62/Material.html?classFilter=Material 中文API
+
+2. `方法二：` 通过【MaterialProperty】的来直接构建属性。
+
+> https://www.cnblogs.com/cesium1/p/10062999.html 参考这篇文章 或者 sandcastle示范
+
+其下又有七个子类，来可以控制材质的不同显示.如下例子
+
+```js
+//方法一，构造时赋材质
+var entity = viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(-103.0, 40.0),
+  ellipse : {
+    semiMinorAxis : 250000.0,
+    semiMajorAxis : 400000.0,
+    material : Cesium.Color.BLUE.withAlpha(0.5)//可设置不同的MaterialProperty
+  }
+});
+
+//方法二，构造后赋材质
+var ellipse = entity.ellipse;
+ellipse.material = Cesium.Color.RED;
+```
+
+---
+
+> 1. `颜色材质` 类名为 ColorMaterialProperty
+>
+>    ```js
+>    var ellipse = entities.ellipse;
+>    ellipse.material = Cesium.Color.RED; // Cesium.Color.RED.withAlpha(0.1),
+>    ---------------------------------------------------------------------------
+>        
+>    // 当然也可以这样, 这种情况不再累述。
+>    var redBox = viewer.entities.add({
+>      name: "Red box with black outline",
+>      position: Cesium.Cartesian3.fromDegrees(-107.0, 40.0, 300000.0),
+>      box: {
+>        dimensions: new Cesium.Cartesian3(400000.0, 300000.0, 500000.0),
+>        material: Cesium.Color.RED.withAlpha(0.1),
+>        outline: true,
+>        outlineColor: Cesium.Color.BLACK,
+>      },
+>    });
+>    ```
+
+
+
+> 2. `图片材质` 类名为 ImageMaterialProperty
+>
+>    ```js
+>    常用的属性 
+>    	images => 可以是URL、Canvas 或 Video 
+>        repeat => 代表x与y方向的重复次数
+>    	color  => 颜色
+>        
+>    //完整的这么写
+>    ellipse.material = new Cesium.ImageMaterialProperty({
+>        image:'../images/cats.jpg',
+>        color: Cesium.Color.BLUE,
+>        repeat : new Cesium.Cartesian2(4, 4)
+>    });
+>    
+>    //也可以简单的写成
+>    ellipse.material = '../images/cats.jpg';
+>    ```
+
+> 3. `棋盘材质 `类名为 Checkerboard-Material-Property
+>
+> ```js
+> evenColor: 默认为白
+> oddColor:  默认黑
+> repeat: new Cesium.Cartesian2(4, 4) 重复次数
+> 
+> ellipse.material = new Cesium.CheckerboardMaterialProperty({
+>   evenColor : Cesium.Color.WHITE,
+>   oddColor : Cesium.Color.BLACK,
+>   repeat : new Cesium.Cartesian2(4, 4)
+> });
+> 
+> ```
+
+`其他还有很多的材质，略，请参考代码` http://cesium.xin/wordpress/archives/108.html 请参考这里的配置。
+
+
+
+
+
+#### 12 DataSource (entities)
 
 但entities更加复杂的怎么办呢？非常非常多的不能由我们一个个写吧？故可以通过kml文件去导入。
 
@@ -1351,7 +1521,13 @@ geocachePromise.then(function (dataSource) {
 
 
 
-#### 11 billboards | labels
+#### 13 billboards | labels | Polyline
+
++ `BillboardCollection`
+
++ `LabelCollection`
+
++ `PolylineCollection`
 
 > 重要解释。 
 >
@@ -1363,7 +1539,7 @@ geocachePromise.then(function (dataSource) {
 >
 > entities去实现和 scene.primitives去add的效果确实是一样的。entites是高等级的数据驱动。
 
-##### 基本示范
+##### 1 基本示范
 
 > 例子：development/billboards 
 
@@ -1377,7 +1553,7 @@ billboards.add({
 });
 ````
 
-##### 创建时可以添加属性
+##### 2 创建时可以添加属性
 
 ````js
 billboards.add({
@@ -1398,19 +1574,19 @@ billboards.add({
   });
 ````
 
-##### add后也可以更改属性
+##### 3 add后也可以更改属性
 
 ````js
 billboardsItem.scale = 3.0;
 ````
 
-##### 设置实际大小
+##### 4 设置实际大小
 
 ```js
 sizeInMeters: true
 ```
 
-##### ⭐Scale by viewer
+##### ⭐5 Scale by viewer
 
 
 
@@ -1459,7 +1635,7 @@ pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
 
 
 
-##### ⭐ 设置相对点 （in reference frame）
+##### ⭐ 6 设置相对点 （in reference frame）
 
 默认的 初点是地球的中心，所以 Cartesian的三个值都很大
 
@@ -1493,35 +1669,149 @@ pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
      );
    ```
 
-2. 
+2. 第二步
+
+   此时position的写法就可以参照你之前设置的那个点。
+
+   ````js
+     var facilityUrl = "../images/facility.gif";
+   
+     // center
+     billboards.add({
+       image: facilityUrl,
+       position: new Cesium.Cartesian3(0.0, 0.0, 0.0),
+     });
+   
+     // east
+     billboards.add({
+       image: facilityUrl,
+       position: new Cesium.Cartesian3(1000000.0, 0.0, 0.0),
+     });
+   ````
+
+   
 
 
 
-#####  add canvas on billboards
+#####  7 add canvas on billboards
 
 可以通过js创建一个canvase的dom元素，然后添加至 billboards上也是可以实现的。
 
 配置 image为 此dom对象即可。
 
+##### 8 entites方法去创建这三个元素
+
+> Cesium上如何展示POI点。 创建一个点或者标注非常简单，只需要设置entity 的 [position](https://cesiumjs.org/Cesium/Build/Documentation/Entity.html#position) 属性，以及[point](https://cesiumjs.org/Cesium/Build/Documentation/PointGraphics.html) 或者[label](https://cesiumjs.org/Cesium/Build/Documentation/LabelGraphics.html) 可视化对象。
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+var citizensBankPark = viewer.entities.add({
+    name : 'Citizens Bank Park',
+    position : Cesium.Cartesian3.fromDegrees(-75.166493, 39.9060534),
+    point : {
+        pixelSize : 5,
+        color : Cesium.Color.RED,
+        outlineColor : Cesium.Color.WHITE,
+        outlineWidth : 2
+    },
+    label : {
+        text : 'Citizens Bank Park',
+        font : '14pt monospace',
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        outlineWidth : 2,
+        verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+        pixelOffset : new Cesium.Cartesian2(0, -9)
+    }
+});
+
+viewer.zoomTo(viewer.entities);
+```
+
+
+
 ---
 
-#### 11 3DTiles 略。 同上链接的示范
+#### 14 ⭐拾取(pick)
 
-此处略掉，若有需要可以参考。
+什么是拾取？也就是返回特定屏幕坐标（通常是鼠标位置）的对象，
+
+【拾取】是需要和 `Primitive API`打交道的功能
+
+> 虽然场景的拾取函数返回的是图元信息而不是entity对象.
+>
+> 但是Entity API的结构限定每一个图元会对应到一个entity实体上，通过他们的 [id](https://cesiumjs.org/Cesium/Build/Documentation/Entity.html#id) 属性来区分。
+>
+> 所以我们要获取其`id`！所以我们要判断检测拾取的对象id是否是一个 [Entity](https://cesiumjs.org/Cesium/Build/Documentation/Entity.html)
 
 
-
----
-
-#### 12 ⭐交互(pick)
 
 即 与 `scene`进行交互。
 
 + Scene.pick ：      返回窗口坐标对应的图元的第一个对象 
+
 + Scene.drillPick :  返回窗口坐标对应的所有对象列表
+
 + Globe.pick :         返回一条射线和地形的相交位置点
 
-> `movement.endPositions` 是一个 `Cartesian2`的实例！
+其他重要的点：
+
++ movement.endPositions` 是一个 `Cartesian2`的实例！
+
+
+
+##### 0 官方代码（很漂亮的封装）
+
+1. 第一个函数是 获取最上面的那个entity
+2. 第二个函数是  获取entity的所有列表
+
+```js
+/**
+ * 返回对应窗口位置最上面一个Entity 如果该位置没有对象那么返回undefined
+ * @param {Cartesian2} windowPosition 窗口坐标
+ * @returns {Entity} 返回值
+ */
+function pickEntity(viewer, windowPosition) {
+  var picked = viewer.scene.pick(windowPosition);
+  if (defined(picked)) {
+    var id = Cesium.defaultValue(picked.id, picked.primitive.id);
+    if (id instanceof Cesium.Entity) {
+      return id;
+    }
+  }
+  return undefined;
+};
+
+/**
+ * 返回对应窗口位置所有Entity的列表 如果该位置没有对象那么返回undefined
+ * 返回值按可视化顺序从前到后存储在数组里
+ *
+ * @param {Cartesian2} windowPosition 窗口位置
+ * @returns {Entity[]}  
+ */
+function drillPickEntities(viewer, windowPosition) {
+  var i;
+  var entity;
+  var picked;
+  var pickedPrimitives = viewer.scene.drillPick(windowPosition);
+  var length = pickedPrimitives.length;
+  var result = [];
+  var hash = {};
+
+  for (i = 0; i < length; i++) {
+    picked = pickedPrimitives[i];
+    entity = Cesium.defaultValue(picked.id, picked.primitive.id);
+    if (entity instanceof Cesium.Entity &&
+        !Cesium.defined(hash[entity.id])) {
+      result.push(entity);
+      hash[entity.id] = true;
+    }
+  }
+  return result;
+};
+```
+
+
 
 以下四个实例都是参考:
 
@@ -1754,32 +2044,175 @@ handler.setInputAction(function(movement) {
 if (Cesium.defined(pick) && Cesium.defined(pick.node) && Cesium.defined(pick.mesh))
 ````
 
+---
 
+#### 15  [SelectionIndicator](https://cesiumjs.org/Cesium/Build/Documentation/SelectionIndicator.html) 
 
-#### 13 相机模式（追踪实体）
+除非明确禁用，否则点击Entity将在它的位置会显示 [SelectionIndicator](https://cesiumjs.org/Cesium/Build/Documentation/SelectionIndicator.html) 控件，
 
-相机模式指的是【自由模式】与【无人机模式】
-
-1. 无人机模式
+并且在 [InfoBox](https://cesiumjs.org/Cesium/Build/Documentation/InfoBox.html) 控件里显示它的描述信息。
 
 ```js
- viewer.trackedEntity = theEntites;
-
-跟随一个entity要求position属性必须存在
+// 明确禁止 
+var viewer = new Cesium.Viewer("cesiumContainer", {
+  infoBox: false, // 右侧的infoBox不再显示
+  selectionIndicator: false, // 点击的 动画效果不再显示
+});
 ```
 
-2. 自由模式
+控制infobox的示范
 
-   默认便是自由模式
+> 默认，在[InfoBox](https://cesiumjs.org/Cesium/Build/Documentation/InfoBox.html) 里所有的HTML是沙盒模式。这个防止外部的数据注入恶意的代码。如果你需要在描述信息里运行js脚本或者浏览器插件，可以通过`viewer.infoBox.frame`属性来访问这个iframe。更多关于iframe的沙盒模式，请参考[这篇文章](http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/) 。
+
+```js
+var blueBox = viewer.entities.add({
+  name: "Blue222 box",
+  position: Cesium.Cartesian3.fromDegrees(-114.0, 40.0, 300000.0),
+  box: {
+    dimensions: new Cesium.Cartesian3(400000.0, 300000.0, 500000.0),
+    material: Cesium.Color.BLUE,
+  },
+  description: `
+    <div>123456789</div>
+  `
+})
+```
+
+#### 16 三维模型
+
+通过primitives添加 gltf转换的model其实也是一样的
+
+> Cesium通过 [glTF](https://github.com/KhronosGroup/glTF)格式支持三维模型. 在Sandcastle 示例里可以看到这些三维模型的示范。
+>
+> model中使用url资源便可以调用此gltf格式
+>
+> 你可以配置一个 `scale` 属性，它将等比例缩放模型。也可以配置一个 `minimumPixelSize` 属性，它保证距离模型很远的时候，模型不会小于设定的大小。
+>
+> 默认，模型向右朝向东方。可以通过 [Entity.orientation](https://cesiumjs.org/Cesium/Build/Documentation/Entity.html#orientation) 的属性设定一个 [四元数Quaternion](https://cesiumjs.org/Cesium/Build/Documentation/Quaternion.html)。这个比前面只用位置的示例更麻烦一些，让我们设定一下模型的 heading, pitch, roll。
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+var position = Cesium.Cartesian3.fromDegrees(-123.0744619, 44.0503706);
+var heading = Cesium.Math.toRadians(45.0);
+var pitch = Cesium.Math.toRadians(15.0);
+var roll = Cesium.Math.toRadians(0.0);
+
+var orientation = Cesium.Transforms.headingPitchRollQuaternion(
+    position, 
+    new Cesium.HeadingPitchRoll(heading, pitch, roll)
+);
+
+var entity = viewer.entities.add({
+    position : position,
+    orientation : orientation,
+    model : {
+        uri : '../../../../Apps/SampleData/models/GroundVehicle/GroundVehicle.glb'
+    }
+});
+viewer.trackedEntity = entity;
+```
+
+1. `动画`
+
+   上面的模型都自带了模型数据制作者内置的关键帧动画，数据制作者定义了一些关键位置的模型姿态，Cesium会实时插值做变换展示一个平滑的动画效果
 
    ```js
-   viewer.trackedEntity = undefined;
-   viewer.scene.camera.flyTo(homeCameraView); // 在切换来视图
+   Cesium.when(model.readyPromise).then(function(model) {
+       // addAll 播放模型的所有方法, 直到activeAnimations集合里删除了对应的动画
+       model.activeAnimations.addAll({
+           loop : Cesium.ModelAnimationLoop.REPEAT
+       });
+   });
+   
+   model.activeAnimations.addAll({
+       loop : Cesium.ModelAnimationLoop.REPEAT,
+       speedup : 0.5, // 播放速度
+       reverse : true // 播放方向
+   });
+   ```
+
+   为了让场景中的动画自动播放，可以用下面的代码来初始化`Viewer`：
+
+   ```js
+   var viewer = new Cesium.Viewer('cesiumContainer', {
+       shouldAnimate : true
+   });
+   ```
+
+2. 参数 
+
+   fromGltf`有个可选的参数`scale
+
+   ```js
+   scale : 200.0 
    ```
 
    
 
+#### 17 属性系统
 
+> 假设已有entity名为 test,   打印 typeof test.polygon.outline 输出 什么？ => `object` 
+>
+> 其实大部分的属性都是隐性的 [ConstantProperty](https://cesiumjs.org/Cesium/Build/Documentation/ConstantProperty.html) 类实例
+
+1. 为什么要使用 ConstantProperty来隐性转换属性？
+
+   首先， 整个Entity API的属性设计是不仅仅考虑是一个常量值，而需要设置一些随时间变换的值。
+
+   其次， 如果不隐形设置，那么每次去调用会变成如此样子，很没有必要。
+
+   ```js
+   polygon.outline = new Cesium.ConstantProperty(true);
+   polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK);
+   ```
+
+2. 那如何获取该outline属性的值呢？ => `ConstantProperty提供了getValue方法`
+
+   > 严格来说，如果我们明确知道正在读取一个 [ConstantProperty](https://cesiumjs.org/Cesium/Build/Documentation/ConstantProperty.html)的值，那么可以不需要传递时间参数。
+   >
+   > 但是明确指定时间参数是个`惯例`。
+
+   ```js
+   wyoming.polygon.outline.getValue(viewer.clock.currentTime);
+   ```
+
+#### 18 Geometry and Appearances-几何体和外观效果
+
+> 【几何体全家福】此处是entites的拓展。讲述更多的几何体与外观效果的使用。
+
+##### 1. 一个小例子： 带条纹状材质的矩形
+
+```js
+viewer.entities.add({
+    rectangle : {
+        coordinates : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
+        material : new Cesium.StripeMaterialProperty({
+            evenColor: Cesium.Color.WHITE,
+            oddColor: Cesium.Color.BLUE,
+            repeat: 5
+        })
+    }
+});
+```
+
+
+
+
+
+
+
+
+
+
+
+---
+
+#### 20 3DTiles 
+
+略。 同上链接的示范
+
+此处略掉，若有需要可以参考。
 
 ---
 
@@ -1795,36 +2228,7 @@ if (Cesium.defined(pick) && Cesium.defined(pick.node) && Cesium.defined(pick.mes
 
   如果不执行，主题变换不完全(部分变成黑色主题，部分还是亮色主题).
 
-#### 2 天地图提供的图层
 
-+ 大体如下，
-
-```js
-var viewer = new Cesium.Viewer("cesiumContainer", {
-  imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-    url: "http://t0.tianditu.com/img_w/wmts?",
-    layer: "img",
-    style: "default",
-    format: "tiles",
-    tileMatrixSetID: "w",
-    credit: new Cesium.Credit("天地图全球影像服务"),
-    maximumLevel: 18,
-  }),
-  baseLayerPicker: false,
-});
-```
-
-#### 3 
-
-
-
-
-
-
-
-
-
----
 
 ### 五、 公司代码
 
@@ -1839,7 +2243,10 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 #### 0 疑问
 
 1. id名为cesiumContainer的dom内部还可以存在组件即其他dom元素， 此dom是否只是一个背景板？
-2. 
+
+2. 通过 scene.primitives.add一个model 与 scene.entities.add一个model类型。
+
+   他们的区别是什么？
 
 
 
