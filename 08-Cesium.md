@@ -1,4 +1,4 @@
-一、前言：
+### 前言
 
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
 
@@ -24,23 +24,25 @@
 
 #### 2  重要知识汇总
 
-0.  Cesium程序结构(cesiumWidget) 细分为`五部分`
+##### 1 Cesium结构
 
-   + `lock
+Cesium程序结构(cesiumWidget) 细分为`五部分`
 
-     记录时间、三维场景的动态展示，需要clock来确定某帧内容
++ `lock
 
-   + container:   domId
+  记录时间、三维场景的动态展示，需要clock来确定某帧内容
 
-   + canvas:    在container上构建的Canvas对象（即这个宇宙）
++ container:   domId
 
-   + `【screenSpaceEventHandler 】`为 Canvas对象上的鼠标交互事件的封装
++ canvas:    在container上构建的Canvas对象（即这个宇宙）
 
-   + secne  承载三维场景的对象
++ `【screenSpaceEventHandler 】`为 Canvas对象上的鼠标交互事件的封装
 
-   ---
++ secne  承载三维场景的对象
 
-> 【对`scene`进行细致的划分】
+---
+
+【对`scene`进行细致的划分】
 
 + globe
 
@@ -58,15 +60,13 @@
 
 
 
-> `【scene.Primitives】`可以存在下列， 即 可放置 primitives中的图元也被划分了很多的类型
+`【scene.Primitives】`可以存在下列， 即 可放置 primitives中的图元也被划分了很多的类型
+
+![](images\cesium-4.png)
 
  + Globe
 
-   
-
  + `Model(gltf)`
-
-   
 
  + ``Primitive:` 不要被名称误解，它只是图元的一种
 
@@ -83,150 +83,225 @@
    ````js
    BillboardCollection
    LabelCollection
-   
    ````
-
    
-
 	+ ViewpordQuard: 三维内容的窗体，不常用
 
 ---
 
-1. `scene`是 Cesium虚拟场景中所有3D图形对象和状态的容器
+##### 2 scene
 
-   ```js
-   故我们经常会在 实例化viewer以后，通过scene的成员进行一系列的操作。
-   例子：
-   var layers = viewer.scene.imageryLayers;
-   var blackMarble = layers.addImageryProvider(
-     new Cesium.IonImageryProvider({ assetId: 3812 })
-   );
-   ```
+scene`是 Cesium虚拟场景中所有3D图形对象和状态的容器
 
-2. 如何`查询` 成员【imageryLayers】有哪些方法
+```js
+故我们经常会在 实例化viewer以后，通过scene的成员进行一系列的操作。
+例子：
+var layers = viewer.scene.imageryLayers;
+var blackMarble = layers.addImageryProvider(
+  new Cesium.IonImageryProvider({ assetId: 3812 })
+);
+```
 
-   先 search "scene" 并在 members中搜索到 【imageryLayers 】其有【[ImageryLayerCollection](http://cesium.xin/cesium/cn/Documentation1.62/ImageryLayerCollection.html)】此链接。便是对此实体类的解释。
+##### 3 查询【imageryLayers】的api
 
-3. `Cesium.knock`能够使Cesium球体监听html控件, 从而根据控件的值实时改变一些地图属性.
+如何`查询` 成员【imageryLayers】有哪些方法
 
-4. `经纬度与世界坐标`
+先 search "scene" 并在 members中搜索到 【imageryLayers 】其有【[ImageryLayerCollection](http://cesium.xin/cesium/cn/Documentation1.62/ImageryLayerCollection.html)】此链接。便是对此实体类的解释。
 
-   >HeadingPitchRoll
 
-   + heading指头部的左右摇摆
-   + pitch指 头的上下摇摆
-   + roll 以自身轴线旋转
 
-   ```js
-   
-   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-   var origin = Cesium.Cartesian3.fromDegrees(
-       -123.0744619,
-       44.0503706,
-       height
-     );
-   var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(
-       origin,
-       hpr
-     );
-   ```
+##### 4 经纬度与世界坐标
 
-   > **\*经纬度转换为世界坐标\***
+>HeadingPitchRoll
 
-   ```js
-   1.
-    Cesium.Cartesian3.fromDegrees(longitude, latitude, height, ellipsoid, result) 
-   
-   2.
-    var ellipsoid=viewer.scene.globe.ellipsoid;
-   
-    var cartographic=Cesium.Cartographic.fromDegrees(lng,lat,alt);
-   
-    var cartesian3=ellipsoid.cartographicToCartesian(cartographic);
-   
-   ```
++ heading指头部的左右摇摆
++ pitch指 头的上下摇摆
++ roll 以自身轴线旋转
 
-   > 世界坐标转换为经纬度
+```js
 
-   ```js
-   var ellipsoid=viewer.scene.globe.ellipsoid;
-   
-   var cartesian3=new Cesium.cartesian3(x,y,z);
-   
-   var cartographic=ellipsoid.cartesianToCartographic(cartesian3);
-   
-   var lat=Cesium.Math.toDegrees(cartograhphic.latitude);
-   
-   var lng=Cesium.Math.toDegrees(cartograhpinc.longitude);
-   
-   var alt=cartographic.height;
-   
-   2.Cartographic.fromCartesian
-   ```
+var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+var origin = Cesium.Cartesian3.fromDegrees(
+    -123.0744619,
+    44.0503706,
+    height
+  );
+var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(
+    origin,
+    hpr
+  );
+```
 
-   > 屏幕坐标和世界坐标相互转换
+> **\*经纬度转换为世界坐标\***
 
-   ```js
-   1.var pick1= new Cesium.Cartesian2(0,0); 
-   
-   var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(pick1),viewer.scene);
-   
-   2.Cesium.SceneTransforms.wgs84ToWindowCoordinates(scene, Cartesian3);
-   ```
+```js
+1.
+ Cesium.Cartesian3.fromDegrees(longitude, latitude, height, ellipsoid, result) 
 
-   
+2.
+ var ellipsoid=viewer.scene.globe.ellipsoid;
 
-5. `Entity API和Primitive API`
+ var cartographic=Cesium.Cartographic.fromDegrees(lng,lat,alt);
 
-   + Entity API。高级别的数据驱动的API。管理一组相关性的可视化对象,
+ var cartesian3=ellipsoid.cartographicToCartesian(cartographic);
 
-     其底层使用Primitive API；
+```
 
-   + Primitive API： 面向图形开发人员的底层API。需要具有图形学编程的知识
+> 世界坐标转换为经纬度
 
-   > Cesium提供Entity API来绘制空间数据.
-   >
-   > 例如点、标记、标签、线、3D模型、形状、立体形状（volume）.
+```js
+var ellipsoid=viewer.scene.globe.ellipsoid;
 
-   ```js
-   var viewer = new Cesium.Viewer('cesiumContainer'); //创建一个查看器（Viewer widget
-   //添加一个实体，仅需要传递一个简单JSON对象，返回值是一个Entity对
-   var wyoming = viewer.entities.add({  
-     name : 'Wyoming',
-     polygon : {
-       hierarchy : Cesium.Cartesian3.fromDegreesArray([//一组地理坐
-                                 -109.080842,45.002073,
-                                 -105.91517,45.002073,
-                                 -104.058488,44.996596,
-                                 -104.053011,43.002989,
-                                 -104.053011,41.003906,
-                                 -105.728954,40.998429,
-                                 -107.919731,41.003906,
-                                 -109.04798,40.998429,
-                                 -111.047063,40.998429,
-                                 -111.047063,42.000709,
-                                 -111.047063,44.476286,
-                                 -111.05254,45.002073]),
-       material : Cesium.Color.RED.withAlpha(0.5), //材
-       outline : true, //是否显示轮
-       outlineColor: Cesium.Color.BLACK, //轮廓的颜
-       }
+var cartesian3=new Cesium.cartesian3(x,y,z);
+
+var cartographic=ellipsoid.cartesianToCartographic(cartesian3);
+
+var lat=Cesium.Math.toDegrees(cartograhphic.latitude);
+
+var lng=Cesium.Math.toDegrees(cartograhpinc.longitude);
+
+var alt=cartographic.height;
+
+2.Cartographic.fromCartesian
+```
+
+> 屏幕坐标和世界坐标相互转换
+
+```js
+1.var pick1= new Cesium.Cartesian2(0,0); 
+
+var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(pick1),viewer.scene);
+
+2.Cesium.SceneTransforms.wgs84ToWindowCoordinates(scene, Cartesian3);
+```
+
+##### 5 Entity和Primitive API区别
+
++ Entity API。高级别的数据驱动的API。管理一组相关性的可视化对象,
+
+  其底层使用Primitive API；
+
++ Primitive API： 面向图形开发人员的底层API。需要具有图形学编程的知识
+
+> Cesium提供Entity API来绘制空间数据.
+>
+> 例如点、标记、标签、线、3D模型、形状、立体形状（volume）.
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer'); //创建一个查看器（Viewer widget
+//添加一个实体，仅需要传递一个简单JSON对象，返回值是一个Entity对
+var wyoming = viewer.entities.add({  
+  name : 'Wyoming',
+  polygon : {
+    hierarchy : Cesium.Cartesian3.fromDegreesArray([//一组地理坐
+                              -109.080842,45.002073,
+                              -105.91517,45.002073,
+                              -104.058488,44.996596,
+                              -104.053011,43.002989,
+                              -104.053011,41.003906,
+                              -105.728954,40.998429,
+                              -107.919731,41.003906,
+                              -109.04798,40.998429,
+                              -111.047063,40.998429,
+                              -111.047063,42.000709,
+                              -111.047063,44.476286,
+                              -111.05254,45.002073]),
+    material : Cesium.Color.RED.withAlpha(0.5), //材
+    outline : true, //是否显示轮
+    outlineColor: Cesium.Color.BLACK, //轮廓的颜
     }
-   );
-   viewer.zoomTo(wyoming);//缩放、平移视图使实体可见 
-   ```
+ }
+);
+viewer.zoomTo(wyoming);//缩放、平移视图使实体可见 
+```
 
-   1. `viewer.entities.add()简称为方法1`通过指定 model 的 position 和 orientation 来控制模型的位置，对模型进行精确变换的难度较大；`viewer.scene.primitives.add()简称为方法2`通过 modelMatrix 控制模型的位置和方向，可进行较为精确的模型变换。
-   2. 对相机操作时`方法 1`提供了较为方便的 viewer.trackedEntity 函数；`方法 2`追踪 model 较为复杂，需要手动操作相机变换。
-   3. 对模型进行缩放、变换等操作，`方法 1` 需要修改 object.id(Entity 类型) 中 model(ModelGraphics 类型) 的 scale 和 nodeTransformations；`方法 2` 可以直接修改 object.primitive(model 类型) 中的 scale 和 modelMatrix。
+1. `viewer.entities.add()简称为方法1`通过指定 model 的 position 和 orientation 来控制模型的位置，对模型进行精确变换的难度较大；`viewer.scene.primitives.add()简称为方法2`通过 modelMatrix 控制模型的位置和方向，可进行较为精确的模型变换。
+2. 对相机操作时`方法 1`提供了较为方便的 viewer.trackedEntity 函数；`方法 2`追踪 model 较为复杂，需要手动操作相机变换。
+3. 对模型进行缩放、变换等操作，`方法 1` 需要修改 object.id(Entity 类型) 中 model(ModelGraphics 类型) 的 scale 和 nodeTransformations；`方法 2` 可以直接修改 object.primitive(model 类型) 中的 scale 和 modelMatrix。
 
-   两种方法本质上是相通的，`方法 1`对`方法 2`在某种程度上进行了封装。
+两种方法本质上是相通的，`方法 1`对`方法 2`在某种程度上进行了封装。
 
-   > 不同的是，`方法 2` 中的 id 对象为用户自定义对象，`方法 1` 中的 Entity 对象。
-   >
-   > 因此`方法 1`相当于首先通过 `方法 2` 中的 Cesium.Model.fromGltf() 函数建立 Model，通过该 Model 建立对应的 Entity（方法暂未尝试，因为 Entity 构造函数中的 options.model 接收的是 ModelGraphics 类型，而不是 Model 类型），将 Entity 赋予对象的 id 属性，实现双向绑定，具体的实现可能要参考 viewer.entities.add() 的源码实现。
+> 不同的是，`方法 2` 中的 id 对象为用户自定义对象，`方法 1` 中的 Entity 对象。
+>
+> 因此`方法 1`相当于首先通过 `方法 2` 中的 Cesium.Model.fromGltf() 函数建立 Model，通过该 Model 建立对应的 Entity（方法暂未尝试，因为 Entity 构造函数中的 options.model 接收的是 ModelGraphics 类型，而不是 Model 类型），将 Entity 赋予对象的 id 属性，实现双向绑定，具体的实现可能要参考 viewer.entities.add() 的源码实现。
 
-   
+````js
+
+1. 使用entity方式
+
+viewer.entities.add({
+   rectangle : {
+       coordinates : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
+       material : new Cesium.StripeMaterialProperty({
+           evenColor: Cesium.Color.WHITE,
+           oddColor: Cesium.Color.BLUE,
+           repeat: 5
+       })
+   }
+});
+---------------------------------------------------------------------------------------
+    
+    
+2. 使用primitives添加
+
+var instance = new Cesium.GeometryInstance({
+  geometry : new Cesium.RectangleGeometry({
+    rectangle : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
+    vertexFormat : Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
+  })
+});
+
+scene.primitives.add(new Cesium.Primitive({
+  geometryInstances : instance,
+  appearance : new Cesium.EllipsoidSurfaceAppearance({
+    material : Cesium.Material.fromType('Stripe')
+  })
+}));
+````
+
+
+
+
+
+##### 6 图元
+
+Primitives 即是图元层。
+
+![](\images\cesium-3.png)
+
+👇这张图其实已经完美的讲解了所有的内容 `Primitives 即是图元层。`
+
+![](images\cesium-4.png)
+
+1. `Globe `
+
+   渲染了地球本体：地形、卫星影像和动态水面。
+
+2. `Model`
+
+   Cesium 使用的Model格式是`glTF`, Model代表的是传统三维建模的模型
+
+3. `primitive`
+
+   Cesium 的通用图元对象 —— Primitive。
+
+    Cesium 有别于游戏引擎的最大特点之一，是它会使用几何图形来绘制大部分它关注的内容。
+
+4. `Billboards、Labels、Points`
+
+   游戏引擎中，Billboard 通常用于产生粒子效果
+
+   而Cesium中，billboard 更通用，它通常用于呈现运动的对象
+
+5. 其他
+
+   - `ViewportQuad.js` 中的 ViewportQuad 类
+   - SkyBox、SkyAtmosphere、Sun、Moon
+   - Polyline：折线
+
+
+
+
 
 #### 3 常用操作
 
@@ -304,6 +379,14 @@ false);
 ````js
 wyoming.polygon.height = 200000;
 wyoming.polygon.extrudedHeight = 250000;
+````
+
+##### 9 调试模式查看绘制命令
+
+每个命令可视化显示
+
+````js
+viewer.scene.debugShowCommands = true;
 ````
 
 
@@ -1193,7 +1276,8 @@ viewer.scene.globe.enableLighting = true;
 
 #### 10 ⭐Entities(实体)
 
-+ mesh 自定义三角网 也是判断是否是entities的依据之一。后续会看到此处属性。
++ 一个实体的重要属性： `mesh` 自定义三角网 也是判断是否是entities的依据之一。后续会看到此处属性。
++ `Entity 是应用层的抽象`
 
 ##### 1 初次使用
 
@@ -1749,10 +1833,10 @@ viewer.zoomTo(viewer.entities);
 即 与 `scene`进行交互。
 
 + Scene.pick ：      返回窗口坐标对应的图元的第一个对象 
-
 + Scene.drillPick :  返回窗口坐标对应的所有对象列表
-
 + Globe.pick :         返回一条射线和地形的相交位置点
+
+>  [`Scene.pick`](https://cesiumjs.org/Cesium/Build/Documentation/Scene.html#pick)函数里通过它来判定哪个instance被拾取。这个`id` 可以任何js类型：字符串，数字，带属性的对象等等。
 
 其他重要的点：
 
@@ -2177,48 +2261,324 @@ viewer.trackedEntity = entity;
    wyoming.polygon.outline.getValue(viewer.clock.currentTime);
    ```
 
-#### 18 Geometry and Appearances-几何体和外观效果
+#### 18 ⭐ Geometry几何体
 
 > 【几何体全家福】此处是entites的拓展。讲述更多的几何体与外观效果的使用。
-
-##### 1. 一个小例子： 带条纹状材质的矩形
+>
+> 文档： https://www.cnblogs.com/cesium1/p/10063044.html
+>
+> 我们来梳理下关系 👇geometry很偏向底层图形的绘制.
 
 ```js
-viewer.entities.add({
-    rectangle : {
-        coordinates : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
-        material : new Cesium.StripeMaterialProperty({
-            evenColor: Cesium.Color.WHITE,
-            oddColor: Cesium.Color.BLUE,
-            repeat: 5
-        })
+											   Geometry
+											 /
+				  geometry (GeometryInstance)
+				/							 \
+scene.primitive								   modelMartrix | id | attribute
+				\
+                 \
+                   appearance -- Material
+                    		  \  renderState
+                            
+                             	
+```
+
+![](\images\cesium-2.png)
+
+
+
++ 频繁出现的属性
+
+  `vertexFormat` 顶点位置
+
+
+
+##### 1 示范
+
+> 这里只演示 `scene.primitives.add`形式，
+>
+>  `viewer.entites.add`这种更高级别封装（应用层的进一步抽象）这里不再陈述，请查看《Entity和Primitive API区别》
+
+```js
+var instance = new Cesium.GeometryInstance({
+  geometry : new Cesium.RectangleGeometry({
+    rectangle : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
+    vertexFormat : Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
+  })
+});
+
+scene.primitives.add(new Cesium.Primitive({
+  geometryInstances : instance,
+  appearance : new Cesium.EllipsoidSurfaceAppearance({
+    material : Cesium.Material.fromType('Stripe')
+  })
+}));
+```
+
++ `问`： GeometryInstance为何再次封装了一层？ 还要再依附两个属性？
+
+  答： 这是因为 GeometryInstance有很多类型， geometry控制了其几何图形类别，比如矩形、三角形等。
+
+  而 modelMartrix 是 一个位置矩阵，控制其位置与形态。
+
+##### 2 合并Geometry
+
+geometryInstances 的时候使用一个数组，就可以将两个图元进行合并。
+
+```js
+// ............
+scene.primitives.add(new Cesium.Primitive({
+  geometryInstances : [instance, anotherInstance],
+  appearance : new Cesium.EllipsoidSurfaceAppearance({
+    material : Cesium.Material.fromType('Stripe')
+  })
+}));
+```
+
+##### 3 个性化合并
+
++ 每个intance有一个[`Color`](https://cesiumjs.org/Cesium/Build/Documentation/Color.html) 属性。图元里创建一个`PerInstanceColorAppearance`，它知道使用每个instance的color属性去着色。
++ 一些外观允许为每个instance设置不同的属性（attribute）。比如``PerInstanceColorAppearance``对每个instance着不同颜色。
++ 当instance合并之后，仍然支持独立访问。
+
+````js
+var viewer = new Cesium.Viewer('cesiumContainer');
+var scene = viewer.scene;
+
+var instance = new Cesium.GeometryInstance({
+  geometry : new Cesium.RectangleGeometry({
+    rectangle : Cesium.Rectangle.fromDegrees(-100.0, 20.0, -90.0, 30.0),
+    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+  }),
+  attributes : {
+    color : new Cesium.ColorGeometryInstanceAttribute(0.0, 0.0, 1.0, 0.8)
+  }
+});
+
+var anotherInstance = new Cesium.GeometryInstance({
+  geometry : new Cesium.RectangleGeometry({
+    rectangle : Cesium.Rectangle.fromDegrees(-85.0, 20.0, -75.0, 30.0),
+    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+  }),
+  attributes : {
+    color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 0.8)
+  }
+});
+
+scene.primitives.add(new Cesium.Primitive({
+  geometryInstances : [instance, anotherInstance],
+  appearance : new Cesium.PerInstanceColorAppearance()
+}));
+````
+
+##### 4 pick 
+
+> 这是一个示范。与之前的pick的使用没有什么大的不同。
+>
+> 使用`id` 而不是用instance对象本身去判定，主要是为了避免在创建图元之后，我们的图元甚至我们的项目对所有的instance对象 以及 它的几何体 一直被引用无法释放内存。因为几何体一般包含了一个比较大的数组，这种方式就可以帮我们节省大量内存。
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+var scene = viewer.scene;
+
+var instance = new Cesium.GeometryInstance({
+  geometry : new Cesium.RectangleGeometry({
+    rectangle : Cesium.Rectangle.fromDegrees(-100.0, 30.0, -90.0, 40.0),
+    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+  }),
+  id : 'my rectangle',
+  attributes : {
+    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED)
+  }
+});
+
+scene.primitives.add(new Cesium.Primitive({
+  geometryInstances : instance,
+  appearance : new Cesium.PerInstanceColorAppearance()
+}));
+
+var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+handler.setInputAction(function (movement) {
+    var pick = scene.pick(movement.position);
+    if (Cesium.defined(pick) && (pick.id === 'my rectangle')) {
+      console.log('Mouse clicked rectangle.');
     }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+```
+
+##### 5 instance的复用
+
++ 这是一个使用技巧 => 是 写法的优化。不过这里出来一个 Cesium.Matrix4.multiplyByTranslation的示范
+
+> 目前为止，我们创建的每个几何体instance都只包含一个几何体。
+>
+> 1 instance竟然用来把同一个几何体放置在场景的不同位置，包括不同大小和方向。
+>
+> 2 由于多个instance可以引用同一个几何体（ `Geometry`），而每个instance可以有不同的偏移矩阵（modelMatrix）。这样，我们就只需要计算一次几何体（计算顶点等）而多次使用它。
+
+````js
+var viewer = new Cesium.Viewer('cesiumContainer');
+var scene = viewer.scene;
+
+// 创建椭圆实例
+var ellipsoidGeometry = new Cesium.EllipsoidGeometry({
+    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT, 
+    radii : new Cesium.Cartesian3(300000.0, 200000.0, 150000.0) // 椭圆x y z
+});
+
+
+var cyanEllipsoidInstance = new Cesium.GeometryInstance({
+    geometry : ellipsoidGeometry, 
+    // 抬高150000
+    modelMatrix : Cesium.Matrix4.multiplyByTranslation(
+        Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(-100.0, 40.0)),
+        new Cesium.Cartesian3(0.0, 0.0, 150000.0),
+        new Cesium.Matrix4()
+    ),
+    attributes : {
+        color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.CYAN)
+    }
+});
+
+var orangeEllipsoidInstance = new Cesium.GeometryInstance({
+    geometry : ellipsoidGeometry,
+    // 抬·高450000
+    modelMatrix : Cesium.Matrix4.multiplyByTranslation(
+        Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(-100.0, 40.0)),
+        new Cesium.Cartesian3(0.0, 0.0, 450000.0),
+        new Cesium.Matrix4()
+    ),
+    attributes : {
+        color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ORANGE)
+    }
+});
+
+scene.primitives.add(new Cesium.Primitive({
+    geometryInstances : [cyanEllipsoidInstance, orangeEllipsoidInstance],
+    appearance : new Cesium.PerInstanceColorAppearance({
+        translucent : false,
+        closed : true
+    })
+}));
+
+````
+
+##### 6 更新instance属性
+
+即便是已经添加到图元里，每个instance的一些属性也可以修改，包括：
+
+- Color : [`ColorGeometryInstanceAttribute`](https://cesiumjs.org/Cesium/Build/Documentation/ColorGeometryInstanceAttribute.html) 决定了几何体颜色。不过图元应该设置一个 [`PerInstanceColorAppearance`](https://cesiumjs.org/Cesium/Build/Documentation/PerInstanceColorAppearance.html)外观。
+- Show :布尔变量决定instance是否可见，对任意instance都有效。
+
+```js
+var viewer = new Cesium.Viewer('cesiumContainer');
+var scene = viewer.scene;
+
+var circleInstance = new Cesium.GeometryInstance({
+    geometry : new Cesium.CircleGeometry({
+        center : Cesium.Cartesian3.fromDegrees(-95.0, 43.0),
+        radius : 250000.0,
+        vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+    }),
+    attributes : {
+        color : Cesium.ColorGeometryInstanceAttribute.fromColor(new Cesium.Color(1.0, 0.0, 0.0, 0.5))
+    },
+    id: 'circle'
+});
+var primitive = new Cesium.Primitive({
+    geometryInstances : circleInstance,
+    appearance : new Cesium.PerInstanceColorAppearance({
+        translucent : false,
+        closed : true
+    })
+});
+scene.primitives.add(primitive);
+
+setInterval(function() {
+    var attributes = primitive.getGeometryInstanceAttributes('circle');
+    attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.fromRandom({alpha : 1.0}));
+},2000);
+```
+
+##### 7 appearance
+
+> 一个图元可以有若干个几何体instance，但是只能有一个appearance属性。
+>
+> appearance类型不同，一个appearance可能有一个 [`material`](https://github.com/AnalyticalGraphicsInc/cesium/wiki/Fabric) 属性，材质属性决定了大体的着色（ the bulk of the shading）
+
++ 一旦我们的外观创建了，我们不能修改它的`renderState`属性，但是我们能修改它的材质 `material`。当然，我们可以整个替换图元的`appearance`属性。
+
+````js
+var appearance  = new Cesium.PerInstanceColorAppearance({
+  translucent : false,
+  closed : true
+});
+// 再底层就会去使用
+new Cesium.PerInstanceColorAppearance({
+  renderState : {}
+}    
+      
+````
+
+##### 8 vertexFormat 
+
+> 一个外观能和一个几何体匹配，需要顶点格式匹配，也就是说几何体必须包含外观需要的顶点格式数据。创建一个几何体的时候，可以指定一个 [`VertexFormat`](https://cesiumjs.org/Cesium/Build/Documentation/VertexFormat.html) 参数。
+
+1. 所有外观兼容
+
+有时候为了简化问题，但是接受一点点浪费和效率低，可以计算一个几何体的所有顶点属性格式，这样就能和所有外观兼容👇
+
+```js
+
+var geometry = new Cesium.RectangleGeometry({
+  vertexFormat : Cesium.VertexFormat.ALL
+  // ...
 });
 ```
 
+2. get away
 
+如果使用EllipsoidSurfaceAppearance`，比如我们只创建了顶点的位置属性，那么就会崩溃（get away）
 
+```js
+var geometry = new Ceisum.RectangleGeometry({
+  vertexFormat : Ceisum.VertexFormat.POSITION_ONLY
+  // ...
+});
+```
 
+3. 如何确定顶点格式？
 
+    大部分外观都有一个 [`vertexFormat`](https://cesiumjs.org/Cesium/Build/Documentation/MaterialAppearance.html#vertexFormat) 属性， 甚至一个 [`VERTEX_FORMAT`](https://cesiumjs.org/Cesium/Build/Documentation/EllipsoidSurfaceAppearance.html#VERTEX_FORMAT)静态常量。
 
+   ````js
+   var geometry = new Ceisum.RectangleGeometry({
+     vertexFormat : Ceisum.EllipsoidSurfaceAppearance.VERTEX_FORMAT
+     // ...
+   });
+   
+   var geometry2 = new Ceisum.RectangleGeometry({
+     vertexFormat : Ceisum.PerInstanceColorAppearance.VERTEX_FORMAT
+     // ...
+   });
+   
+   var appearance = new Ceisum.MaterialAppearance(/* ... */);
+   var geometry3 = new Ceisum.RectangleGeometry({
+     vertexFormat : appearance.vertexFormat
+     // ...
+   });
+   ````
 
+#### 19 粒子系统 暂略
 
-
-
-
----
-
-#### 20 3DTiles 
+#### 20 3DTiles 暂略
 
 略。 同上链接的示范
 
 此处略掉，若有需要可以参考。
 
----
-
-### ？
-
-#### 1. Animation主题
+#### 21. Animation主题
 
 + 首先添加一个CSS文件，并将其导入
 
@@ -2230,39 +2590,5 @@ viewer.entities.add({
 
 
 
-### 五、 公司代码
-
-> 目录： huitong项目中  src\components\map\cesium-map-viewer.vue
->
-
-
-> 我的意见：由于笔记有限，大部分代码会被省略（很多内容应该理解，潜移默化）。
->
-> 本次学习公司代码 目的是从 真正的实践代码与业务代码中明白这样一件事情——Cesium的在实际业务中如何去应用？、
-
-#### 0 疑问
-
-1. id名为cesiumContainer的dom内部还可以存在组件即其他dom元素， 此dom是否只是一个背景板？
-
-2. 通过 scene.primitives.add一个model 与 scene.entities.add一个model类型。
-
-   他们的区别是什么？
-
-
-
-#### 1. cesium-map-viewer.vue
-
-在【mounted】进行 init 的函数操作，将Cesium实例渲染上去。
-
-```js
-1 new Viewer => 其本质是 new Cesium.Viewer 只不过我们按需导出, 也更加简洁。
-
-2 通过 new Viewer的配置 隐藏大部分Viewer自带的控件。
-
-并设置 baseLayerPicker 为 false, 则可以i
-```
-
-
-
-
+### 四、公司代码学习
 
