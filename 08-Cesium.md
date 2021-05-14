@@ -389,6 +389,23 @@ wyoming.polygon.extrudedHeight = 250000;
 viewer.scene.debugShowCommands = true;
 ````
 
+##### 10 不许倾斜相机
+
+````js
+scene.screenSpaceCameraController.enableTilt = false;
+````
+
+##### 11 移除事件
+
+````js
+ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+    ScreenSpaceEventType.LEFT_CLICK
+ );
+ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+      ScreenSpaceEventType.LEFT_DOUBLE_CLICK
+ );
+````
+
 
 
 ### 二、创建Cesium Viewer
@@ -2588,7 +2605,4 @@ var geometry = new Ceisum.RectangleGeometry({
 
   如果不执行，主题变换不完全(部分变成黑色主题，部分还是亮色主题).
 
-
-
-### 四、公司代码学习
 
