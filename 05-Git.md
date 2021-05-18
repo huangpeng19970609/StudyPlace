@@ -6,9 +6,11 @@
 
 番外使用GitHub来托管代码
   1. 创建SSH Key
+
     ssh-keygen -t res -C "你的邮箱账号"
   2. Github网站
-    Account setting => Add SSH Key 添加公钥
+
+    Account setting => Add SSH Key 添加公钥111
 
 删除关系： 远程库
   git remote -v 查看远程库信息
@@ -20,16 +22,16 @@
   ```Shell
   git clone git://git.kernel.org/pub/scm/git/git.git
   ```
- 
+
 2. 关联
-  查看远程库信息 git remote -v
-  删除本地与远程库的关系 git remote rm <name>
+    查看远程库信息 git remote -v
+    删除本地与远程库的关系 git remote rm <name>
   ```Shell
-    git remote add origin https://github.com/wangmingshun/studygit.git
+    git remote add origin https://github.com/huangpeng19970609/StudyPlace.git
 
     【orgin】 远程库，默认是orgin 约定俗成
   ```
- 
+
 3. 推送(-u是默认关联，以后push默认为该origin master)
   ```Shell
     git push -u origin master
@@ -42,12 +44,13 @@
    ```Shell
     git add <文件名> 
     将修改操作的文件和未跟踪新添加的文件添加到git系统的暂存区，注意不包括删除
+   ```
 
     git add -u <文件名> 
     【-u 即 --update, 更新那些被跟踪的文件】
     表示将已跟踪文件中的修改和删除的文件添加到暂存区，不包括新增加的文件
     注意这些被删除的文件被加入到暂存区再被提交并推送到服务器的版本库之后这个文件就会从git系统中消失了
-    
+
 
     git add -A 
     【-A == --all 】
@@ -111,7 +114,7 @@
   git branch dev   // 创建新的分支
   git checkout dev // 切换到新的分支
  ```
- 
+
 2. `合并分支`
  ```shell
   git merge dev // 即当前的分支， 与dev这条分支进行【快速模式】的合并。
@@ -122,7 +125,7 @@
   git branch -d dev // 删除分支
   git branch        // 查看当前分支信息
  ```
- 
+
 4. `切换分支`
  ```shell
  git checkout <branch> // 但此命令容易与 git checkout -- <fileName>混淆
@@ -142,6 +145,6 @@
   ```
   此时请手动处理他们
 
-  
+
 #### Bug分支 
 
