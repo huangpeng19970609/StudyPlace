@@ -10,7 +10,7 @@
     ssh-keygen -t res -C "你的邮箱账号"
   2. Github网站
 
-    Account setting => Add SSH Key 添加公钥
+    Account setting => Add SSH Key 添加公钥111
 
 删除关系： 远程库
   git remote -v 查看远程库信息
@@ -27,7 +27,7 @@
     查看远程库信息 git remote -v
     删除本地与远程库的关系 git remote rm <name>
   ```Shell
-    git remote add origin https://github.com/wangmingshun/studygit.git
+    git remote add origin https://github.com/huangpeng19970609/StudyPlace.git
 
     【orgin】 远程库，默认是orgin 约定俗成
   ```
@@ -145,6 +145,7 @@
   ```
   此时请手动处理他们
 
+
 6. 不使用【快速模式】的合并
    ```shell
     git merge --no-ff -m "不是快速合并的合并" dev
@@ -157,6 +158,10 @@
     需求:       我们修要来修复bug, 仅针对于master的bug修复，但dev分支上仍有正在开发的代码;
              故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
     导致问题:   但dev分支不干净，无法切换怎么办？
-    解决: `git stash`
+    
 
+解决: `git stash`
+
+
+#### Bug分支 
 ## Git
