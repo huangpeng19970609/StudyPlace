@@ -1054,9 +1054,7 @@ https://www.cnblogs.com/cesium1/p/10063008.html 底部的sandcastle示范很重�
 
 
 
-> 依据切片的组织形式和请求形式不同, Cesium支持很多标准， 哪些呢？自行查阅。 
 
-##### 1 初次了解 
 
 > helloWorld 一个基础的添加图层的示范
 >
@@ -1495,7 +1493,7 @@ ellipse.material = Cesium.Color.RED;
 >    var ellipse = entities.ellipse;
 >    ellipse.material = Cesium.Color.RED; // Cesium.Color.RED.withAlpha(0.1),
 >    ---------------------------------------------------------------------------
->        
+>           
 >    // 当然也可以这样, 这种情况不再累述。
 >    var redBox = viewer.entities.add({
 >      name: "Red box with black outline",
@@ -1518,14 +1516,14 @@ ellipse.material = Cesium.Color.RED;
 >    	images => 可以是URL、Canvas 或 Video 
 >        repeat => 代表x与y方向的重复次数
 >    	color  => 颜色
->        
+>           
 >    //完整的这么写
 >    ellipse.material = new Cesium.ImageMaterialProperty({
 >        image:'../images/cats.jpg',
 >        color: Cesium.Color.BLUE,
 >        repeat : new Cesium.Cartesian2(4, 4)
 >    });
->    
+>       
 >    //也可以简单的写成
 >    ellipse.material = '../images/cats.jpg';
 >    ```
@@ -2604,5 +2602,4 @@ var geometry = new Ceisum.RectangleGeometry({
 + `viewer.animation.applyThemeChanges(); `  
 
   如果不执行，主题变换不完全(部分变成黑色主题，部分还是亮色主题).
-
 
