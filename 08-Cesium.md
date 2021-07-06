@@ -1,3 +1,5 @@
+
+
 ### 前言
 
 + CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
@@ -1493,7 +1495,7 @@ ellipse.material = Cesium.Color.RED;
 >    var ellipse = entities.ellipse;
 >    ellipse.material = Cesium.Color.RED; // Cesium.Color.RED.withAlpha(0.1),
 >    ---------------------------------------------------------------------------
->           
+>              
 >    // 当然也可以这样, 这种情况不再累述。
 >    var redBox = viewer.entities.add({
 >      name: "Red box with black outline",
@@ -1516,14 +1518,14 @@ ellipse.material = Cesium.Color.RED;
 >    	images => 可以是URL、Canvas 或 Video 
 >        repeat => 代表x与y方向的重复次数
 >    	color  => 颜色
->           
+>              
 >    //完整的这么写
 >    ellipse.material = new Cesium.ImageMaterialProperty({
 >        image:'../images/cats.jpg',
 >        color: Cesium.Color.BLUE,
 >        repeat : new Cesium.Cartesian2(4, 4)
 >    });
->       
+>          
 >    //也可以简单的写成
 >    ellipse.material = '../images/cats.jpg';
 >    ```

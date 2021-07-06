@@ -7,7 +7,9 @@
 番外使用GitHub来托管代码
   1. 创建SSH Key
 
-    ssh-keygen -t res -C "你的邮箱账号"
+     请注意这里要输入密码！
+
+    ssh-keygen -t rsa -C "你的邮箱账号"
   2. Github网站
 
     Account setting => Add SSH Key 添加公钥111
@@ -158,7 +160,6 @@
     需求:       我们修要来修复bug, 仅针对于master的bug修复，但dev分支上仍有正在开发的代码;
              故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
     导致问题:   但dev分支不干净，无法切换怎么办？
-    
 
 解决: `git stash`
 
