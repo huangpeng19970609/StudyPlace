@@ -1,6 +1,6 @@
 `Webpack`
 
-## 一 初次认识
+## 一 前言
 
 当代前端问题
 
@@ -24,6 +24,7 @@
 + 模块化：webpack支持各种模块化开发。 
 + 打包：打包。
 + 现代化应用程序：当代需求的。
++ webpack的两大核心： loader 与 plugins
 
 ### 1 安装环境
 
@@ -44,7 +45,9 @@ webpack --config w.config.js
 
 1. 执行webpack 执行 `node_modules`下的 `.bin`目录下的 webpack文件夹的 index.js文件
 2. webpack进行执行时， 便会依赖 `webpack-cli`， 若未安装则报错。
-   + webpack-cli 执行才是webpack编译与打包的过程。
+   + `webpack-cli 执行才是webpack编译与打包的过程。`
+   + 第三方脚手架则不需要 webpack-cli 如vue-service-cli
+3. 判断标准的根本基础: 是否会使用 ./bin文件下的 webpack命令文件
 
 ### 3 场景
 
@@ -131,7 +134,7 @@ webpack --config w.config.js
    在package.json中便会优先去 node_module 即 局部中去执行webpack命令
    ````
 
-## 二 webpack
+## 二 初识（loader）
 
 ### 1 出入口的配置
 
@@ -197,7 +200,7 @@ cmd 中 => npx webpack --config ./wx.config.js
 2. 入口文件 会作为《依赖关系图》的基础，包含所需的所有模块
 3. 遍历图结构，打包一个个模块。（不同文件需要不同的loader来打包才可以成功）
 
-### 4 处理css
+### 4 处理css、less
 
 > 什么是loader
 
@@ -296,11 +299,11 @@ npm install css-loader --save-dev // 开发时依赖
    ]
    ````
 
-### 5 postcss-loader
+### 5 browerserlist
 
 问题： 如何解决浏览器的兼容性问题 => 前端工程化
 
-1. 要确定兼容哪些浏览器 ？
+1. `第一步`: 要确定兼容哪些浏览器 ？
 
    `browerserlist`脚本可以帮助我们做到这件事情。
 
@@ -322,22 +325,460 @@ npm install css-loader --save-dev // 开发时依赖
 
    答：既可以通过 package.json配置，也可以单独一个文件来维护。
 
-   1. 在package.json中配置、
+   webpack中自带了browerserlist
 
+   1. 方式一： 在package.json中配置、
+   
       ````js
       "browerslist": [
           ">1%",
           "last 2 version",
           "not dead",
-      ]
+   ]
       ````
 
-   2. 在根目录下新建`.browserslistrc`
-
+   2. 方式二： 在根目录下新建`.browserslistrc`
+   
       `````js
       >1%
       last 2 version
       not dead
       `````
 
-2. 
+### 6 post-css
+
+> 通过JS来转换样式的工具, 是独立于webpack之外的一处脚本
+>
+> 比如：CSS的转换与适配（浏览器前缀， CSS样式的重置） => 主要是解决兼容问题
+>
+> 前提： browserlist提供兼容信息
+
+#### 1 单独使用
+
+1. 安装: 
+
+   ````js
+   npm install postcss -D
+   npm install postcss-cli -D
+   ````
+
+2. 新建一个test.css文件
+
+   ````css
+   :fullscreen {}
+   .content {
+     user-select: none;
+     transition: all 2s ease;
+   }
+   ````
+
+3. 单独使用:
+
+   但会报错 => 因为没有配置对应的浏览器信息！
+
+   ````js
+   npx postcss -o result.css ./src/css/test.css
+   ````
+
+4. 故我们会如此 => 安装 autoprefixer -D
+
+   ````js
+   // 提供配置的信息
+   npm install autoprefixer -D 
+   // 以配置的信息去执行该脚本
+   npx postcss --use autoprefixer -o result.css ./src/css/test.css
+   ````
+
+#### 2 结合webpack去使用（自动化）
+
+安装
+
+````js
+npm install postcss-loader -D
+````
+
+配置
+
+`````js
+module: {
+    rules: [
+      {
+        // 规则使用正则表达式
+        test: /\.css$/, // 匹配资源
+        use: [
+          // { loader: "css-loader" },
+          // 注意: 编写顺序(从下往上, 从右往做, 从后往前)
+          "style-loader", 
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 1
+            }
+          },
+          {
+          	loader: "postcss-loader",
+            options: {
+                postcssOptions: {
+                    plugins: [
+                        require("autoprefixer")
+                    ]
+                }
+            }
+          }
+        ],
+        // loader: "css-loader"
+      },
+`````
+
+### 7 postcss-preset-env
+
+> 现代CSS特性转为大部分浏览器可以理解的特性
+>
+> 例： color: #12345678, chrome支持八位，但很多浏览器不支持八位color
+>
+> PS： autoprefixer是兼容性（如添加浏览器前缀） 而转换特性为 postcss-preset-env
+
+使用方式
+
+1. 安装
+
+   ````js
+   npm install postcss-preset-env -D
+   ````
+
+2. 使用
+
+   > postcss-preset-env插件的功能中其包括了autoprefixer！故不需要浏览器信息的插件引入！
+
+   ````js
+   		{
+             	loader: "postcss-loader",
+               options: {
+                   postcssOptions: {
+                       plugins: [
+                           require("postcss-preset-env")
+                       ]
+                   }
+               }
+             }
+   ````
+
+3. 抽离配置
+
+每一个postcss的配置项都太多了，有css、less。可以不可以像下面这样简单明了？
+
+````js
+use: ["style-loader", "css-loader", "postcss-loader"]
+````
+
+当然可以。像这样的，我们可以有配置文件。
+
+````js
+module.exports = {
+    plugins: [
+        require("postcss-preset-env")
+    ]
+}
+````
+
+
+
+### 8 postcss失效问题
+
+如下场景在ｉｎｄｅｘ．ｊｓ中引入css
+
+```javascript
+@import ('./css/test.css') // 会被打包成行内块加进来
+```
+
+你会发现你引入的 test.css 并没有被post-css-cli处理
+
+> `原因:`
+>
+> post-css-loader => css-loader => style-loader
+>
+> @import 的语法是在 js中的，对js模块进行处理的时候，其post-css-loader模块的处理接触不到
+
+解决办法：
+
+将importLoaders 设置为就可以。
+
+importLoaders为主要看 `css-loader`后面还有几个loader，意思是当我处理css-loader的时候我会重新的回去几层。
+
+````js
+	{
+        test: /\.less$/,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 2
+            }
+          },
+          "postcss-loader",
+          "less-loader"
+        ]
+      }
+````
+### 9 处理图片资源
+
+> 场景： 当我们在css中放入 图片， 或者通过模块来引入文件资源的时候
+
+````js
+import zznhImage from "../img/zznh.png";
+
+  // 创建一个img元素,设置src属性
+  const imgEl = new Image();
+  // imgEl.src = require("../img/zznh.png").default;
+  imgEl.src = zznhImage;
+  element.appendChild(imgEl);
+````
+
+> 解决办法
+
+#### 9 file-loader
+
+Ps: webpack-5 不需要file-loader
+
+1. 安装 `npm install file-loader -D`
+
+`````js
+	 {
+        test: /\.(png|jpe?g|gif|svg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: "img/[name].[hash:6].[ext]",
+              outputPath: 'img',
+            }
+          }
+        ]
+      }
+`````
+
+2. file-loader的占位符
+   + [ext]： 后缀名
+   + [hash] : 名
+   + [contentHash] : 哈希
+   + [hash:<length>] : 哈希长度
+   + path: 路径
+
+#### 2 url-loader
+
+> url-loader 将较小的文件转为` base64 的URL`
+>
+> 打包以后不会出现图片的资源，而是base64，由浏览器解析Base64数据。
+>
+> PS： 虽然减少了file-loader的http请求！但若是过多的 base64 导致 浏览器解析缓慢。
+
++ 大图片 => file-loader
++ 小图片 => url-loader
+
+使用 url-loader 的`limit`来实现！实现了一个动态的实现
+
+````js
+	{
+        test: /\.(png|jpe?g|gif|svg)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              name: "img/[name].[hash:6].[ext]",
+              limit: 100 * 1024
+            }
+          }
+        ]
+      }
+````
+
+### 10 assert module type
+
+> webpack5前 使用各类loader加载资源
+>
+> webpack5 可以使用资源模块类型来代替  => 更便捷的使用
+
++ assert/resource 
+
+  即 file-loader
+
++ assert/inline 
+
+  即 url-loader
+
++ assert/source
+
+  即 raw-loader => 导出源代码
+
++ assert
+
+  即 url-loader => 这是灵活的， 大图片可以 file-loader 小图片则 base64
+
+  
+
+1. 设置输出资源的两种方式
+
+   1. output直接配置
+
+   `````js
+   output: {
+       filename: "bundle.js",
+       // 必须是一个绝对路径
+       path: path.resolve(__dirname, "./build"),
+       assetModuleFilename: "img/[name].[hash:6][ext]"
+     },
+   `````
+
+   2. 更加灵活的方式
+
+   ````js
+    	{
+           test: /\.(png|jpe?g|gif|svg)$/,
+           // type: "asset/resource", file-loader的效果
+           // type: "asset/inline", url-loader
+           type: "asset",
+           generator: {
+             filename: "img/[name].[hash:6][ext]"
+           },
+           parser: {
+             dataUrlCondition: {
+               maxSize: 100 * 1024
+             }
+           }
+         },
+   ````
+
+2. 字体的使用示范
+
+   + 字体若使用loader 则应该是 file-loader 或 url-loader, 也可以使用type来配置
+
+   ````js
+   	 {
+           test: /\.ttf|eot|woff2?$/i,
+           type: "asset/resource",
+           generator: {
+             filename: "font/[name].[hash:6][ext]"
+           }
+         }
+   ````
+
+## 三 Plugin
+
+现在我们有两处希望优化的地方：
+
+1. 打包后自动删除包再生成
+2. index.html 这个文件自动引入我们打包后的文件
+
+> webpack的另一个核心便是plugin
+>
+> loader用于转换模块类型， 而plugin 用于更加广泛的业务 。
+>
+> 业务场景： 打包优化、资源管理、环境变量注入
+
+### 1 自动删除打包资源
+
+> CleanWebpackPlugin
+
+npm install clearn-webpack-plugin -D
+
+````js
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+plugins: [
+    new CleanWebpackPlugin(),
+]
+````
+
+### 2 index.html
+
+> HtmlWebpackPlugin
+>
+> HtmlWebpackPlugin便可以实现 自动在build文件夹中创建 index.html并丑化
+>
+> 并引入对应得入口js文件 与 css文件（若你单独抽离css文件的话）
+
+npm install html-webpack-plugin -D
+
+````js
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+plugins: [
+    new HtmlWebpackPlugin(),
+````
+
++ 手动修改模板引擎
+
+````js
+// 修改一下配置便可以实现
+    new HtmlWebpackPlugin({
+      title: "coderwhy webpack",
+      template: "./public/index.html"
+    }),
+````
+
+Vue也是如此做的， Vue的模板中有如下的内容
+
+```js
+而此处是编译时需要配置的全局常量
+<link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    
+
+此处去寻找 HtmlWebpackPlugin对象下的 title属性
+<title><%= htmlWebpackPlugin.options.title %></title>
+
+```
+
++ 全局常量
+
+如何配置一个全局的常量呢？
+
+### 3 全局常量
+
+````js
+const { DefinePlugin } = require('webpack');
+
+new DefinePlugin({
+      BASE_URL: '"./"'
+ }),
+````
+
+### 4 复制
+
+虽然我们从来没有引用过他们， 但有一些文件我们需要将其复制过去，
+
+````js
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "public",
+          globOptions: {
+            ignore: [
+              "**/index.html",
+              "**/.DS_Store",
+              "**/abc.txt"
+            ]
+          }
+        }
+      ]
+    })
+````
+
+## 四、
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
