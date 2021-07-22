@@ -1,6 +1,61 @@
 `Webpack`
 
-## 一 前言
+## 序 注意事项
+
+- 实际开发过程应该使用局部的webpack 、 webpack-cli 保证版本统一。
+
+  package,json出现 devDependencies时， 也出现 package-lock.json的原因是什么？
+
+  package,json中的 scripts命令会优先在 本地的node_modules中寻找。
+
+  npx webpack 与 ./node_modules/./bin/webpack一致
+
+- `若你要修改某个基础的配置， 你应该有这种【思想】
+
+  1. 底层是可以通过命令行的， 所以一定有一个命令行语句可以提供。
+
+     但了解皆可。
+
+     ```js
+     ../node_modules/.bin/webpack
+     ```
+
+  2. 既然是可以命令行执行 对应的配置的， 那么便有【scripts】，脚本提供。
+
+     - 内置了一个脚本 
+
+     - 也可以在 scripts中写脚本
+
+       ````js
+       1. npx webpack 
+       2. "build": "webpack"
+       ````
+
+  3. 若其脚本命令中 是可以配置很多的，伴随命令行的增多， 脚本命令越来越长。
+
+     故 提出 配置文件这种想法
+
+     如 `webpack.config.js`的出现
+
+- 为什么可以在 可以 require 一个 node_modules中不存在的 ‘path’ 呢？
+
+  答： 因为 path是 nodeJs提供的 => node相当于一个环境 
+
+  ​		 比如 npm install 都是node环境提供的， 而webpack也是基于node环境执行的。
+
+  ​          npm run dev，其实就是配置在pakcage.json中的`npm脚本命令`
+
+  ​		 ⭐ webpack是通过node运行的，但是vue文件是运行后的webpack来操作的，
+
+  ​                不是直接由node执行的，所以无法访问node中的内置模块
+
+  ​		 ⭐  nodejs的模块 require 先加载【`原生模块`】， 再去尝试 `文件模块`	 			
+  
+- 官方文档 https://webpack.docschina.org/concepts/#entry
+
+  官方文档中极其详细讲述了本文章大部分的知识点。
+
+## 一 新手村
 
 当代前端问题
 
@@ -49,7 +104,7 @@ webpack --config w.config.js
    + 第三方脚手架则不需要 webpack-cli 如vue-service-cli
 3. 判断标准的根本基础: 是否会使用 ./bin文件下的 webpack命令文件
 
-### 3 场景
+### 3 初次场景
 
 1. ESModule的引入
 
@@ -90,7 +145,7 @@ webpack --config w.config.js
      2. webpack 默认对打包进行模块化，自动会对 CommonJs进行模块化处理。
      3. webpack默认处理规则处理 当前目录下的 src/index.js 文件作为入口文件。
 
-### 3 webpack初次使用
+### 4 webpack初次使用
 
 上述的场景使用的 【webpack】使用的是全局的。但实际开发显示要以局部为主（webpack版本）
 
@@ -134,16 +189,63 @@ webpack --config w.config.js
    在package.json中便会优先去 node_module 即 局部中去执行webpack命令
    ````
 
-## 二 初识（loader）
+4. 此时 我们在 index.html 中引入对应的 dist中的文件，便可以正常执行了
 
-### 1 出入口的配置
+   > ⭐ webpack 会固定的寻找当前src目录下的index.js 作为入口js文件！
+   >
+   > ⭐ webpack 内置支持 模块转换【这也是为什么我们使用require示范的原因】
+   >
+   > ​         但 比如 ES6、SCSS等等需要配置loader来协助。
+
+### 5  loader
+
+> 概念
+
+1. webpack 只能理解 JavaScript 和 JSON 文件.这是 webpack 开箱可用的自带能力
+2. **loader** 让 webpack 能够去处理其他类型的文件，并将它们转换为有效 [模块](https://webpack.docschina.org/concepts/modules)，以供应用程序使用，以及被添加到`依赖图`中
+3. ，loader 能够 `import` 导入任何类型的模块
+
+### 6 依赖图
+
+>  未被使用的 js文件会被打包吗❓    答： 不会`
+>
+> 故 => npm install -d 这种意义大吗？ 并不是很重要， 但规范还是应该遵守！
+
+1. webpack 会根据 【命令行】 或【配置文件 】找到入口文件
+2. 入口文件 会作为《依赖关系图》的基础，包含所需的所有模块
+3. 遍历图结构，打包一个个模块。（不同文件需要不同的loader来打包才可以成功）
+
+
+
+###  7 npm run build过程
+
+>  build： “webpack” => 当然你可以指定对应的配置文件名称
+
+执行 npm run build 时
+
+1. 默认 认为 配置文件名为 webpack.config.js，则会寻找根目录下的 webpack.config.js文件。
+2. 若找不到文件，则使用默认的一些配置。 比如`entry` 为 ./src/index.js 文件作为入口文件。
+3. 若还是找不到，则报错
+
+指定配置名
+
+````js
+cmd 中 => npx webpack --config ./wx.config.js
+
+一般我们会这样在 package.json中配置
+	"build": "webpack --config wk.config.js"
+````
+
+### 8 出入口的配置的示范
 
 若是入口文件 index.js 的名称与其路径发生变更， 我们可以手动去修改这份webpack的配置。
 
-1.  命令方式 指定入口名称
+1. 命令方式 指定入口名称
 
    ````js
    npx webpack --entry ./src/main.js --output-path ./build
+   
+   // npc 会强制本地， 而不会去全局寻找
    ````
 
 2. package.json的脚本
@@ -163,52 +265,42 @@ webpack --config w.config.js
    ````js
    const path = require('path'); // node提供了 path 插件
    module.exports = {
-     entry: "./src/main.js",
+     entry: "./src/main.js", // 设置入口文件
      output: {
-       filename: "bundle.js",
+       filename: "bundle.js", // 设置出口文件名称
        // 必须是一个绝对路径
-       path: path.resolve(__dirname, "./build")
+       path: path.resolve(__dirname, "./build") // 设置出口文件路径
      },
    }
-   
    ````
 
-###  2 npm run build
 
->  build： “webpack”
 
-执行 npm run build 时
+## 二 初识（loader）
 
-1. 默认 认为 配置文件名为 webpack.config.js，则会寻找根目录下的 webpack.config.js文件。
-2. 若找不到文件，则会自动找  ./src/index.js 文件作为入口文件。
-3. 若还是找不到，则报错
-
-指定配置名
-
-````js
-cmd 中 => npx webpack --config ./wx.config.js
-
-一般我们会这样在 package.json中配置
-	"build": "webpack --config wk.config.js"
-````
-
-### 3 依赖图
-
-> 未被使用的 js文件会被打包吗？ 答： 不会
-
-1. webpack 会根据 【命令行】 或【配置文件 】找到入口文件
-2. 入口文件 会作为《依赖关系图》的基础，包含所需的所有模块
-3. 遍历图结构，打包一个个模块。（不同文件需要不同的loader来打包才可以成功）
-
-### 4 处理css、less
-
-> 什么是loader
+> ❓  什么是loader
 
 1. loader是用于模块的 源代码的转换的（打包）， 比如css便是一个模块，我们通过import加载此模块，并进行打包的操作
 
 2. webpack 本身并不会对各类文件进行主动的解析打包，故是需要loader来帮助的
 
    （为什么可以打包js？webpack内置对js的打包）
+
+3. 在中文官网中有专门的tab页 列举了平时会使用的loader
+
+4. webpack 支持使用 [loader](https://webpack.docschina.org/concepts/loaders) 对文件进行预处理。你可以构建包括 JavaScript 在内的任何静态资源。并且可以使用 Node.js 轻松编写自己的 loader
+
+> 备注
+
+1. 即便只是 css-loader 官方的文档写的极其详细
+
+### 1 第一次使用loader
+
+> **当我js文件中 *【import './css/beauty.css' 】*时**
+
+ERROR in ./src/css/beauty.css 1:2
+Module parse failed: Unexpected token (1:2)
+`You may need an appropriate loader to handle this file type`, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
 
 > 示范：
 
@@ -225,16 +317,20 @@ npm install css-loader --save-dev // 开发时依赖
 1. 内联使用
 
    ````js
-   import "css-loader! ../css/index.css"
+   import "css-loader! ../css/index.css" // 了解！
    ````
 
-2. 快废弃的写法
+   快废弃的写法
 
    ````js
-   "build": "webpack --module-bind 'css=css-loader' --config webpack.config.js"
+   "build": "webpack --module-bind 'css=css-loader' --config webpack.config.js" // 略
    ````
 
-3. webpack.config.js使用
+2. ⭐ webpack.config.js使用
+
+   - rules` 属性`，里面包含两个必须属性：`test` 和 `use`
+
+     > *“嘿，webpack 编译器，当你碰到「在* require()*/*impor *语句中被解析为 '.css' 的路径」时，在你对它打包之前，先* **use(使用)** `css-loader` *转换一下。”*
 
    ````js
    const path = require('path');
@@ -245,11 +341,14 @@ npm install css-loader --save-dev // 开发时依赖
        filename: "bundle.js", // 必须是一个绝对路径
        path: path.resolve(__dirname, "./build")
      },
+     // js中希望让css变为模块,  取module名称其实很好
      module: {
        rules: [
          {
-           test: /\.css$/, //规则使用正则表达式 匹配资源
-           use: [
+   		// 识别出哪些文件会被转换。
+           test: /\.css$/,
+           // 定义出在进行转换时，应该使用哪个 loader
+             use: [
               // 注意: 编写顺序(从下往上, 从右往做, 从后往前)
               { loader: "css-loader" },
                
@@ -264,13 +363,18 @@ npm install css-loader --save-dev // 开发时依赖
      "css-loader", 
    ]
    -------------------------------------
-   若仅需要一种loader情况下, 不写use也可以 =>
-    loader: "css-loader" 
+   若仅需要一种loader情况下, 不写use也可以 =>  loader: "css-loader" 
    ````
 
-4. 页面未生效 => 使用 style-loader
+3.  如上结束后，但打包报错
 
-   > css-loader的原理是: 创建行内的样式，插入到对应的html页面中来。 <style></style>形式。
+   ```cmd
+   报错！ Module build failed (from ./node_modules/css-loader/dist/cjs.js):
+   	  Error: Cannot find module 'colorette'
+   css-loader默认需要 style-loader
+   ```
+
+   > css-loader的原理是: 创建`页内样式`，插入到对应的html页面中来。 <style></style>形式。
 
    虽然此时 可以正常进行打包 => 即 webpack可以正常取处理这个css静态文件，但实际上css样式文件并没有插入到页面。
 
@@ -279,14 +383,21 @@ npm install css-loader --save-dev // 开发时依赖
    2. use: ["style-loader", "css-loader"] // 顺序要注意， 先解析后插入
    ````
 
-5. less文件的处理
+4. less文件的处理
 
    > less 首先要转为 css才可以使用
+   >
+   > ⭐ less-loader 的原理依旧是 依赖 less这个转换工具的
 
    ````js
-   1. npm install less -D 
-   2. npx less ./src/css/index.less
-   3. 
+    npm install less less-loader --save-dev
+   
+   1. 手动部署
+   npm install less -D 
+   npx less ./src/css/index.less => index.css 手动构建
+   
+   2. 自动部署： 实际开发
+   npm install less-loader -D
    rules: [
         {
            test: /\.less$/,
@@ -299,7 +410,7 @@ npm install css-loader --save-dev // 开发时依赖
    ]
    ````
 
-### 5 browerserlist
+### 2 browerserlist
 
 问题： 如何解决浏览器的兼容性问题 => 前端工程化
 
@@ -345,7 +456,7 @@ npm install css-loader --save-dev // 开发时依赖
       not dead
       `````
 
-### 6 post-css
+### 3 第一次使用post-css
 
 > 通过JS来转换样式的工具, 是独立于webpack之外的一处脚本
 >
