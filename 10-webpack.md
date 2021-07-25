@@ -412,24 +412,26 @@ npm install css-loader --save-dev // 开发时依赖
 
 ### 2 browerserlist
 
-问题： 如何解决浏览器的兼容性问题 => 前端工程化
+问题： 如何解决不同浏览器的兼容性问题 => 前端工程化
 
 1. `第一步`: 要确定兼容哪些浏览器 ？
 
    `browerserlist`脚本可以帮助我们做到这件事情。
 
-   > `browerserlist`实现在不同的前端工具之间，共享目标浏览器和NodeJs的版本控制
-
-   + autoprefiexer
-   + babel
-   + postcss-preset-env
-   + eslint-plugin-compat
-   + postcss-normalize
-
-   ````js
-   npx browserslist // webpack 自带了这款
+   > `browerserlist`
+>
+   > ⭐ 实现在不同的前端工具之间，共享目标浏览器和NodeJs的版本控制
    
-   defaults: >0.5%, last 2 versions, Firefox ESR, not dead
+   + autoprefiexer   => 自动添加 css的前缀样式
+   + babel                 => 不同
+   + postcss-preset-env
++ eslint-plugin-compat
+   + postcss-normalize
+   
+   ````js
+   npx browserslist // webpack 自带了这款, 
+   
+defaults: >0.5%, last 2 versions, Firefox ESR, not dead
    ````
 
    如何讲 browerslist提供的信息在多前端脚本中共享呢？
@@ -437,7 +439,7 @@ npm install css-loader --save-dev // 开发时依赖
    答：既可以通过 package.json配置，也可以单独一个文件来维护。
 
    webpack中自带了browerserlist
-
+   
    1. 方式一： 在package.json中配置、
    
       ````js
@@ -445,9 +447,9 @@ npm install css-loader --save-dev // 开发时依赖
           ">1%",
           "last 2 version",
           "not dead",
-   ]
+]
       ````
-
+   
    2. 方式二： 在根目录下新建`.browserslistrc`
    
       `````js
@@ -460,17 +462,21 @@ npm install css-loader --save-dev // 开发时依赖
 
 > 通过JS来转换样式的工具, 是独立于webpack之外的一处脚本
 >
-> 比如：CSS的转换与适配（浏览器前缀， CSS样式的重置） => 主要是解决兼容问题
+> 比如：CSS的转换与适配（浏览器前缀， CSS样式的重置） => 主要是解决兼容问题 + 适配
 >
 > 前提： browserlist提供兼容信息
+
+webpack所做的事情 无非是将单独取使用的工具 集成在一起 来自动使用了。
+
+所以了解如何取单独的使用也是有一定的必要的。
 
 #### 1 单独使用
 
 1. 安装: 
 
    ````js
-   npm install postcss -D
-   npm install postcss-cli -D
+   cnpm install postcss -D
+   cnpm install postcss-cli -D 
    ````
 
 2. 新建一个test.css文件
@@ -489,23 +495,28 @@ npm install css-loader --save-dev // 开发时依赖
 
    ````js
    npx postcss -o result.css ./src/css/test.css
+   
+   # You did not set any plugins, parser, or stringifier. Right now, PostCSS does nothing. Pick plugins for 
+   # your case on https://www.postcss.parts/ and use them in postcss.config.js.
    ````
 
 4. 故我们会如此 => 安装 autoprefixer -D
 
    ````js
    // 提供配置的信息
-   npm install autoprefixer -D 
-   // 以配置的信息去执行该脚本
+   cnpm install autoprefixer -D 
+   // 以配置的信息去执行该脚本        -o指的是输出文件路径
    npx postcss --use autoprefixer -o result.css ./src/css/test.css
+   
+   再次使用 result.css 中会自动为你做浏览器的自适配 => 添加前缀
    ````
 
 #### 2 结合webpack去使用（自动化）
 
-安装
+安装。 为了使用本 loader，你需要安装 postcss-loader 和 postcss：
 
 ````js
-npm install postcss-loader -D
+cnpm install postcss-loader -D
 ````
 
 配置
@@ -514,11 +525,8 @@ npm install postcss-loader -D
 module: {
     rules: [
       {
-        // 规则使用正则表达式
-        test: /\.css$/, // 匹配资源
+        test: /\.less/, // 匹配资源
         use: [
-          // { loader: "css-loader" },
-          // 注意: 编写顺序(从下往上, 从右往做, 从后往前)
           "style-loader", 
           {
             loader: "css-loader",
@@ -540,6 +548,8 @@ module: {
         // loader: "css-loader"
       },
 `````
+
+几处经验：
 
 ### 7 postcss-preset-env
 
@@ -596,25 +606,54 @@ module.exports = {
 
 ### 8 postcss失效问题
 
-如下场景在ｉｎｄｅｘ．ｊｓ中引入css
+#### 1 autoprefix
+
+这样是不生效的。
+
+`````js
+use: ["style-loader", "css-loader", "postcss-loader"],
+`````
+
+若进行这样的配置 请再进行一次 `**postcss.config.js** `的配置。
+
+因为postcss是依赖于 autoprefixer 的
+
+#### 2 css再引入别的css
+
+如下场景在ｉｎｄｅｘ．ｊｓ中引入 【index.css】
+
+> index.css 引入 两个 外部的css样式
 
 ```javascript
-@import ('./css/test.css') // 会被打包成行内块加进来
+@import ('./css/otherCss2.css') // 会被打包成行内块加进来
+@import ('./css/otherCss2.less') // 会被打包成行内块加进来
 ```
 
-你会发现你引入的 test.css 并没有被post-css-cli处理
+你会发现你引入的 otherCss2.css 、otherCss2ess 都并没有被post-css-cli处理
 
 > `原因:`
 >
 > post-css-loader => css-loader => style-loader
 >
-> @import 的语法是在 js中的，对js模块进行处理的时候，其post-css-loader模块的处理接触不到
+> @import 的语法是在 js中的（此时负责的模块为 css - loader ），
+>
+> 对js模块进行处理的时候，其post-css-loader模块的处理接触不到
+
+像这样引用
+
+<img src="images/Snipaste_2021-07-25_01-00-31.png" alt="Snipaste_2021-07-25_01-00-31" style="zoom: 67%;" />
+
+你会发现变成这样
+
+<img src="images/webpack02.png" alt="webpack02" style="zoom: 67%;" />
 
 解决办法：
 
 将importLoaders 设置为就可以。
 
 importLoaders为主要看 `css-loader`后面还有几个loader，意思是当我处理css-loader的时候我会重新的回去几层。
+
+或者说 到 css-loader 的时候我再去回调哪些 loader
 
 ````js
 	{
@@ -624,7 +663,7 @@ importLoaders为主要看 `css-loader`后面还有几个loader，意思是当我
           {
             loader: "css-loader",
             options: {
-              importLoaders: 2
+              importLoaders: 2 // 回调两层 即 less -> post -> css
             }
           },
           "postcss-loader",
@@ -632,6 +671,8 @@ importLoaders为主要看 `css-loader`后面还有几个loader，意思是当我
         ]
       }
 ````
+
+
 ### 9 处理图片资源
 
 > 场景： 当我们在css中放入 图片， 或者通过模块来引入文件资源的时候
