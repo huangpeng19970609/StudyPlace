@@ -206,5 +206,76 @@ import { stat, exists, readFile } from 'fs';
 
 
 
-#### 2、 
+#### 2、 第一个例子
+
+我们使用了 export 导出， ESModule的方式导出， 这是静态的。
+
+我们导出的内容只是一个module的地址， 故是需要结构赋值的。
+
+<img src="images/wp-5.png" style="zoom: 67%;" />
+
+1. 不解构赋值也可以 反正我们使用的都是
+
+<img src="images/wp-6.png" style="zoom:50%;" />
+
+2. 这样呢？
+
+   这完全就是一个错误的语法！ 不应该出现的这种错误，这返回的就是一个`Promise`
+
+   import() 相当于是 一个函数！这个函数目的是异步的加载模块！
+
+   <img src="images/wp-7.png" alt="image-20210725225054181" style="zoom:67%;" />
+
+   ````js
+   # 正确的应该是这样的syntax
+   import {
+     sum
+   } from './js/math.js'
+   ````
+
+   首先 应该明白`import()`  => returns a Promise
+
+   ⭐正确的写法
+
+   ```cpp
+   import("./specifier.js").then(
+   	res => { res.sum(10 ,200) }
+   )
+   ```
+
+3. 现在我们换一种方式导入
+
+![](images/wk-8.png)
+
+✔ 正确的方式：
+
+````JS
+import a from './js/math.js'
+a(100, 200)
+
+````
+
+ ❌ 错误的方式示范:
+
+<img src="images/wp-8.png" style="zoom:67%;" />
+
+> 出现的原因 是因为 导出的方式为 `export default`，这只是一个语法糖的写法
+>
+> > 本质是 export {  sum as default   }
+>
+> ```js
+> import a from 'math.js';
+> 
+> import { default as a } from 'math'; // 语法糖
+> ```
+>
+> 但 若用 require回报错的原因 则是因为 require 并不能将 `default` 使用 import自带的语法糖效果， 
+>
+> 所以 由于这层原理的关系， require在这种情况 应该: 
+>
+> <img src="images/wp-8" alt="image-20210725231322036" style="zoom:67%;" />
+>
+> ````js
+> const a = require('./js/math.js').default;
+> ````
 

@@ -421,7 +421,7 @@ npm install css-loader --save-dev // 开发时依赖
    > `browerserlist`
 >
    > ⭐ 实现在不同的前端工具之间，共享目标浏览器和NodeJs的版本控制
-   
+
    + autoprefiexer   => 自动添加 css的前缀样式
    + babel                 => 不同
    + postcss-preset-env
@@ -431,6 +431,8 @@ npm install css-loader --save-dev // 开发时依赖
    ````js
    npx browserslist // webpack 自带了这款, 
    
+   ````
+
 defaults: >0.5%, last 2 versions, Firefox ESR, not dead
    ````
 
@@ -448,8 +450,8 @@ defaults: >0.5%, last 2 versions, Firefox ESR, not dead
           "last 2 version",
           "not dead",
 ]
-      ````
-   
+   ````
+
    2. 方式二： 在根目录下新建`.browserslistrc`
    
       `````js
@@ -620,7 +622,7 @@ use: ["style-loader", "css-loader", "postcss-loader"],
 
 #### 2 css再引入别的css
 
-如下场景在ｉｎｄｅｘ．ｊｓ中引入 【index.css】
+如下场景在ｉｎｄｅｘ．ｊｓ中引入 【index.css】[, 使用 postcss的时候注意此问题！]()
 
 > index.css 引入 两个 外部的css样式
 
@@ -687,9 +689,11 @@ import zznhImage from "../img/zznh.png";
   element.appendChild(imgEl);
 ````
 
-> 解决办法
+![](images/wp-4.png)
 
-#### 9 file-loader
+> 解决办法 => file-loader
+
+#### 1 file-loader 
 
 Ps: webpack-5 不需要file-loader
 
@@ -710,14 +714,21 @@ Ps: webpack-5 不需要file-loader
       }
 `````
 
-2. file-loader的占位符
+<img src="images/wp-9.png" style="zoom:60%;" />
+
+1. file-loader的占位符
+
    + [ext]： 后缀名
    + [hash] : 名
    + [contentHash] : 哈希
    + [hash:<length>] : 哈希长度
    + path: 路径
 
-#### 2 url-loader
+   <img src="images/wp-10png.png" style="zoom: 50%;" />
+
+
+
+#### 2 url-loader 
 
 > url-loader 将较小的文件转为` base64 的URL`
 >
@@ -728,7 +739,7 @@ Ps: webpack-5 不需要file-loader
 + 大图片 => file-loader
 + 小图片 => url-loader
 
-使用 url-loader 的`limit`来实现！实现了一个动态的实现
+使用 url-loader 的`limit`来实现！`实现了一个动态的实现
 
 ````js
 	{
