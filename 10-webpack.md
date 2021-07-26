@@ -618,7 +618,22 @@ use: ["style-loader", "css-loader", "postcss-loader"],
 
 若进行这样的配置 请再进行一次 `**postcss.config.js** `的配置。
 
-因为postcss是依赖于 autoprefixer 的
+因为postcss是依赖于 autoprefixer 的。
+
+例： 
+
+````js
+ 		{
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  require("autoprefixer")
+                ]
+              }
+            }
+          },
+````
 
 #### 2 css再引入别的css
 
@@ -678,6 +693,12 @@ importLoaders为主要看 `css-loader`后面还有几个loader，意思是当我
 ### 9 处理图片资源
 
 > 场景： 当我们在css中放入 图片， 或者通过模块来引入文件资源的时候
+>
+> 番外：require一个node模块什么时候需要加上.default
+>
+>  https://www.cnblogs.com/PeunZhang/p/12736940.html
+>
+> > 前端代码上线前如果使用webpack打包编译的，babel@5及之前的版本可以把export和import转成node的module.exports和require ，但是babel@6版本开始不再把export default转成node的module.exports，参考
 
 ````js
 import zznhImage from "../img/zznh.png";
@@ -696,6 +717,8 @@ import zznhImage from "../img/zznh.png";
 #### 1 file-loader 
 
 Ps: webpack-5 不需要file-loader
+
+url-loader才是我们最终的解决方案！ 了解file-loader即可。
 
 1. 安装 `npm install file-loader -D`
 
@@ -728,7 +751,7 @@ Ps: webpack-5 不需要file-loader
 
 
 
-#### 2 url-loader 
+#### 2url-loader 
 
 > url-loader 将较小的文件转为` base64 的URL`
 >
@@ -756,33 +779,35 @@ Ps: webpack-5 不需要file-loader
       }
 ````
 
-### 10 assert module type
+### 10 资源模块
 
+> > 资源模块(asset module)是一种模块类型，它允许使用资源文件（字体，图标等）而无需配置额外 loader。
+> >
+> > 关键字： `资源模块`
+>
 > webpack5前 使用各类loader加载资源
 >
 > webpack5 可以使用资源模块类型来代替  => 更便捷的使用
 
-+ assert/resource 
++ `assert/resource `即 `file-loader`
++ `assert/inline  `     即 `url-loader`
++ `assert/source`     即 `raw-loader` => 导出源代码
++ `assert   `                      即 `url-loader` => 这是灵活的， 大图片可以 file-loader 小图片则 base64
 
-  即 file-loader
+注意事项：
 
-+ assert/inline 
+````js
+若使用这种方式，引入图片资源，资源模块会将其默认赋予default， 
+# 故 此处应该去除 default
 
-  即 url-loader
+document.querySelector('#img').src  = require('./static/images/cesium-1.png').default ❌
+````
 
-+ assert/source
 
-  即 raw-loader => 导出源代码
-
-+ assert
-
-  即 url-loader => 这是灵活的， 大图片可以 file-loader 小图片则 base64
-
-  
 
 1. 设置输出资源的两种方式
 
-   1. output直接配置
+   1. output设置输出目录
 
    `````js
    output: {
@@ -793,7 +818,7 @@ Ps: webpack-5 不需要file-loader
      },
    `````
 
-   2. 更加灵活的方式
+   2. 另一种自定义输出文件名的方式是，将某些资源发送到指定目录
 
    ````js
     	{
@@ -830,22 +855,27 @@ Ps: webpack-5 不需要file-loader
 
 现在我们有两处希望优化的地方：
 
-1. 打包后自动删除包再生成
-2. index.html 这个文件自动引入我们打包后的文件
-
-> webpack的另一个核心便是plugin
+> `webpack的另一个核心`便是plugin
 >
 > loader用于转换模块类型， 而plugin 用于更加广泛的业务 。
 >
 > 业务场景： 打包优化、资源管理、环境变量注入
 
-### 1 自动删除打包资源
+### 1 ⭐  自动删除打包资源
 
 > CleanWebpackPlugin
+>
+> 应用场景： 对应其实会替换掉，但可能有时候你更改webpack的配置路径，那么会有如下现象出现：
+>
+> <img src="images/wp-10.png" alt="image-20210726221126485" style="zoom:50%;" />
 
-npm install clearn-webpack-plugin -D
+这是一个第三方库， 您在官网是无法找到的。
+
+使用此插件再次打包以后就会自动帮你删除， 不会再出现上述的场景了。
 
 ````js
+cnpm install clean-webpack-plugin -D
+
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 plugins: [
@@ -853,24 +883,28 @@ plugins: [
 ]
 ````
 
-### 2 index.html
+
+
+### 2 ⭐  index.html 自动引入
 
 > HtmlWebpackPlugin
 >
 > HtmlWebpackPlugin便可以实现 自动在build文件夹中创建 index.html并丑化
 >
 > 并引入对应得入口js文件 与 css文件（若你单独抽离css文件的话）
-
-npm install html-webpack-plugin -D
+>
+> ⭐ 故实际开发的过程中， 我们仅需要 build 文件夹内容即可。
 
 ````js
+cnpm install html-webpack-plugin -D
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 plugins: [
     new HtmlWebpackPlugin(),
 ````
 
-+ 手动修改模板引擎
++ ⭐ 手动修改模板引擎 【参考一个模板再自动引入入口文件】
 
 ````js
 // 修改一下配置便可以实现
@@ -886,24 +920,34 @@ Vue也是如此做的， Vue的模板中有如下的内容
 而此处是编译时需要配置的全局常量
 <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     
-
 此处去寻找 HtmlWebpackPlugin对象下的 title属性
 <title><%= htmlWebpackPlugin.options.title %></title>
-
 ```
 
-+ 全局常量
+
+
+### 3 ⭐ 全局常量
+
+>  `DefinePlugin` 允许在 **编译时** 将你代码中的变量替换为其他值或表达式
+>
+> - 这在需要根据`开发模式`与`生产模式`进行不同的操作时，非常有用
+>
+> ⭐ `process.env.NODE_ENV`  为production这是自带的一个属性！
+
+目的： 设置好它，就可以`忘掉开发环境和生产环境的构建规则`
 
 如何配置一个全局的常量呢？
 
-### 3 全局常量
-
 ````js
-const { DefinePlugin } = require('webpack');
+	const { DefinePlugin } = require('webpack');
 
-new DefinePlugin({
-      BASE_URL: '"./"'
- }),
+    new DefinePlugin({
+      'process.env': '"dev"',
+      'process.env.info': JSON.stringify({
+        name: 'ShuiTao',
+        age: 23
+      })
+    })
 ````
 
 ### 4 复制
