@@ -857,7 +857,7 @@ document.querySelector('#img').src  = require('./static/images/cesium-1.png').de
 
 > `webpack的另一个核心`便是plugin
 >
-> loader用于转换模块类型， 而plugin 用于更加广泛的业务 。
+> loader用于转换模块类型， 而plugin 用于更加`广泛的业务 `。
 >
 > 业务场景： 打包优化、资源管理、环境变量注入
 
@@ -885,7 +885,7 @@ plugins: [
 
 
 
-### 2 ⭐  index.html 自动引入
+### 2 ⭐  index.html 模板引擎
 
 > HtmlWebpackPlugin
 >
@@ -914,7 +914,7 @@ plugins: [
     }),
 ````
 
-Vue也是如此做的， Vue的模板中有如下的内容
+Vue也是如此做的， Vue的模板中有如下的内容 在 public目录下
 
 ```js
 而此处是编译时需要配置的全局常量
@@ -973,11 +973,46 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
     })
 ````
 
-## 四、
+## 四、webpack模块化
+
+### 1、 模块化原理
+
+主要涉及与
+
+1. commonJs的实现原理
+2. ESModule的实现
+3. CommonJs 加载 ESModule
+4. ESModule 加载 CommonJs
+
+> 在使用前为方便我们查看源码， 应如此设置。
+>
+> mode: "development",
+>
+> devtool: "source-map",
+
+#### 1 CommonJs
+
+commonJs的实现极其简单。简单阅读一变就可以读懂代码。
 
 
 
+````js
+#1 调用此函数，并解构对象
+const { dateFormat, priceFormat } = __webpack_require__("./src/js/format.js");
 
+#2 
+moduleId为 【./src/js/format.js"】 起名规则
+__webpack_require__
+	1.判断缓存中是否已经加载过, 若缓存过
+    	return __webpack_module_cache__[moduleId].exports; 
+	2. 若没有初始化， 
+    	var module = __webpack_module_cache__[moduleId] = { exports: {} };
+	3.  执行此函数,
+		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+		return module.exports;
+````
+
+![image-20210728002803972](images/wp-11)
 
 
 

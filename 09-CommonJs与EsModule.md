@@ -58,7 +58,7 @@
    ```
 
 
-   ### ⭐ 注意事项
+   #### ⭐ 注意事项
 
    
 
@@ -144,7 +144,10 @@
         import foo from 'modules';
         ```
 
-   7. 
+
+#### 特性
+
+
 
 ### 2 CommonJs
 
@@ -162,13 +165,58 @@ exports = {}; // 省略写法
 module.exports.name = xxx; // 不省略 module的写法
 ````
 
+> ❓ 什么是 module.exports ?
 
+加载某个模块，其实是加载该模块的`module.exports`属性
+
+```js
+var x = 5;
+var addX = function (value) {
+  return value + x;
+};
+module.exports.x = x;
+module.exports.addX = addX;
+
+PS: exports.x = x; 也没有任何问题 => Node为每个模块提供一个exports变量，指向module.exports
+```
 
 #### 导入
 
 ````js
 let a = require('./index.js')
 ````
+
+❓ 什么是 require
+
+
+
+> **`require` 命令的基本功能是，读入并执行一个 js 文件，然后返回该模块的 exports 对象。如果没有发现指定模块，会报错。**
+
+- `缓存的特性`
+
+  第一次加载某个模块时，Node.js 会缓存该模块。以后再加载该模块，就直接从缓存取出该模块的 `module.exports` 属性。 第二次 require 模块A时，不会重新加载并执行模块A。而是直接返回了第一次 require 时的结果
+
+- CommonJs加载机制
+
+  CommonJS 模块的加载机制是，`require` 的是被导出的值的`拷贝`。
+
+并非讲述的是模块的独立性！ 细品这句话！
+
+一旦导出一个值，模块内部的变化就影响不到这个值 
+
+一旦导出一个值，模块内部的变化就影响不到这个值 
+
+一旦导出一个值，模块内部的变化就影响不到这个值 
+
+#### 特性
+
+1. 是否可以修改
+
+   明确两点： 
+
+   ​	1、module.exports导出
+
+<img src="images/wp-12.png" style="zoom:67%;" />
 
 ### 3、进阶
 
