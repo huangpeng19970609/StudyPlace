@@ -115,11 +115,13 @@
   git branch       // 查看当前分支
   git branch dev   // 创建新的分支
   git checkout dev // 切换到新的分支
+  git checkout -b dev // 创建并且切换到一个分支
  ```
 
 2. `合并分支`
  ```shell
-  git merge dev // 即当前的分支， 与dev这条分支进行【快速模式】的合并。
+  git merge dev // 如此时在master分支， 让dev这条分支进行【快速模式】的合并合并到 master
+  				// 抽象理解 master 指向了 dev, 快速模式的前提，才可以指向成功.
  ```
 
 3. `删除分支`
@@ -130,7 +132,7 @@
 
 4. `切换分支`
  ```shell
- git checkout <branch> // 但此命令容易与 git checkout -- <fileName>混淆
+ git checkout <branch> // 但此命令容易与 git checkout -- <fileName>混淆 此为撤回文件修改
 
  故2.23版本提供了更加合适的命令
 
@@ -152,17 +154,36 @@
    ```shell
     git merge --no-ff -m "不是快速合并的合并" dev
     最大的区别便是这相当于一次commit
+    快速模式会直接丢弃掉被合并文件的分支信息
    ```
+   
+7. 强制删除 🈲 请注意！保留备份
+
+   ````js
+   git rm --cached <file> // 请确定此命令一定要执行吗？？
+   ````
+
+   
 
 #### 5 Bug分支 
 
 1. bug分支的原因
     需求:       我们修要来修复bug, 仅针对于master的bug修复，但dev分支上仍有正在开发的代码;
-             故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
+                     故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
     导致问题:   但dev分支不干净，无法切换怎么办？
+    
+    解决: `git stash`
+    
+2. git stash 命令后 你会发现 你的 git status是干净的
 
-解决: `git stash`
+    即它将你本地的工作区【缓存区】的内容给藏起来了。
+
+    使用的原因： 我们无法在一个缓存区有内容的分支下 去切换到另一个分支
+
+3. 
+
+
 
 
 #### Bug分支 
-## Git
+## 
