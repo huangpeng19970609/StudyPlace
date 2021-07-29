@@ -1,3 +1,5 @@
+![](images/wp-11.png)
+
 ### 1 ESModule
 
 > 1. ESMoudule是按显示导出的（静态的）， 导入的值是不可修改的
