@@ -1,3 +1,5 @@
+ 
+
 `Webpack`
 
 ## 序 注意事项
@@ -973,9 +975,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
     })
 ````
 
-## 四、webpack模块化
 
-### 1、 模块化原理
+
+## 四 模块化原理
 
 主要涉及与
 
@@ -984,17 +986,17 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 3. CommonJs 加载 ESModule
 4. ESModule 加载 CommonJs
 
-> 在使用前为方便我们查看源码， 应如此设置。
->
-> mode: "development",
->
-> devtool: "source-map",
+> 准备工作
+
+在使用前为方便我们查看源码， 应如此设置。
+
+- mode: "development",
+
+- devtool: "source-map",
 
 #### 1 CommonJs
 
-commonJs的实现极其简单。简单阅读一变就可以读懂代码。
-
-
+commonJs的实现极其简单。简单阅读就可以读懂代码。
 
 ````js
 #1 调用此函数，并解构对象
@@ -1016,11 +1018,892 @@ __webpack_require__
 
 
 
+#### 2 ESMoudle
+
+> ESModule
+
+1. 初始 __webpack.require
+
+   - o 对象判断是否存在一个属性， 功能性函数
+   - 
+
+   <img src="images/wp-16.png" style="zoom: 67%;" />
+
+   ---
+
+
+![image-20210731143150923](images/wp-17)
 
 
 
 
 
+## 五 devtool: source-map
+
+> 前言
+
+1. source-map 指 浏览器中实际运行代码 或者说是 我们打包后的代码
+
+> 为什么我们要设置 devtool ?
+>
+> 如何调式转换后格式不一致的代码呢？
+
+若不去设置， 在进行debug的时候 由于引入的为压缩后的文件，导致我们debug非常困难。故我们需要一种方式可以帮助我们寻找到原始的源文件。
+
+❗ source-map的功能：
+
+1. 将【已压缩或已打包的代码】映射到【原始的源文件】 bundle.js.map便是这种文件
+
+   这是浏览器重构了原始源的功能， 并可以在debug体现这一特点。
+
+#### 1、初识
+
+1. webpack中设置devtool: "source-map"
+
+   打包以后会发现生成了 bundle.js.map文件
+
+   ![image-20210731155342726](images/wp-18.png)
+
+3. 浏览器source-map的依据是 
+
+   结尾处的 ： //# sourceMappingURL=bundle.js.ma  这句注释
+
+   <img src="images/wp-19.png" alt="image-20210731155636987" style="zoom: 50%;" /> 
+
+   
+
+
+4. 如何确定 我们的浏览器支持 source-map ? 
+
+   <img src="images/wp-29.png" alt="image-20210731160249580" style="zoom: 50%;" />
+
+5. source-map文件
+
+   1. 文件更大了， 这是因为其内还有对应的映射规则
+
+      ![image-20210731160510801](images/wp-30)
+
+   2. bundle,js,map中有一些属性如下，了解即可。了解请百度。
+
+#### 2、更详细的 source-map
+
+在此仅讲述10类， 这10类具体会合成二十多种，但若具体应该参考文档。
+
+1. false        
+
+   不会生成source-map
+
+2. 缺省值
+
+   - mode为 develoment不支持缺省值的配置
+   - production的环境默认值
+
+3. eval
+
+   - development的默认值， `不生成source-map`
+
+   - 特别之处： 会令bundle.js的代码种 有eval (先转为string, 再用 eval)
+
+   - 使用的原因： sourceUrl映射到对应的文件，更易于调试， 且映射速度极快。
+
+     每次`eval的尾部都有注释`
+
+   <img src="images/wp-31.png" alt="image-20210731162110655" style="zoom: 50%;" />
+
+4. source-map 
+
+   普通的source-map
+
+5. eval-source-map
+
+   source-map以Data-Url添加到bundle.js的eval函数后中，不再单独生成source-map文件
+
+   ![image-20210731162521805](images/wp-32.png)
+
+6. inline-source-map
+
+   source-map以Data-Url添加到bundle.js的后，不再单独生成source-map文件
+
+   <img src="images/wp-33.png" style="zoom: 50%;" />
+
+7. cheap-source-map
+
+   更低的开销。不会生成列的映射，而只是映射到行。
+
+   等同于 source-map， 区别在于映射到行。
+
+8. cheap-module-source-map
+
+   - 等同 cheap-source-map
+
+   - 对来自loader的source-map处理的更好。可对通过loader进行打包的内容进行内容的修正。
+
+     如 babel的ES6 => ES5的转换代码，会导致映射不一致。
+
+   - 缘由： 
+
+     loader对bundle.js进行一次修正后， 会导致映射的关系 与 源代码不一致， 造成了行数的误差，故此时理应来使用此模块source-map进行映射的修改才可以完全一致！
+
+9. hidden-source-map
+
+   - 删除 bundle.js的结尾注释
+   - 删除打包文件对source-map的引用 => 多用于生成环境
+
+10. nosources-source-map
+
+    - debug不再可跳对应的位置了！
+    - 对应的文件内容不再显示！仅是debug提示。
+
+
+#### 3、实操建议
+
+1. vue是直接使用source-map的， 简单粗暴！
+
+2. 实际开发可以如此
+
+   开发与测试 时候 使用的应是 cheap-module-source-map
+
+   发布阶段 使用false即可。
+
+---
+
+
+
+## 六 Babel
+
+> > 前言
+>
+> 1. 什么是babel?
+>    
+>    - Babel的出现是的开发者几乎不用考虑浏览器的支持情况，尽情享受最新语法的舒适。
+> 2. babel可以做什么？
+>    - 语法转换
+>    - 通过 Polyfill 方式在目标环境中添加缺失的特性（通过第三方 polyfill 模块，例如 [core-js](https://github.com/zloirock/core-js)，实现）
+>    - 源码转换 (codemods)
+>    
+>    简而言之： babel主要做两件事，一个是转换语法，一个是兼容新的API。
+
+````js
+ Babel 输入： ES2015 箭头函数 				    Babel 输出： ES5 语法实现的同等功能
+[1, 2, 3].map((n) => n + 1);				[1, 2, 3].map(function(n) { return n + 1;});
+````
+
+### 1、单独使用
+
+1.  cnpm install @babel/core -D   // 内核
+
+    cnpm install  @babel/cli -D  // 这是为了单独使用特地安装的脚手架
+
+2. npx babel src --out-dir result  
+
+   将 src 目录下 所有的 js文件 进行babel的处理， 将其保存至 reuslt中
+
+3. 此时 依旧会没有效果.  继续安装 并执行命令。
+
+   原因： 并没有配置 babel要转换的内容。 故需要plugin来帮助我们。
+
+   ```js
+   cnpm install @babel/plugin-transform-arrow-functions -D
+   
+   npx babel src --out-dir result  --plugins=@babel/plugin-transform-arrow-functions
+   ```
+
+   此时成功, 对应箭头函数变为了 普通函数，同理其他转义如此、
+
+4. 如 【上一步】的配置真是太过于麻烦，而且既然要适配，就应该全部适配。故 babel提供了 preset来简化操作。
+
+   ```js
+   // 插件的组合
+   cnpm install --save-dev @babel/preset-env
+   
+   npx babel src --out -dir result --presets=@babel/preset-env
+   ```
+
+### 2、 babel的原理
+
+![](images/wp-34.png)
+
+和编译器类似，babel 的转译过程也分为三个阶段，这三步具体是：
+
+简而言之： ES6 => 原AST => 新AST => ES5 
+
+- **解析** Parse
+  将代码解析生成抽象语法树( 即AST )，也就是计算机理解我们代码的方式(扩展：一般来说每个 js 引擎都有自己的 `AST`，比如熟知的 `v8`，chrome 浏览器会把 js 源码转换为抽象语法树，再进一步转换为字节码或机器代码)，而 `babel` 则是通过 `babylon` 实现的 。简单来说就是一个对于 JS 代码的一个编译过程，进行了词法分析与语法分析的过程。
+- **转换** Transform
+  对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 `babel-traverse` 对其进行遍历，在此过程中进行添加、更新及移除等操作。
+- **生成** Generate
+  将变换后的 AST 再转换为 JS 代码, 使用到的模块是 `babel-generator`。
+
+而 `babel-core` 模块则是将三者结合使得对外提供的API做了一个简化。
+
+### 3、preset、polyfill与 runtime
+
+1. `@babel/preset-env`
+
+   - 由来
+
+    babel顺应民意，发布了babel-preset-env这个包，它一次性囊括了已发布的所有标准包。
+
+   - 作用
+
+     1. `认读ES6+代码`。不是帮我们把ES6+代码转成ES5.它的首要作用是认读ES6+代码
+
+        在使用preset-env之前，babel是无法认识ES6+代码的，运行时会报Token错误。在使用preset-env之后，babel才能认识这些代码语法，并将它们抽象出AST树。
+
+     2. `转码代码/转换语法`. babel preset说白了，就是一大堆babel plugin的集合。babel为插件提供了AST能力，而插件利用该能力，创建/修改AST。
+
+   - 
+
+2. `@babel/polyfill`
+
+   > ❗ 请注意！此包已被抛弃， 不建议使用了！
+   >
+   > 你应该使用 `core-js`
+
+   - 由来
+
+     比如 【Promise】【for ... of 】这类语法，显示代码转换是无法转换的（或许可转，但有致命缺点）
+
+     故 【@babel/polyfill】出现了。这个包是一个`纯运行时的包`，不是babel插件。
+
+   - 作用
+
+     直接改写全局变量，从而让运行环境支持经过present-env转码后的代码.
+
+   - 场景
+
+     比如以generator实现的语法时，例如 for...of 语法，则必须引入regenerator-runtime，因为转码后的代码会生成regeneratorRuntime这个全局变量
+
+   - 
+
+
+
+3. `@babel/plugin-transform-runtime`
+
+   这是一个babel插件，使用这个插件的同时，必须同时安装@babel/runtime这个包，而且必须是安装在dependencies里面，而非devDependencies里面。
+
+
+
+
+
+> 真实开发当然是要实现配置化。
+
+```bash
+npm install -D babel-loader @babel/core @babel/preset-env webpack
+```
+
+rules参考
+
+````js
+ 	{
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          },
+          // 当然也可以使用插件
+          plugins: ['@babel/plugin-proposal-object-rest-spread']
+        }
+     }
+````
+
+> 注意事项
+
+1. 注： babel-loader 很慢！若发现打包缓慢，可以参考官网来优化它。
+
+2. 默认情况下`@babel/preset-env`将使用[browserslist 配置源，](https://github.com/ai/browserslist#queries) *除非*设置了[targets](https://www.babeljs.cn/docs/babel-preset-env#targets)或[ignoreBrowserslistConfig](https://www.babeljs.cn/docs/babel-preset-env#ignorebrowserslistconfig)选项。[ post-css 也是如此]
+
+   不过大多数情况不建议如此去使用，应该统一 css 与 js，不应该loader单独配置。
+
+3. 你可能会看到 babel-preset-stage-X 这种写法， 了解即可， 是babel7之前的。
+
+   目前 应写 preset-env。
+
+   
+
+> - 了解一下 stage-X preset吧 作为课外知识！
+>
+> 1. stage-0 
+
+### 4. babel配置文件
+
+1. 将webpack中的 babel-loader的options抽离出来
+
+对于webpack的配置文件来说， 对 babel-loader的配置总是要写很多， 故我们可以使用配置文件。
+
+- 配置文件可以 babel.config.js // cjs // mjs都可以
+- 也可以这样 .babelrc.json/ js/cjs/ babelrc都可以
+
+![image-20210731202832539](images/wp-35.png)
+
+2. 多包管理
+
+   顾名思义。 如babel中的 preset-env便是如此。
+
+   将许多的plugin合在一起。
+
+### 5 polyfill
+
+> ❓ 什么是 polyfill
+
+答： 填充， 引申为 【补丁】的含义，是为了帮助我们更好的使用js。
+
+> 使用场景：
+
+- 当我们使用ES6的新特性的Promise的时候，这个类是可能存在不兼容的情况的。故我们需要Polyfill来打补丁，来填充此特性。
+
+1. 第一次使用
+
+   警告 请不要再安装 @babel/polyfill 请直接安装core-js
+
+   ````js
+   ✔  cnpm install core-js regenerator-runtime --save’
+   ❌ cnpm install @babel/polyfill --save # 好几年都不维护了 别坑自己了，求求你了
+   
+   
+       {
+           test: /\.m?js$/,
+           exclude: /(node_modules|bower_components)/,
+           use: {
+             loader: 'babel-loader',
+             options: {
+               presets: [
+                 [
+                   '@babel/preset-env',
+                   {
+                     useBuiltIns: false || usage || entry,
+                     corejs: 3, // 需要corejs的包
+                   }
+                 ]
+               ],
+               
+             }
+           }
+         }
+   ````
+
+   - useBuiltIns 参数 它有三个值可选：false（默认）, entry, usage。
+
+     1. false
+
+     2. usage => 代码中涉及到的补丁 【按需加载】
+
+        不需要你手工引入。babel会自动把 corejs库的模块放到你的每个js模块里。放置的原则就是：不仅面向目标targets来按需引入，而且还按照你代码中是否使用来引入。假如你的a.js里用了promise，那么他会把corejs中promise模块引入。
+
+     3. entry  => 目标web需要加入的所有补丁/特性
+
+        > 既然usage这么好，我们何苦要用entry呢？ 所以，`就用usage模式`吧！
+
+        需要你手工在你的webpack 入口js里，引入一下corejs和regenerator-runtime这俩polyfill。babel编译后，会自动在入口js里，把你那2行换成面向目标targets按需引用的corejs模块。
+
+        ```js
+        import "core-js/stable";
+        import "regenerator-runtime/runtime";
+        ```
+
+2. 再次强调！
+
+   babel-polyfill被core-js取代！
+
+   ![image-20210731212129640](images/wp-36.png)
+
+3. 关于 regeneratator 为什么要下载 ？ 
+
+   例如 async 转换。 babel 会把 async 语法代码转成 generator 辅助函数，而 generator 辅助函数的功能需要依赖 `regenerator-runtime` 这个polyfill垫片。
+
+   这个函数其实就是依赖全局需要引入 `regenerator-runtime` 这个 polyfill 。\
+
+### 6. plugin-transform-runtime
+
+> 一般情况下，@babel/plugin-transform-runtime插件不需要传入任何配置。在真正使用时，要配合@babel/preset-env同时使用，两者的corejs配置要一致，useESModules也要一致。
+
+1. polyfill是全局的 => 即在全局的时候我们使用 useBuiltIns的配置属性
+
+2. 在非全局的时候我们使用此插件。
+
+   比如不希望我们的polyfill来污染第三方库的时候我们就可以使用此插件。
+
+   @babel/plugin-transform-runtime主要有三个作用：
+
+   - 当使用 `generators/async`的时候自动引入 `@babel/runtime/regenerator`
+   - 为新特性的API添加实现。
+   - 提取每个模块内联的helper们问引用
+   -  transform-runtime这个插件添加的polyfill都是私有的，不会影响到全局环境，而且还是按需引入
+
+   ```js
+   {
+     plugins: [
+       ["@babel/plugin-transform-runtime", {
+         "corejs": false, // 认为需要填充的API以被填充 corejs3会转换原型上的方法。
+         "helpers": true, // 助手函数是否提取，同babel-plugin-transform
+         "regenerator": true, // 同babel-plugin-transform
+         "useESModules": false
+       }]
+     ]
+   }
+   ```
+
+故
+
+- 将preset-env所产生的helpers函数提出到一个独立文件中，从而减少代码量
+- 建立运行时沙盒，避免像babel-polyfill一样，修改全局对象，造成全局污染
+
+### 7. 示例
+
+参考文章： https://www.tangshuang.net/7427.html
+
+经过上文的分析只会，从特性、代码量等考虑，当我们要打包一个提供给其他团队使用的第三方包时，
+
+1. 我们来分析一下如下配置：
+
+```js
+{
+	"presets": [
+		["@babel/preset-env", { "modules": false, "useBuiltIns": "usage", "corejs": 3 }]
+	],
+	"plugins": [
+		["@babel/plugin-transform-runtime", { "corejs": 3 }]
+	],
+	"env": {
+		"test": {
+			"presets": [
+				["@babel/preset-env", { "useBuiltIns": "usage", "corejs": 3 }]
+			]
+		}
+	}
+}
+```
+
+需要手动安装：
+
+```js
+# 构建时用
+npm i -D @babel/plugin-transform-runtime @babel/preset-env @babel/core
+# 运行时用
+npm i core-js@3 @babel/runtime-corejs3 regenerator-runtime
+```
+
+这样，我们就可以定制我们自己的包了。
+
+---
+
+2. 而如果是构建整个应用，则不需要使用@babel/plugin-transform-runtime，配置如下：
+
+```js
+{
+	"presets": [
+		["@babel/preset-env", { "modules": false, "useBuiltIns": "usage", "corejs": 3 }]
+	],
+	"env": {
+		"test": {
+			"presets": [
+				["@babel/preset-env", { "useBuiltIns": "usage", "corejs": 3 }]
+			]
+		}
+	}
+}
+```
+
+手动安装：
+
+```js
+# 构建时用
+npm i -D @babel/preset-env @babel-core
+# 运行时用
+npm i core-js@3 regenerator-runtime
+```
+
+---
+
+3. 但是，使用 useBulitIns: 'usage' 不能保证所有的第三方库也使用了上面提到的构建方法，在这种情况下，干脆直接将所有的polyfill全部包含在应用中，从而避免出现有些小问题。
+
+```js
+{
+	"presets": [
+		["@babel/preset-env", { "modules": false, "useBuiltIns": "entry", "corejs": 3 }]
+	],
+	"env": {
+		"test": {
+			"presets": [
+				["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+			]
+		}
+	}
+}
+```
+
+安装的包一样。并且，这个时候，你需要在你的 app 入口文件中增加如下两句：
+
+```js
+import 'core-js'
+import 'regenerator-runtime'
+```
+
+### 8、jsx与ts
+
+#### 1 jsx
+
+1. babel可以直接对jsx进行转换为js， 仅需要配置preset-evn即可
+
+   ```js
+   cnpm install @babel/preset-react -D
+   ```
+
+   <img src="images/wp-36" alt="image-20210731222612291" style="zoom: 67%;" />
+
+2. 不使用 preset也可以, 请使用以下 plugin
+   - @babel/plugin-syntax-jsx
+   - @babel/plugin-transform-react-jsx
+   - @babel/plugin-transform-react-display-name
+
+#### 2 typeScript
+
+1. 单独使用
+
+````js
+cnpm install typescript -g
+tsc index.ts
+````
+
+2. ts-lodaer
+
+   - 即便你不特地装 typescript， 只下载ts-loader也是可以正常编译的。
+   - 下载 ts-loader时候，若其依赖其他包，packag.json也会同时帮你下载依赖的包。
+
+   配置loader 
+
+   - 由于babel本身是支持编译ts的， 故不需要typescript、不需要ts-loader来处理。
+
+![image-20210801001745971](images/wp-37.png)
+
+3. 问题： 
+
+   报错：不识别ts文件！
+
+   解决：需要预设设置。 
+
+   <img src="images/wp" alt="image-20210801002054948" style="zoom:67%;" />
+
+4. ts-loader 与 babel-loader
+
+   - babel-loader是可以进行polyfill的， 但
+
+     虽然 vscode可对 ts进行校验， 但 npm run build 不会因ts语法错误而编译失败
+
+   - 而ts-loader是可以提供的， 即ts语法错误， ts-loader会提示报错， 编译失败。
+
+   > 怎么样才可以两全其美呢？
+
+   依旧是用 babel进行转化，但添加tsc进行校验。
+
+   1. *"build"*: "npm run type-check & webpack --config wk.config.js",
+
+   2. 使用这种方式
+
+      - type-check 每次build前再执行一次命令
+      - 添加watch 跟踪监听！仅执行一次就好。
+
+      <img src="images/wp-38.png" alt="image-20210801002621759" style="zoom:67%;" />
+
+## 七 ESLint、Pretter与Vue
+
+> a static program analysis 静态demo分析工具， 不用运行即可分析。
+>
+> 原理：demo => JS编译器 [Espree](https://github.com/eslint/espree)=> 语法分析 => AST树 => 遍历检测 => ESLint提示信息
+>
+> 
+
+### 1 eslint 初次使用示范
+
+1. cnpm install eslint -D
+
+   单独使用试试看：npx eslint ./src/index.js
+
+   需要配置文件才可以使用！
+
+   ![image-20210801135829134](images/wp-39.png)
+
+2. npx eslint --init
+
+   ![image-20210801140112472](images/wp-40.png)
+
+3. 配置对应文件后， 再次 npx eslint src/index.js
+
+   ![image-20210801140622458](images/wp-41.png)
+
+### 2 eslint的配置
+
+> ESlint 被设计为完全可配置的，这意味着你可以关闭每一个规则而只运行基本语法验证，或混合和匹配 ESLint 默认绑定的规则和你的自定义规则，以让 ESLint 更适合你的项目
+
+详情参考官方文档。
+
+- env 环境
+- extends 拓展
+- parserOptions  编译设置
+- plugins 插件
+- rules 规则
+
+```js
+module.exports = {
+  env: {
+    browser: true,
+    commonjs: true,
+    es2021: true,
+  },
+  extends: ['plugin:vue/essential', 'airbnb-base'],
+  parserOptions: {
+    ecmaVersion: 12,
+    parser: '@typescript-eslint/parser',
+  },
+  plugins: ['vue', '@typescript-eslint'],
+  rules: {
+    // 0 => off
+    // 1 => warn
+    // 2 => error
+    'no-unused-vars': 0,
+    quotes: ['warn', 'single'],
+    'no-console': 0,
+    'import/no-extraneous-dependencies': 0,
+  },
+};
+
+```
+
+1. 0  1 2 代表eslint的三个等级
+2. rules可以通过数组配置详细的规则 与 等级 
+
+![image-20210801143135992](images/wp-42.png)
+
+### 3 Prettier - Code formatter
+
+> Prettier - Code formatter
+
+1. 安装此插件 code formatter。 当然你也可以使用别的插件， 比如 beautify
+
+   ![image-20210801144149749](images/wp-43.png)
+
+2. 配置文件 .prettierrc 来自定义其格式化
+
+   ````js
+   {
+     "printWidth": 100,
+     "singleQuote": true
+   }
+   ````
+
+3. pretter 结合 eslint来使用
+
+### 4 ❗ vue
+
+1. 在 index.js的入口文件引入一个vue， 并引入vue文件作为vue的入口文件。
+
+   
+
+   <img src="images/wp-44.png" alt="image-20210801151214096" style="zoom: 67%;" />
+
+2. 安装并且配置好loader  此时编译回报错
+
+   ❗ 由于我们使用的事 template方式， 故需要vue-template-compiler来协助。
+
+   ![image-20210801160748837](images/wp-46)
+
+   这是由于 我们 cnpm install vue的时候 忘记 加 -D的后缀导致的问题
+
+   ![](images/wp-45)
+
+3. 配置
+
+   配置rule 并配置 plugin
+
+   ![image-20210801161320053](images/wp-47)
+
+
+
+## 九、DevServe与HMR
+
+
+
+- 当前
+
+  我们通常访问 打包后的 build下的index.html文件, 或通过vsCode提供的插件的 open online serve插件来打开这个文件。
+
+- 缺点
+
+  我们每次访问都会重新进行 一次 `npm run build`命令， 在我们修改源代码的时候， 这种开发模式效率很慢，我们希望寻求一种热部署的方式。
+
+- watch 与 dev 是互斥的 注意下。
+
+###  watch
+
+`build: "webpack --watch" `
+
+1. 方式一
+
+   build: "webpack --watch" =>在编译模式的时候 使用watch来监听源代码的改变
+
+   当你的源码被修改后，重新编译。
+
+   浏览器会重新读入文件！
+
+2. 方式二
+
+   webpack.config.js中添加 属性 watch： true
+
+   进入 wacth模式。
+
+   浏览器会重新读入文件！
+
+> 总结
+
+1. 借助open online serve插件使用一个服务来启动项目，这样好处是可以避免一些 module跨域问题， 并且位于watch模式的时候修改源代码，会实时重载 最近的index.js文件。
+
+   live-serve用于发现文件的变化的。
+
+2. 使用watch模式 => wacth来监听文件的变化的。
+
+> 缺点
+
+1. 所有的源代码都会被重新编译 => 在项目过大的时候尤其明显
+2. 编译成功后有新的文件生成 会导致 浏览器每一次都会重新写入文件。
+3. live-serve是vscode插件，我们应该保证这种没必要的开发环境。且此插件会重载所有页面，重载所有的内容。我们希望是局部刷新。
+
+###  devServe
+
+`"serve": "webpack serve" `
+
+此时 控制会提示 ： `[WDS] Live Reloading enabled`
+
+webpack-dev-serve
+
+1. 第一步： cnpm install webpack-dev-server -D
+
+2. 第二步:   配置 你应在 package.json中添加一项选项
+
+   *"serve"*: "webpack serve" 
+
+   ```javascript
+   # 其外你也可以这样查询文档来配置
+   devServer: {
+       contentBase: path.join(__dirname, 'dist'),
+       compress: true,
+       port: 9000
+    }
+   ```
+
+- 目前
+
+  1. 会对所有的源码进行 重新编译， 会将编译的结果放入内存当中。
+
+     每次都会生成新的文件！
+
+  2. 他会帮我们做刷新整个页面这个操作！
+
+- 番外， 其实你也可以定制你的webpack-serve的服务
+  `webpack-dev-middleware`
+
+  cnpm install webpack-dev-middleware express
+
+  详情略！
+
+### devServe => HMR
+
+> Hot Module Replacement 即热部署, 模块热替换 
+
+- 重载部份内容， 仅更新我们需要变化的内容， 而不需要重载所有页面！
+
+- 修改css、js立会立即更新对应的内容 => 相当于修改 浏览器 devtool的工具
+
+使用要求:
+
+1. 不能为 watch mode， 即你的编译模式不应该是watch
+2. 不能使用 webpack-dev-middleware 你不能自定义服务。
+
+```js
+  devServer: {
+    hot: true,
+  },
+```
+
+效果如下
+
+1. HRM是可用的！ 					[WDS] Hot Module Replacement enabled.
+2. HRMK在 等待WDS的信号  · [HMR] Waiting for update signal from WDS...
+
+<img src="images/wp-48" alt="image-20210801230847575" style="zoom: 67%;" />
+
+注意❗
+
+你会发现这样依旧会对所有模块刷新， 浏览器刷新页面的效果。
+
+故你需要在入口文件index.js中指定哪些模块需要热更新,
+
+1. 如果你开启模块热更新
+2. module.hot.accept("./math2.js") 请这样设置
+
+```js
+if (module.hot) {
+  // math2.js 是热更新了！
+  module.hot.accept("./math2.js")
+  // 模块热更新成功后的回调事件， 每次更新都会回调。
+  module.hot.accept("./math.js", () => {
+    console.log("mat12321h模块发生了更新~");
+  });
+}
+```
+
+### react与vue的hrm
+
+![image-20210801232351163](images/wp-49.png)
+
+##### 1 react
+
+react的热更新略。
+
+![image-20210801232802988](images/wp-50.png)
+
+##### 2 vue
+
+vue的HRM使用 vue-loader即可。
+
+再额外使用 插件 
+
+````js
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+````
+
+![image-20210801232830041](images/wp-51.png)
+
+### hrm原理
+
+![image-20210801233924307](images/wp-52.png)
+
+![image-20210801233946586](images/wp-53.png)
+
+## 十、
+
+
+
+### 1、output.publicPath
+
+像 script的src、css的src或图片这类等等的引入，其 由 `output.publickPath + 文件名`组成
+
+1. output.publicPath的默认值是一个空字符串
+
+   ```js
+   <script defer src="bundle.js"></script></head>
+   ```
+
+2. 若设置为  “/”
+
+   浏览器会根据所在的域名+路径去请求对应的资源
+
+   ```js
+   <script defer src="/bundle.js"></script></head>
+   ```
+
+   
 
 
 
