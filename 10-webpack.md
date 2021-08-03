@@ -1881,13 +1881,17 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 ![image-20210801233946586](images/wp-53.png)
 
-## 十、
+## 十、webpack的配置
 
+### 1、output.publicPath的作用
 
-
-### 1、output.publicPath
+> 作用: 打包之后的静态资源前面做一个路径的拼接！
+>
+> 看起来简单，要多实践。
 
 像 script的src、css的src或图片这类等等的引入，其 由 `output.publickPath + 文件名`组成
+
+具体形式要看我们的打开方式， 是file形式还是serve形式 => 这也跟为什么我们总是通过服务器启动项目的根本原理有关系，此处不累述。请注意这种区别带来的差别。
 
 1. output.publicPath的默认值是一个空字符串
 
@@ -1895,15 +1899,147 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
    <script defer src="bundle.js"></script></head>
    ```
 
-2. 若设置为  “/”
+   - `问题1`： 使用服务器启动， 为什么 publicPath 为 “” 与  “/ ” 的效果都可以呢？
 
-   浏览器会根据所在的域名+路径去请求对应的资源
+     答： 
 
-   ```js
-   <script defer src="/bundle.js"></script></head>
-   ```
+     1. 比如 【src="bundle.js"】 这种情况 实际上是 http://localhost:8080bundle.js
 
-   
+        浏览器会自动帮你加上斜杠的效果，浏览器处理了
 
+     2. 比如 【src="/bundle.js"】  http://localhost:8080/bundle.js
 
+     ![image-20210802220954381](images/WP-54.png)
 
+   - `问题2：` 假设当前不是使用服务器来访问， 而是通过html打开，会如何？
+
+     我们通过打包成功， 再次打开对应的index.html文件插件， 找不到对应的文件。
+
+     <img src="images/wp-56.png" alt="image-20210802221543228" style="zoom:80%;" />
+
+     解决： 此时应该修改为 对应的文件路径才可以。
+
+     <img src="images/wp-57.png" alt="image-20210802221743896"  />
+
+### 2、devServer.publicPath
+
+> 作用： 指定本地服务器所在的文件夹
+
+ <img src="images/wp-58.png" alt="image-20210802225013885" style="zoom: 50%;" />
+
+1. 示范一
+
+   ````js
+   output.publicPath = '/';
+   devServer.publicPath = '/abc'
+   ````
+
+   - http://localhost:8080/
+
+     此时访问的是 此处的 index.html
+
+     而缓存后的服务器路径并非是在此处。这里只是项目的相对地址。
+
+     真正做缓存文件的服务器地址并非此处！
+
+     <img src="images/wp-59.ng" alt="image-20210802225623145" style="zoom:50%;" />
+
+   - http://localhost:8080/abc
+
+     此时会发现依旧是 404，
+
+     因为服务器缓存后的打包文件的路径现在是位于 http://localhost:8080/abc下，
+
+     而你打包后src访问的路径依旧是 http://localhost:8080/下，显然不对。
+
+     <img src="images/wp-60.png" alt="image-20210802225853638" style="zoom: 67%;" />
+
+     故此时应该修改 output.publicPath路径才可以。
+
+     <img src="images/wp-61.png" alt="image-20210802230221998" style="zoom:67%;" />
+
+2. 故：  devServer.publicPath 与 output.publicPath相同；
+
+### 3、devServer.contentBase 
+
+> 在devServer中还有一个可以监听contentBase发生变化后重新编译的一个属性：*watchContentBase*。
+>
+> 设置watchContentBase为true 可以热更新那些引入的文件
+
+1. 场景： 
+
+   我需要这样来使用， 在index.html中引用一个外部的js文件
+
+   <img src="images/wp-62" alt="image-20210802232303124" style="zoom:80%;" />
+
+2. 使用 serve启动， 此js依旧可启动，是因为
+
+   - 当前的服务的目录位于根目录下， 你访问的是本地的目录，但最后上线文件是打包的文件， 你并没有此处将此处打包进入。
+
+   <img src="images/wp-63.png" alt="image-20210802234521476" style="zoom: 67%;" />
+
+   ❗ 现在服务器去寻找这个 index.js文件的时候 会通过./huangpeng来寻找这个文件！
+
+   <img src="images/wp-64.png" alt="image-20210802234609896" style="zoom: 80%;" />
+
+3. 依旧存在问题 打包后的文件，其实并没将其打包进入
+
+   ![image-20210802235010859](images/wp-65.png)
+
+即便index.html是否直接访问到这个js文件，此处也会有问题。故解决办法是什么呢？
+
+### 4、devServe
+
+#### 1 hotOnly
+
+默认情况下当代码编译失败修复后，我们会重新刷新整个页面；
+
+如果不希望重新刷新整个页面，可以设置hotOnly为true； 
+
+#### 2 host
+
+默认值是localhost； 
+
+如果希望其他地方/ 外部 也可以访问，可以设置为 0.0.0.0； 
+
+> - localhost：
+>
+>   本质上是一个域名，通常情况下会被解析成127.0.0.1;
+>
+>   同一网段的其他主机是访问不到ip地址的。
+>
+> - 127.0.0.1：
+>
+>   回环地址(Loop Back Address)，表达的意思其实是我们主机自己发出去的包，直接被自己接收; 
+>
+>   1. 正常的数据库包经常 应用层 - 传输层 - 网络层 - 数据链路层 - 物理层 ;
+>   2. 而回环地址，是在网络层直接就被获取到了，是不会经常数据链路层和物理层的; 
+>   3. 比如我们监听 127.0.0.1时，在同一个网段下的主机中，通过ip地址是不能访问的; 
+>
+> - 0.0.0.0：
+>
+>   监听IPV4上所有的地址，再根据端口找到不同的应用程序; 
+>
+>    比如我们监听 0.0.0.0时，在同一个网段下的主机中，通过ip地址是可以访问的;
+
+#### 3 port
+
+port设置监听的端口，默认情况下是8080
+
+#### 4 open
+
+默认值是false，设置为true会打开浏览器；
+
+也可以设置为类似于 Google Chrome等值； 
+
+#### 5 compress
+
+是否为静态文件开启gzip compression：
+
+默认值是false，可以设置为true；
+
+在文件的 响应头里 content-encoding变为 gzip => 性能优化
+
+比如bundle.js 1mb 变为 400kb， 此处浏览器自己处理。
+
+#### 5 proxy
