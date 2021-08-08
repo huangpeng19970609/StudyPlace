@@ -975,7 +975,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
     })
 ````
 
-
+### 5 压缩css
 
 ## 四 模块化原理
 
@@ -1281,8 +1281,6 @@ __webpack_require__
 3. `@babel/plugin-transform-runtime`
 
    这是一个babel插件，使用这个插件的同时，必须同时安装@babel/runtime这个包，而且必须是安装在dependencies里面，而非devDependencies里面。
-
-
 
 
 
@@ -1735,6 +1733,34 @@ module.exports = {
 
 - watch 与 dev 是互斥的 注意下。
 
+- 、
+
+
+
+### 遇到的一些问题
+
+1. browserslist 导致 webpack-dev-server 的自动刷新失效[
+
+> 正常启动应该, hot失败则只有一行
+>
+> ```prolog
+> [HMR] Waiting for update signal from WDS... index.js:48 
+> [WDS] Hot Module Replacement enabled.
+> [WDS] Live Reloading enabled.
+> ```
+>
+> 解决办法： 
+>
+> ```js
+> module.exports = {
+>     ...,
+>     target: "web",
+>     target: process.env.NODE_ENV === 'development' ? 'web' : 'browserslist'
+> }
+> ```
+
+2. 代码分离设置多入口文件 会导致 hrm失败 => 解决办法待定。
+
 ###  watch
 
 `build: "webpack --watch" `
@@ -1837,7 +1863,7 @@ webpack-dev-serve
 
 你会发现这样依旧会对所有模块刷新， 浏览器刷新页面的效果。
 
-故你需要在入口文件index.js中指定哪些模块需要热更新,
+`故你需要在入口文件index.js中指定哪些模块需要热更新,`
 
 1. 如果你开启模块热更新
 2. module.hot.accept("./math2.js") 请这样设置
@@ -1882,6 +1908,48 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 ![image-20210801233946586](images/wp-53.png)
 
 ## 十、webpack的配置
+
+### 0、 其他
+
+1. 封装path
+
+   ```js
+   // app,js
+   const path = require('path');
+   
+   // node中的api
+   const appDir = process.cwd();
+   const resolveApp = (relativePath) => path.resolve(appDir, relativePath);
+   
+   module.exports = resolveApp;
+   ```
+
+   
+
+2. 不希望出现txt的注释文件可以这样配置
+
+   ```js
+     const TerserPlugin = require("terser-webpack-plugin");
+    ----
+     optimization: {
+       // 对代码进行压缩相关的操作
+       minimizer: [
+         new TerserPlugin({
+           extractComments: false,
+         }),
+       ],
+     },
+   ```
+
+   
+
+<img src="images/image-20210808135133544.png" alt="image-20210808135133544" style="zoom:50%;" />
+
+3. 
+
+
+
+---
 
 ### 1、output.publicPath的作用
 
@@ -2042,4 +2110,761 @@ port设置监听的端口，默认情况下是8080
 
 比如bundle.js 1mb 变为 400kb， 此处浏览器自己处理。
 
-#### 5 proxy
+#### 6 proxy
+
+❗ 这里仅是生产环境。
+
+> dev-server 使用了非常强大的 [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware) 包。更多高级用法，请查阅其 [文档](https://github.com/chimurai/http-proxy-middleware#options)。
+
+❗ 注意前言
+
+> 使用webpack-dev-server(下简称wds)进行开发时，wds启动了一个运行在node上的web服务器，此时开发环境访问对应的端口时(以8080举例)，浏览器返回的vue页面是wds处理后的结果。跨域。简单来说，在使用ajax请求与当前页面不同来源的数据时，浏览器会拦截服务器发回的响应。在开发环境下，“当前来源”就是http://127.0.0.1:8080，向任何其它地址或端口的请求都会被视作跨域，从而被浏览器拦截。3.devServer的proxy是为了简化开发环境下的跨域请求配置。在上述情景中，注意被拦截的是发往“其它来源”的请求，而发往“当前来源”的不会被拦截，此处的“当前来源”则是作为开发服务器的wds。wds的思路就是基于此的，当发现符合在devServerproxy中配置好的请求格式时，将该请求拦截下来，由自己去请求服务器获取响应，然后把该响应返回给前端页面，即相当于一个传话筒。编译打包后，前端页面成为了单独的静态资源，wds被抽离出去了。但是资源要被访问，那必然还是需要有另一个web服务器来装载它，这个服务器常见的就是nginx。所以，如果想要让线上的vue页面也能正常访问服务器，那么只需要配置nginx，告诉它同样的事，即“当我访问某个url时，由你来做实际的请求，然后把结果告诉我”。
+
+部署时候：
+
+1. 静态资源与api服务器部署在同一服务器上 可以解决
+2. ngix反向代理可以解决
+3. 服务器那边直接关闭跨域。
+
+在实际开发过程中，我们需要用自己的前端的方式来解决开发环境的跨域问题：
+
+![image-20210803231824021](images/wp-66)
+
+````js
+    proxy: {
+      // "/why": "http://localhost:8888"
+      "/why": {
+        target: "http://localhost:8888",
+        pathRewrite: {
+          "^/why": ""
+        },
+        secure: false,
+        changeOrigin: true
+      }
+    },
+   
+````
+
+> 什么时候需要设置 changeOrigin呢？
+>
+> 答： 当你的服务器需要校验来源的时候， 我们需要修改headers中的host值。
+
+#### 7 historyApiFallback
+
+> 主要的作用是解决SPA页面在路由跳转之后，进行页面刷新时，返回404的错误。
+>
+> 注：hash的路由不存在此问题。 
+>
+> historyApiFallback功能是通过connect-history-api-fallback库的：
+
+- 场景
+
+  localhost:8080/ about 页面处 点击【刷新】按钮 => 404，cannot  get /about
+
+- 原因
+
+  不管react/router路由都是前端路由，监听前端的路由变化，然后再将js对应的变化放入页面渲染出来。
+
+  但点击【刷新】=> 刷新url => 去服务器（devServer）下对应的about页面，但是我们根本不存在此页面。
+
+  番外： nginx部署可修改配置，访问404时令其再访问 index.html的前端路由，此为部署环境时。
+
+- `解决办法：`
+
+  devServe.historyApiFallback: true;
+
+  那么在刷新时，返回404错误时，会自动返回 index.html 的内容； 
+
+  ```js
+  devServer: {
+      historyApiFallback: {
+        rewrites: [
+          { from: /^\/$/, to: '/views/landing.html' },
+          { from: /^\/subpage/, to: '/views/subpage.html' },
+          { from: /./, to: '/views/404.html' }
+        ]
+      }
+  ```
+
+### 5、output.entry & context
+
+> 一般而言，weback.config.js文件都属于根目录, 
+>
+> 如果我们的配置文件所在的位置变成了 config 目录，我们是否应该变成 ../src/index.js呢？
+
+答： 不应该。入口文件其实是和另一个属性时有关的 context；
+
+​		`entry的相对路径并非是相对与当前文件的路径， 而是相对于 contexrt配置 的路径`
+
+context的作用是用于解析入口（entry point）和加载器（loader）
+
+1. 如果我们不设置context的值，context默认的值就是webpack的启动目录
+
+   webpack的启动目录: 是 package.json启动的 配置文件所在目录的目录【`可以认为就是根目录`】
+
+   - ./config/webpack.common.js 的启动目录是 就是在 ./ 中启动
+   - 不纠结！就是根目录
+
+2. 故若你当前的 解析入口是特别的，那么你应该配置此处来更改webpack的上下文。
+
+   ```js
+   module.exports = {
+     //...
+     context: path.resolve(__dirname, 'app'),
+   };
+   ```
+
+### 6、resolve
+
+- mainFiles: 若目标是文件夹
+
+> resolve可以帮助webpack从每个 require/import 语句中，找到需要引入到合适的模块代码；
+
+![image-20210804000704169](images/wp-67.png)
+
+> resolve确定是文件还是文件夹？
+
+![image-20210804002246763](images/wp-68.png)
+
+![image-20210806000924912](images/wp-69.png)
+
+```js
+  resolve: {
+    extensions: ['.wasm', '.mjs', '.js', '.json', '.jsx', '.ts', '.vue'],
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "pages": path.resolve(__dirname, "./src/pages")
+    }
+  },
+```
+
+
+
+## 十一、 环境分离
+
+#### 认识环境分离
+
+> 开发与生产环境耦合在一起总是不好的，索性就分离吧。
+>
+> 分离的方式有两种
+>
+> 1. 拆分两个文件来分别维护他们
+> 2. 一个文件，但根据打包命令传参区分。
+> 3. 在这里我们使用综合的， 使用抽离公用，再合并单独。
+
+- 拆分两个文件来分别维护他们
+
+  开发环境  即 serve
+
+  生产环境 即  build
+
+  ````js
+  "build": "webpack --config ./config/webpack.prod.js",
+  "serve": "webpack serve --config ./config/webpack.dev.js",
+  ````
+
+- 相同的一个入口配置文件，通过设置参数来区分它们
+
+  ```js
+  "build": "webpack --config ./config/webpack.common.js --env production",
+  "serve2": "webpack serve --config ./config/webpack.common.js --env development"
+  ```
+
+  1. 传递了 参数 production
+
+     ⭐ 细节注意： 从前这里 module.exports 是一个对象！现在 是一个回调的函数！
+
+  2. 不过你都这样干了， 大可以再写两个js文件来分别维护，虽然文件变多了，但模块化了。
+
+     ```js
+     module.exports = function(env) {
+         console.log(env)
+     	const isProduction = env.production;
+         // 此时再进行一些列配置文件的控制
+         if (isProduction) {}
+     }
+     ```
+
+     console的env打印结果
+
+     ![image-20210807185305037](images/wp-70.png)
+
+#### 拆分
+
+> 三个文件夹文件
+>
+> 1. 某些配置是在开发环境需要使用的 => dev
+> 2. 某些配置是在生产环境需要使用的 => production 
+> 3. 某些配置是在开发和生成环境都会使用的 => common
+
+- common
+
+  1. entry 
+
+  2. output 
+
+  3. resolve
+
+     不管是开发还是打包，处理时都需要依赖resolve来处理文件的路径
+
+  4. module 
+
+     不管开发还是打包都需要将不同文件类型通过loader模块化
+
+  5. plugins => 具体情况具体分析
+
+- dev
+
+  1.  mode: "development",
+  2. devServer
+  3. plugins => 具体情况具体分析
+
+- production
+
+  1. mode: "production",
+
+  2. plugins
+
+     打包时要用到的插件
+
+     ```js
+       plugins: [
+         // 生成环境
+         new CleanWebpackPlugin({}),
+     
+       ]
+     ```
+
+
+#### 合并
+
+> common.config.js
+
+```js
+const { merge } = require("webpack-merge");
+
+module.exports = function(env) {
+  const isProduction = env.production;
+  process.env.NODE_ENV = isProduction ? "production": "development";
+
+  const config = isProduction ? prodConfig : devConfig;
+  const mergeConfig = merge(commonConfig, config);
+
+  return mergeConfig;
+};
+
+```
+
+#### isProduction
+
+1. 方式一： 配置文件中回调参数  `env.production`
+
+   ````js
+   "build": "webpack --config ./config/webpack.common.js --env production",
+   "serve": "webpack serve --config ./config/webpack.common.js --env development"
+   ````
+
+   此时你可以通过 exports的回调函数来对应
+
+   ```js
+   // common.config.js
+   let config = {...}
+   module.exports = function(env) {
+     const isProduction = env.production; // env.development 这是boolean
+   	return config;
+   };
+   ```
+
+2. mode决定的`process.env.NODE_ENV`
+
+   并非是你在 package的环境配置 --env， 而是因为 mode的类型写入的， 在日后的js文件中都可以获取到这个。相当于在全局中配置了一个环境的常量， 在任何的js都可获取到的.
+
+   - 在任何源代码 访问都可以获得！前提是属于模块内的！
+
+   ```js
+     mode: "development", // process.env.NODE_ENV === 'development'
+     mode: "production",  // process.env.NODE_ENV === 'production'
+   ```
+
+   <img src="images/wp-72.png" alt="image-20210807215726552" style="zoom:67%;" />
+
+3. 配置webpack中 babel的开发与生产环境 自己来写入
+
+   >  但是在 babel.config,js我们访问 process.env.NODE_ENV是访问不到的！
+
+   - babale,config.js 是babel-loader去使用的配置文件。 而babel-loader并不会给我们添加 process.env对应的值。并不属于我们的源代码
+
+   - 故在common.config.js中， 我们需要有一种解决方案。
+
+     1. webpack中的配置文件可以通过 【配置文件中回调参数】来获取是否是开发与生产环境的问题。
+
+        我们直接在当前的node的环境中自己写入此变量。
+
+        作用： babel.cofig.js会直接从node环境变量中获取到。 
+
+     2. 变量名随便。此处相当于重新盖掉了 process.env.NODE_ENV
+
+     3. `process.env.production `不可以是字符串类型！ 
+
+        设置 node的process.env的若是 undefined会将其转为字符串。=> 导致报错，此不可是String类型
+
+        故建议是使用 process.env.NODE_ENV 更好一点点。
+
+        我们通过 字符串的内容来判断，不通过boolean来判断。
+
+   ```js
+   // common.config.js的exports回调函数
+   process.env.NODE_ENV = env.production ? "production": "development";
+   
+   // babel.config.js中
+   const isProduction = process.env.NODE_ENV === "production";
+   ```
+
+<img src="images/wp-71.png" alt="image-20210807215439630" style="zoom: 50%;" />
+
+## 十二、代码分离
+
+> - 目的
+>
+>    是将代码分离到不同的bundle中
+>
+> - 作用
+>
+>   1. 之后我们可以按需加载，或者并行加载这些文件、
+>   2. 代码分离可以分出出更小的bundle，以及控制资源加载优先级，提供代码的加载性能； 
+>
+> - 场景
+>
+>   比如默认情况下，所有的JavaScript代码（业务代码、第三方依赖、暂时没有用到的模块）在首页全部都加载， 就会影响首页的加载速度；
+>
+> - 实现
+>
+>   1. 入口起点：使用entry配置手动分离代码；
+>   2. 防止重复：使用Entry Dependencies或者SplitChunksPlugin去重和分离代码；
+>   3. 动态导入：通过模块的内联函数调用来分离代码；
+
+### 1、entry 入口起点
+
+- 入口分离示范
+
+```js
+entry:{
+    main: './src/main.js',
+    index: './src/index.js',
+}
+```
+
+![image-20210808124811570](images/wp-73.pg)
+
+### 2、防止重复
+
+> 在 入口分离， 单纯的使用entry将其分为两个打包文件，其中会遇到如此的场景
+>
+> index.js和main.js都依赖两个库：lodash、dayjs,或者依赖共同的一个文件，那么打包后的代码中就会有这出的重叠代码，我们希望【防止重复】
+
+1. `Entry Dependencies`
+
+   用处不多
+
+   这样写法， 前提是这两个文件都引入了 moment的包
+
+   依赖多个时， dependOn改为数组格式即可
+
+   ![image-20210808170419952](images/image-20210808170419952.png)
+
+2. `SplitChunksPlugin`去重和分离代码；
+
+   > webpack已经默认安装和集成。它是使用SplitChunksPlugin来实现。
+   >
+   > Webpack提供了SplitChunksPlugin默认的配置，我们也可以手动来修改它的配置
+
+- 默认的配置  chunks仅仅针对于异步（async）请求```js
+
+        1. async异步导入  
+           2. initial同步导入 
+           3. all 异步/同步导入
+
+  ```js
+    optimization: {
+      splitChunks: {
+        chunks: "all",
+      },
+    },
+  ```
+
+  ![image-20210808185154501](images/image-20210808185154501.png)
+
+### 2.1⭐ SplitChunksPlugin
+
+#### 1 配置解释
+
+```js
+  optimization: {
+    // 对代码进行压缩相关的操作
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+      }),
+    ],
+    // natural: 使用自然数(不推荐),
+    // named: 使用包所在目录作为name(在开发环境推荐)
+    // deterministic: 生成id, 针对相同文件生成的id是不变
+    // chunkIds: "deterministic",
+    splitChunks: {
+      // async异步导入
+      // initial同步导入
+      // all 异步/同步导入
+      chunks: "all",
+      // 最小尺寸: 如果拆分出来一个, 那么拆分出来的这个包的大小最小为minSize
+      minSize: 20000,
+      // 将大于maxSize的包, 拆分成不小于minSize的包
+      maxSize: 20000,
+      // minChunks表示引入的包, 至少被导入了几次
+      minChunks: 1,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          filename: "[id]_vendors.js",
+          // name: "vendor-chunks.js",
+          priority: -10
+        },
+        // bar: {
+        //   test: /bar_/,
+        //   filename: "[id]_bar.js"
+        // }
+        default: {
+          minChunks: 2,
+          filename: "common_[id].js",
+          priority: -20
+        }
+      }
+    },
+```
+
+1. optimization.chunkIds
+
+   - 作用： 确定拆分后的文件名称的命名。
+
+   - 可供选择的参数， 
+     1. natural 			                使用自然数(不推荐),
+     2. `named `                         使用包所在目录作为name(在开发环境推荐)； development下的默认值
+     3. `deterministic`      生成id, 针对相同文件生成的id是不变
+     
+   - 开发过程中，我们推荐使用named； 
+
+     打包过程中，我们推荐使用deterministic；
+
+2. optimization.splitChunks.`chunks`
+
+   - 可供选择的参数
+
+     1. async[默认值] 异步
+
+        ```js
+        import('moment').then(({default} ) => {
+           ········ 
+        });
+        ```
+
+     2. initial 同步
+
+     3. all 异步与同步
+
+        PS： React实现的脚手架 他只配置了此选项。
+
+3. optimization.splitChunks.`minSize与maxSize`
+
+   - minSize
+
+     作用： 打包的条件
+
+     默认值： 20000  // 20kb
+
+     1. 最小尺寸: 如果拆分出来一个, 那么拆分出来的这个包的大小最小为minSize
+
+     2. 如果一个包拆分出来达不到minSize,那么这个包就不会拆分；
+
+   - maxSize·
+
+     拆分的规则。将大于maxSize的包, 拆分成不小于`minSize`的包。
+
+   - 注意：
+
+     1.  maxSize若是小于minSize也可以。但其规则是矛盾的（不可能将一个100kb的包拆成200kb的包），优先依旧采用minSize。一般将maxSize设置与minSize一样即可。
+
+     2. 满足 minSize ， 又 maxSize， 优先是 minSize。
+
+4. optimization.splitChunks.`minChunks`
+
+   - 作用： 打包的条件
+   - 意义
+     1. minChunks表示引入的包, 至少被导入了几次.
+     2. 默认是1；如果我们写一个2，但是引入了一次，那么不会被单独拆分；
+
+5. optimization.splitChunks.`cacheGroups`
+
+   - 作用：对拆分的包就行分组，比如一个lodash在拆分之后，并不会立即打包，而是会等到有没有其他符合规则的包一起来打包；
+
+   - 分组打包很重要的!
+
+     此处： 将所有第三方的打包文件【调用node_modules】的文件进行打包
+
+     再次强调： vendor 只是一个名称， 这个key可由我们自定义
+
+     ````js
+      	cacheGroups: {
+             // vendor是你自定义的名字 此处key值随便取名称
+             vendor: {
+               test: /[\\/]node_modules[\\/]/,
+               filename: "[id]_vendors.js",
+               // name: "vendor-chunks.js",
+               priority: -10
+             },
+             // 文件
+             bar: {
+                test: /bar_/,
+                filename: "[id]_bar.js"
+              }
+             default: {
+               minChunks: 2,
+               filename: "common_[id].js",
+               priority: -20
+             }
+           }
+     ````
+
+     示范： 对应的文件打包。
+
+   <img src="images/image-20210808211058801.png" alt="image-20210808211058801" style="zoom:67%;" />
+
+   
+
+
+#### 2 参数解释
+
+   1. test属性：匹配符合规则的包；
+
+   2. name属性：拆分包的name属性；
+
+   3. filename属性：拆分包的名称，可以自己使用placeholder属性；
+
+   4. default
+
+      他应该默认的遵守的打包规则如下。这些配置比外部会更优先点。
+
+      ```js
+          default: {
+            minChunks: 2,
+            filename: "common_[id].js",
+            priority: -20
+          }
+      ```
+
+   5. priority
+
+      当满足了缓存打包的规则，同时写了default规则，那就按照 priority的大小。一般我们设置负数。
+
+      优先级优先使用谁。
+
+   6. name
+
+      一般设置为 false即可。
+
+      name 与 filename的区别。
+
+      name是写死的，不能用占位名称。 但filename可以使用。这便是他们的区别。
+
+   - vue的规则
+
+     <img src="images/image-20210808211955487.png" alt="image-20210808211955487" style="zoom: 67%;" />
+
+     
+
+     
+
+#### 3 关于test为什么要这样写？ 
+
+> 当 webpack 处理文件路径时，它们始终包含 Unix 系统中的 `/` 和 Windows 系统中的 `\`。这就是为什么在 `{cacheGroup}.test` 字段中使用 `[\\/]` 来表示路径分隔符的原因。`{cacheGroup}.test` 中的 `/` 或 `\` 会在跨平台使用时产生问题。
+
+```js
+ test: /[\\/]node_modules[\\/]/, 
+ 
+ #1 初始写法 只是匹配文件夹名称
+ test: //node_modules//
+ #2 但Mac电脑中需要适配 故第二个字符应该是 /\文件名称/\
+ test: /[\/]node_modules[\/]/
+ #3 但又regx的规则限制， \ 是一种特殊符号
+ test: /[\\/]node_modules[\\/]/
+ 初次之外要明确 文件夹与 文件的区别。
+```
+
+####  4 Vue的SplitChunks
+
+是四个包
+
+1. main.bundle.js
+
+2. vendor_chunk.js => 第三方
+
+3. common_chunk.js => 多入口的情况下 多次引用，故单独打包 => 但vue是spa，少见
+
+4. runtime.js 请看后续
+
+#### 5 分支名称个性化
+
+我们单独打出来的分支包的名称,， 我们希望其有自己独特的识别。如chunk
+
+<img src="images/image-20210808233125075.png" alt="image-20210808233125075" style="zoom:67%;" />
+
+`chunkFilename`的作用i就是为了解决分支的命名问题。
+
+```js
+  output: {
+    path: resolveApp("./build"),
+    filename: "[name].bundle.js",
+    chunkFilename: "[name].[hash:6].chunk.js"
+  },
+```
+
+PS: 若是动态加载的chunk名称需借助魔法注释。
+
+### 3、动态导入
+
+使用ECMAScript中的 import() 语法来完成，也是目前推荐的方式；
+
+`不管怎么样异步导入的文件一定是被分包的！`
+
+>  即便是 你在插件中如此设置同步， 但动态导入的内容依旧会被单独成一个包
+>
+> 不会再cacheGroups中进行配置；为动态导入通常是一定会打包成独立的文件的
+>
+> ```js
+> optimization.splitChunks.chunks = 'initial'
+> ```
+
+- 魔法注释确定名称
+
+  1. 你会发现默认情况下我们动态加载的获取到的 [name] 是和id的名称保持一致的
+
+     我们希望修改name的值，可以通过magic comments（魔法注释）的方式；
+
+  ```js
+  import(/* webpackChunkName: "foo_02" */"./foo_02").then(res => {
+    console.log(res);
+  });
+  ```
+
+  
+
+- 场景
+
+  ![image-20210809001449153](C:/Users/HuangPeng/AppData/Roaming/Typora/typora-user-images/image-20210809001449153.png)
+
+### 3.1 优化
+
+> 用户出发懒加载 => 如上述场景的代码， 一旦点击 
+>
+> 1. 下载js
+> 2. 解析js
+>
+> 这样的缺点是： 存在时间间隔，希望可以点时立刻出现 => 那如何才可以提前下载js呢？（解析不考虑，属于demo优化）
+
+- 故希望的效果为： 
+
+  当加载完首页，浏览器有空余的时间取下载别的js文件时候，我们让其提前下载我们的懒加载文件。
+
+- 解决
+
+  webpack提供了一种方案可以很便捷的实现这种操作
+
+  webpack v4.6.0+ 增加了对预获取和预加载的支持
+
+#### 1 预获取
+
+ /* webpackPrefetch: true */ 便可以！你总会发现这个文件在最后的时候被下载
+
+故开发我们一般使用 prefetch
+
+- 他一定是在浏览器闲置下下载
+- 在未来某个时间来下载
+
+```js
+import(
+    /* webpackChunkName: 'element' */
+    /* webpackPrefetch: true */
+    "./element"
+  ).then(({default: element}) => {
+    document.body.appendChild(element);
+  })
+```
+
+![image-20210809002540025](images/image-20210809002540025.png)
+
+#### 2 预加载
+
+​    /* webpackPreload: true */
+
+- 他不一定是在浏览器闲置下
+- 父chunk下载时，此懒加载文件同时下载，立刻请求，现在就下载！并行。
+- 故 preload使用场景不多。
+
+```js
+  import(
+    /* webpackChunkName: 'element' */
+    /* webpackPreload: true */
+    "./element"
+  ).then(({default: element}) => {
+    document.body.appendChild(element);
+  })
+```
+
+#### 3 preload与prefetch的区别
+
+1. preload chunk 会在父 chunk 加载时，以并行方式开始加载。
+
+   prefetch chunk 会在父 chunk 加载结束后开始加载。 
+
+2. preload chunk 具有中等优先级，并立即下载。
+
+   prefetch chunk 在浏览器闲置时下载。 
+
+3. preload chunk 会在父 chunk 中立即请求，用于当下时刻。
+
+   prefetch chunk 会用于未来的某个时刻。
+
+### 4 关于 runtime的chunk
+
+> optimization,runtimeChunk
+
+````js
+runtimeChunk: true// 设置为 true 于设置 为 multiple 是同样的效果
+
+runtimeChunk: {
+      name: function(entrypoint) {
+        return `why-${entrypoint.name}`
+      }
+    }
+````
+
+1. runtimeChunk为true 或是 multiple
+
+   因为你在 main.js和 index.js 中都有在运行时候执行的懒加载文件，故有两个文件生产
+
+   ![image-20210809012822101](images/image-20210809012822101.png)
+
+2. runtimeChunk为single
+
+   即加载到一个文件中。
+
+3. runtimeChunk可以为一个对象
+
+   ```js
+       runtimeChunk: {
+         name: 'XXXXX', // => 设置为 【name】的占位符
+         name: function(entrypoint) {
+           return `why-${entrypoint.name}` // 这才是完整文件 将入口配置entry传递过来
+         }
+       }
+   ```
+
+## 十三、CDN、shimming、
