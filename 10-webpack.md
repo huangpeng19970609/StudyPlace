@@ -57,6 +57,15 @@
 
   官方文档中极其详细讲述了本文章大部分的知识点。
 
+- process.env.isProduction
+
+  如 
+
+  ```js
+  process.env.isProduction = isProduction; // 将 false 赋予其 会发现 候会转为String
+  这是因为 process.env对象的属性赋值的问题
+  ```
+
 ## 一 新手村
 
 当代前端问题
@@ -853,7 +862,7 @@ document.querySelector('#img').src  = require('./static/images/cesium-1.png').de
          }
    ````
 
-## 三 Plugin
+## 三 插件-Plugin
 
 现在我们有两处希望优化的地方：
 
@@ -975,7 +984,58 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
     })
 ````
 
-### 5 压缩css
+### 5 压缩cs【抽离css】
+
+   进行打包的设置， 现在通过js引入的css文件，其最终都是行内样式【位于head】中。虽然也没啥问题， 但我们希望其更加模块化。将css文件抽离初去
+
+> MiniCssExtractPlugin可以帮助我们将css提取到一个独立的css文件中，该插件需要在webpack4+才可以使用
+
+1. npm install mini-css-extract-plugin -D 
+
+2. 配置rules和plugins：
+
+   ```js
+   // 在 生产环境应该如此配置
+   const MiniCssExtractPlugin = require('mini-css-extract-plugin');  
+   plugins: [
+       // 生成环境
+       new MiniCssExtractPlugin({
+         filename: "css/[name].[hash:8].css"
+       })
+     ]
+   
+   // 此时要注意这里！
+       module: {
+         rules: [
+           {
+             test: /\.css/i,
+             // style-lodader -> development
+             use: [
+               isProduction ? MiniCssExtractPlugin.loader : "style-loader", // 二选一
+               "css-loader"],
+           },
+         ],
+       },
+   ```
+
+
+### 6 InlineChunkHtmlPlugin
+
+> 可以辅助将一些chunk出来的模块，内联到html中：
+>
+> 目的： 减少http的再次请求js文件。比如runtime的代码，代码量不大，但是是必须加载的
+
+1. 在production的plugins中进行配置
+
+   ```js
+   npm install react-dev-utils -D
+   
+   const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
+   
+   plugins: [
+       new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime.*\.js/,])
+   ]
+   ```
 
 ## 四 模块化原理
 
@@ -2867,4 +2927,620 @@ runtimeChunk: {
        }
    ```
 
-## 十三、CDN、shimming、
+## 十三、CDN, shimming, hash, DLL
+
+### 1 CDN
+
+> 方式一： 将打包后的资源直接放入CDN服务器 => 但花费高
+>
+> 方式二： 引用第三方已有的CDN
+
+![image-20210814115650550](images/image-20210814115650550.png)
+
+- 自己的CDN使用示范
+
+  ![image-20210814115823279](images/image-20210814115823279.png)
+
+- 常用的方式： 引入指定的cdn
+
+  虽然依旧需要打开的时候使用到这些包的环境， 但我们可以设置生产环境的打包不对这些元素进行打包。
+
+  1. webpack进行配置， 不进行打包
+
+     PS： 如何才能找到暴露的全局变量，只有读源码，看规律，看暴露对象来寻找。
+
+     在webpack文件进行配置
+
+     ```js
+     externals: {
+         lodasg: '_', // 值为暴露出来的全局变量
+         dayjs: 'dayjs' 
+     }
+     ```
+
+  2. 初次之外，在生产环境我们需要引入对应的包， 但是在开发环境我们再次引用不是多次一举吗？\
+
+     - 故我们可以根据 node环境来进行一处优化的处理
+     - 当然你可以在script中加上 defer="defet"
+
+     ```js
+      <!-- ejs中的if判断 -->
+       <% if (process.env.NODE_ENV === 'production') { %> 
+       	<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+       	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"	           </script>
+       <% } %> 
+     ```
+
+### 2 shimming
+
+>  垫片，相当于给我们的代码填充一些垫片来处理一些问题
+
+- 高情商：存在隐含依赖（比如全局变量）的彼此隔离的模块 
+
+- 场景
+
+  问题所在： 引入的一个第三方库【此库本身依赖lodash】但默认并没有对loadsh进行引入
+
+  ​					这个第三方库认为你肯定引入了此库，且在全局中使用了此库。
+
+```js
+    plugins: [
+      //  当在代码中遇到某一个变量找不到时, 我们会通过ProvidePlugin, 自动导入对应的库
+        
+      // val为第三方库的名称， key为 若遇到此值无法找到，则导入对应的key
+      new webpack.ProvidePlugin({
+         axios: "axios", 
+         get: ["axios", "get"] // 遇到 【get】找不到， 调用 axios.get
+       })
+    ],
+```
+
+### 3三种hash
+
+1. Hash
+
+   - 比如我们现在有两个入口index.js和main.js；
+
+     它们分别会输出到不同的bundle文件中，并且在文件名称中我们有使用hash；\
+
+   - 两个文件的名称都会发生变化
+
+2. chunkHash
+
+   `hash另一个入口文件也改变了怎么办？`
+
+   可以有效的解决上面的问题，它会根据不同的入口进行借来解析来生成hash值;
+
+   比如我们修改了index.js，那么main.js的chunkhash是不会发生改变的；
+
+3. contentHash
+
+   `chunkHash依赖的文件也会改变怎么办？`
+
+   - 比如我们的index.js，引入了一个style.css，style.css有被抽取到一个独立的css文件中
+
+   - 这个css文件在命名时，如果我们使用的是chunkhash.那么当index.js文件的内容发生变化时，css文件的命名也会发生变化；
+   - 这个时候我们可以使用contenthash；
+
+### 4、**DLL库** （了解）
+
+> 注： webpack4性能很好！我们没必要专门去做dll库为了打包的性能提升。
+
+1. 动态链接库
+
+   目的是 将可共享、不经常改变的、可抽取的代码抽成库。目的就是减少打包的内容。
+
+2. 步骤
+
+   - 第一步要打包一个dll库
+
+   - 第二步项目引入dll库
+
+     引入时 要有dll库， 且此时dll库也要打包进入。
+
+3. 打包dll库
+
+   打包此库，相当于一个webpack的项目， 我们进行单独的打包配置即可。
+
+```js
+const path = require('path');
+const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+
+module.exports = {
+  entry: {
+    react: ["react", "react-dom"]
+  },
+  output: {
+    path: path.resolve(__dirname, "./dll"),
+    filename: "dll_[name].js",
+    // 打包为库需要设置此处
+    library: 'dll_[name]'
+  },
+  // 关闭注释文件
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false
+      })
+    ]
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      name: "dll_[name]",
+      // 描述文件 
+      path: path.resolve(__dirname, "./dll/[name].manifest.json")
+    })
+  ]
+}
+```
+
+4. 如何在另一个文件中使用dll库？ 
+
+   虽然我们引用了，但还是需要进行安装  npm install 对应的内容。因为我们在开发的环境下。
+
+   我们目的只是不再打包react代码！跟下载react执行是两码事情。
+
+   ```js
+   import React from "react" // 此时还是通过 node_modules下找的，故需要下载！
+   ```
+
+   ![image-20210814183850109](images/image-20210814183850109.png)
+
+来看看
+
+```js
+# 复制到 build文件夹下
+# 并且 index.html自动引入
+const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin
+                                   
+图中的 context 为mainfest的上下文
+```
+
+![image-20210814184827089](images/image-20210814184827089.png)
+
+## 十四 、丑化与压缩
+
+
+
+### 1、Teser 
+
+>  JS的Teser 分别为两类
+>
+> - 丑化: 让原本的代码变成丑陋，比如变量名、函数名用26个字母来替代此类。
+>
+>   ```js
+>   addPersonToSomeOne(); 变为 a();
+>   ```
+>
+> - 压缩: 消除dead_code。转换对应的代码变得更加简洁，都属于压缩。
+>
+>   ````js
+>   # deadcode
+>   if (false) {} 
+>   ````
+>
+> API参考
+>
+> https://github.com/terser/terser#compress-options
+>
+> https://github.com/terser/terser#mangle-options
+
+- `丑化`与压缩
+
+  1. `单独`使用
+
+     cnpm install terser -D 如大多数的使用相同， 其也是可以全局安装，并且单独使用的工具
+
+     你会发现在bin文件夹下有来 terser 即可以
+
+     ```js
+     npx terser inputfile -o outfiles
+     # 1 默认打打包只是删除空格
+     npx terser ./src/abc.js -o abc.min.js
+     npx terser ./src/abc.js -o abc.min.js -c defaults
+     #2 更多的配置请详情看api
+     npx terser ./src/abc.js -o abc.min.js -c arrows=true,arguments=true
+     ```
+
+  2. ⭐ webpack使用
+
+     > 在webpack中有一个minimizer属性，在production模式下，默认就是使用TerserPlugin
+     >
+     > 我们对默认的配置不满意，也可以自己来创建TerserPlugin的实例，并且覆盖相关的配置；
+
+     - teserOptions
+
+       - compress：设置压缩相关的选项；
+       - mangle：设置丑化相关的选项，可以直接设置为true； 
+       - toplevel：底层变量是否进行转换
+       - keep_classnames：保留类的名称；
+       - keep_fnames：保留函数的名称；
+
+     - parallel
+
+       使用多进程并发运行提高构建的速度，默认值是true，并发运行的默认数量： os.cpus().length - 1
+
+     - extractComments：默认值为true，表示会将注释抽取到一个单独的文件中；
+
+     ```js
+       optimization: {
+         minimize: true,
+         minimizer: [
+           new TerserPlugin({
+             parallel: true,
+             extractComments: false,
+             terserOptions: {
+               compress: {
+                 arguments: false,
+                 dead_code: true
+               },
+               mangle: true,
+               toplevel: true,
+               keep_classnames: true,
+               keep_fnames: true
+             }
+           })
+         ]
+       },
+     ```
+
+### 2 、CSS压缩
+
+> CSS的压缩是压缩空格符号。选择器与对应的值、丑化这类显然不做压缩的考虑。
+
+- 使用的插件： `css-minimizer-webpack-plugin`
+
+- 使用步骤
+
+  `````js
+  # 1 安装
+  npm install css-minimizer-webpack-plugin -D
+  
+  #2 配置
+  在optimization.minimizer中配置
+  `````
+
+  ![image-20210815113013376](images/image-20210815113013376.png)
+
+### 3、ScopeHoisting(作用域提升)
+
+> - 它是什么❓
+>
+>   功能是对作用域进行提升，并且让webpack打包后的代码更小、运行更快、
+>
+> - webpack的默认情况
+>
+>   1. 无论是从最开始的代码运行，还是加载一个模块，都需要执行一系列的函数；
+>
+>   2. Scope Hoisting可以将函数合并到一个模块中来运行；
+>
+> - webpack如何开启？
+>
+>   1. 在production模式下，默认这个模块就会启用；
+>   2. development模式下，我们需要自己来打开该模块；
+>
+>  
+
+目的是提升作用域， 减少大量闭包情况的出现，以防止内存显露。
+
+- 在位于production环境下此选项默认会开启！
+
+```js
+  plugins: [
+    new webpack.optimize.ModuleConcatenationPlugin()
+  ]
+```
+
+- 注意事项
+  1. 插件对ESModule模块也会进行静态分析， 但对Commonjs的支持并非很好，故尽量使用ESModule
+  2. ScopeHosting会优先处理 ESModule
+
+- resolve.mainFiellds的target决定了package.json中用哪个字段导入模块
+
+  ```js
+  mainFields: ['brower', 'module', 'main'] // 默认为main 第三方往往以main字段去寻找对应的包
+  ```
+
+  <img src="images/image-20210815114706153.png" alt="image-20210815114706153" style="zoom:67%;" />
+
+### 4、TreeShaking
+
+> 树的摇晃。
+>
+> Tree Shaking => 消除死代码（dead_code）
+>
+> webpack5中，也提供了对部分CommonJS的tree shaking的支持；
+
+Tree Shaking有两种方案
+
+1. `usedExports`: 通过标记某些函数是否被使用，之后通过Terser来进行优化的；
+2. `sideEffects:` 跳过整个模块/文件，直接查看该文件是否有副作用；
+
+#### 1. usedExports
+
+`usedExports实现Tree Shaking是结合Terser来完成的`
+
+- 更好的演示，首先： 要特地设置为 development 模式。 生产环境默认为true
+
+- 设置usedExports， 并不能消除代码，目的只是标记哪些代码。
+
+  ```js
+    optimization: {
+      // usedExports: 目的是标注出来哪些函数是没有被使用 unused
+      usedExports: true, // production
+    }
+    # 一些函数上出现这种注释！ 
+    unused harmony export mul；
+  ```
+
+- Terser实现消除
+
+  此时 Terser工具会自动寻找那些被标记过【`unused harmony export mul`】注释的代码并将其删除！
+
+  ```js
+    optimization: {
+      // usedExports: 目的是标注出来哪些函数是没有被使用 unused
+      usedExports: true, // production
+      minimize: true,
+      minimizer: [
+        // 由Terser将未使用的函数, 从我们的代码中删除
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              dead_code: true
+            },
+          }
+        })
+      ]
+    },
+  ```
+
+#### 2 sideEffects
+
+> sideEffects用于告知webpack compiler哪些模块时有副作用的
+>
+> 如何判断一个模块是否有副作用呢？
+>
+> - 不能单纯以 export来判断
+> - 而是应以内部的代码作为判断。
+
+- 在package.json中设置sideEffects为false
+
+- 如果我们将sideEffects设置为false，就是告知webpack可以安全的删除未用到的exports；
+
+  代表： 目前我们的模块文件 皆无副作用。相当于绿色通道。
+
+   若是认为未使用到时即可删除。 
+
+<img src="images/image-20210815120713048.png" alt="image-20210815120713048" style="zoom:67%;" />
+
+比如 单纯的 import 一个模块，其并没有使用到此模块内容，也没有导出。
+
+比如我们有一个format.js、style.css文件：该文件在导入时没有使用任何的变量来接受；
+
+那么打包后的文件，不会保留format.js、style.css相关的任何代码；
+
+```js
+# 导出的此模块代码
+window.a = 1; 显然此刻由于认为模块文件皆无副作用，此文件也没有被使用过， 故会被删除！
+```
+
+故我们应该怎么规定副作用的文件呢？
+
+```js
+sideEffects: ["./src/format.js"] // 我们手动来指定哪些文件具有副作用
+
+# 注意！ css肯定也会被错误删除的！故要注意此处
+sideEffects: ["./src/format.js",
+              "**.css"
+             ] 
+```
+
+- 注意事项！
+
+  更好的办法：在rules的进行loade的规则中
+
+  防止 认为css 是deadcode模块
+
+  ```js
+          {
+            test: /\.css/i,
+            // style-lodader -> development
+            use: [
+              isProduction ? MiniCssExtractPlugin.loader: "style-loader", 
+              "css-loader"],
+            sideEffects: true // react 脚手架中
+          },
+  ```
+
+- `总结`： 如何在项目中对JavaScript的代码进行TreeShaking呢（生成环境）？
+  1. 在optimization中配置usedExports为true，来帮助Terser进行优化；
+  2. 在package.json中配置sideEffects，直接对模块进行优化；
+
+#### 3 css的tree shaking
+
+> 什么是css的tree shaking?
+>
+> 显然是说 未被使用的选择器。
+>
+> Tree Shaking：PurgeCSS，也是一个帮助我们删除未使用的CSS的工具
+
+- 安装
+
+  ```js
+  cnpm install purgecss-webpack-plugin -D
+  ```
+
+- 配置插件
+
+  1. safelist设置白名单， 否则他们也会被认为dead code
+  2. paths设置要处理的路径
+
+  ```js
+  const glob = require('glob'); // webpack自带了 glob
+  
+    plugins: [
+      // 生成环境
+      new PurgeCssPlugin({
+        paths: glob.sync(`${resolveApp("./src")}/**/*`, {nodir: true}),
+        safelist: function() {
+          return {
+            standard: ["body", "html"]
+          }
+        }
+      })
+    ]
+  ```
+
+- 注意： 
+
+  1. purgecss也可以`对less文件也可以进行处理`（所以它是对打包后的css进行tree shaking操作）；
+
+  2. 这种情况也可以被识别！他很强大
+
+     ```js
+     div.className = 'title';
+     此时也会被识别到！ 认为 class 为 title的不是dead_code！ 同理其他js操作
+     ```
+
+
+
+#### 4 HTTP压缩
+
+  我们希望浏览器在请求http可以更加快捷
+
+> HTTP压缩是一种内置在 服务器 和 客户端 之间的，以改进传输速度和带宽利用率的方式；
+
+- 实现原理
+
+  1. http请求的数据应该是已被压缩后的数据， 浏览器不会主动帮我们解压，我们的文件应该已被压缩为另一种格式。故我们需要在webpack中提前将包打包为gz格式，或其他格式。
+
+     （可以在webpack中完成）
+
+  2. 为兼容浏览器， 我们一般选择 gizp、br格式。根据 Accep-Encoding进行对应的解码
+
+  3. 服务器在浏览器支持的压缩格式下，直接返回对应的压缩后的文件，并且在响应头中告知浏览器；
+
+     ⭐ 例如 请求 abc.js文件， 返回abc.js.gzip文件
+
+     ​	   浏览器处理 abc.js.gzip文件将其转为abc.js文件
+
+- 步骤
+
+  1. 配置
+
+     目的： 同时打包文件的时候， 对应生成对应的gz文件
+
+     ```js
+     npm install compression-webpack-plugin -D
+     
+     const CompressionPlugin = require('compression-webpack-plugin');
+     	
+       plugins: [
+         new CompressionPlugin({
+           test: /\.(css|js)$/i, // 告知哪些文件需要被压缩
+           threshold: 0,	     	//  设置文件从多大可以被压缩
+           minRatio: 0.8,     	// 文件希望达到的压缩比，若达不到则不压缩
+           algorithm: "gzip", 	// 压缩算法
+           // exclude
+           // include
+         }),
+       ]
+     ```
+
+     <img src="images/image-20210815141831958.png" alt="image-20210815141831958" style="zoom:67%;" />
+
+#### 5 HTML压缩
+
+> 之前使用了**HtmlWebpackPlugin**插件来生成HTML的模板, 在html也可以进行压缩配置，详情见插件。
+
+- `inject：`设置打包的资源插入的位true、 false 、body、head
+- `cache：`设置为true，只有当文件改变时，才会生成新的文件（默认值也是true） 
+- `minify：`默认会使用一个插件html-minifier-terser
+
+```js
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: "./index.html",
+        // inject: "body"
+        cache: true, // 当文件没有发生任何改变时, 直接使用之前的缓存
+        minify: isProduction ? {
+          removeComments: false, // 是否要移除注释
+          removeRedundantAttributes: false, // 是否移除多余的属性
+          removeEmptyAttributes: true, // 是否移除一些空属性
+          collapseWhitespace: false,
+          removeStyleLinkTypeAttributes: true,
+          minifyCSS: true,
+          minifyJS: {
+            mangle: {
+              toplevel: true
+            }
+          }
+        }: false
+      }),
+```
+
+## 十五 Libary 打包
+
+> www.npmjs.org
+>
+> 1. npm login 登录
+>
+> 2. npm publish 发布包
+>
+>    发布包的过程前期是此包已经封装好！
+>
+> 3. npm search XXX
+>
+> 4. npm install XXX
+
+![image-20210815153951598](images/image-20210815153951598.png)
+
+```js
+{
+  "name": "coderwhy_utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.24.4",
+    "webpack-cli": "^4.5.0"
+  }
+}
+
+```
+
+webpack.config.js
+
+使用outpath打包的目的是为了 在全局下就可以使用！ `library: "coderwhyUtils",`
+
+=> window.coderwhyUtils
+
+```js
+const path = require('path');
+
+module.exports = {
+  mode: "production",
+  entry: "./index.js",
+  output: {
+    path: path.resolve(__dirname, "./build"),
+    filename: "coderwhy_utils.js",
+    // AMD/CommonJS/浏览器
+    // CommnJoS: 社区规范的CommonJS, 这个里面是没有module对象
+    // CommonJS2: Node实现的CommonJS, 这个里面是有module对象, module.exports
+    libraryTarget: "umd",
+    library: "coderwhyUtils",
+    globalObject: "self"
+  }
+}
+```
+
