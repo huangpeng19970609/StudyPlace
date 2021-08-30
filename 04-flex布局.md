@@ -18,7 +18,7 @@ space-between|对齐方向: 两端对齐,且间隔相等.(即首与末元素有�
 space-around | 对齐方向: 环绕对齐,间隔相等.(即首与末元素有间隔)
 ---
 
-#### 2 <span style="color: red">align-items</span> 
+#### 2 align-items
 
 控制 交叉轴（元素角度。items）
 
@@ -35,8 +35,6 @@ flex-end| 对齐方式: end
 center | 居中, 即子项的高度中线与flex交叉轴中线重合
 baseline | 交叉轴的对齐方式，现在该由每个元素的第一行文字基线控制。保持基线对齐。
 stretch | 交叉轴的默认对齐方式: 若无对应宽或高，则每个元素对应填充交叉轴。
----
-
 
 
 #### 3  <span style="color: red">flex-direction</span> 
