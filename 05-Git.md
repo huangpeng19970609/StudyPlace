@@ -1,6 +1,4 @@
-## Git
-
-#### 0 初次配置
+### 一 初次配置
 1. git config --global user.name 'huangpeng'
 2. git config --global user.email '指定邮箱'
 
@@ -18,7 +16,7 @@
   git remote -v 查看远程库信息
   git remote rm <name> 删除本地与远程关系
 
-#### 1 克隆并关联
+### 二  克隆并关联
 
 1. 克隆
   ```Shell
@@ -40,7 +38,7 @@
   ```
 
 
-#### 2 提交文件
+### 三 提交文件
 >工作区 (add)=> 暂存区 (commit)=> 本地git库 (push)=> 远程库  
 1. git add [参数]  [--] <路径>
    ```Shell
@@ -79,7 +77,7 @@
   1. git status命令表示：文件（文件夹）在 工作区 与 暂存区的状态
 
 
-#### 3 放弃工作区修改 回滚版本 查看不同
+### 四 放弃工作区修改 回滚版本 查看不同
 1.  git checkout -- [fileName]
   + 当你提交了缓存区以后， 后续又一次修改（此时未add）
     你使用git status命令 会显示如下
@@ -105,7 +103,7 @@
     git diff                   工作区 与 暂存区
     git diff Head --fileName   工作区 和 版本库     
    ```
-#### 4 分支管理
+### 五 分支管理
 + Head指向的是当前分支！我们切换分支时候也是切换的是Head指向
 + 如分支【master】
 
@@ -163,27 +161,82 @@
    git rm --cached <file> // 请确定此命令一定要执行吗？？
    ````
 
+8. 推送分支
+
+   ```js
+   git push origin[maseter || dev]
+   ```
+
+9. 克隆远程库的分支
+
+   ```js
+   git checkout -b dev orgin/dev
+   ```
+
+10. 关联分支
+
+    ```js
+    git pull 拉取，本地合并 
+    # 但由于没有指定本地的 dev 于 远程仓库的哪个分支，故由此问题
+    git branch --set-upstream-to=orgin/dev dev
+    ```
+
+### 六 Bug分支 
+
+- bug分支的原因
+  需求:       我们修要来修复bug, 仅针对于master的bug修复，但dev分支上仍有正在开发的代码;
+                   故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
+  导致问题:   但dev分支不干净，无法切换怎么办？
+
+- 解决: `git stash`
+
+- ngit stash 命令后 你会发现 你的 git status是干净的
+
+  即它将你本地的工作区【缓存区】的内容给藏起来了。
+
+  使用的原因： 我们无法在一个缓存区有内容的分支下 去切换到另一个分支
+
+#### 1、 场景
+
+1. 位于 dev 分支下， 此处工作区已有内容，但此时我要切换分支。
+2. git stash => git status命令后 你会发现 cleaing
+3. 切换到 master分支后, 创建一个新分支， 修复bug， 将此分支 再合并到master
+4. 切换回 dev 分支
+5. git status list 此时运行此命令
+   - git stash apply 恢复
+   - git stash drop 删除 stash
+
+#### 2、 此外
+
+若是 master存在此bug， 且dev也存在此bug。
+
+你也可以如此 git cherry -pick 4c055e2 [] 复制一次特定的提交 至当前的分支
+
+注意：
+
+⭐ 你应该 git add 后 才可以 git stash
+
+比如先跟踪此文件，才可以再对其继续操作。 git大部分的操作其实都 要求其 被追踪。
+
+### 七 Rebase
+
+多人协作时，每一次提交前都应该 先pull 拉取以下后再push.
+
+1. 查看提交的记录
+
+   ```js
+   git log --graph --pretty=online --abbrev-commit
+   ```
+
+2. 打标签！
+
+   ```js
+   git tag v1.0 f5278e
    
-
-#### 5 Bug分支 
-
-1. bug分支的原因
-    需求:       我们修要来修复bug, 仅针对于master的bug修复，但dev分支上仍有正在开发的代码;
-                     故此时我们要检出新的分支. 故我们要在dev分支 切换至 bug分支上， 
-    导致问题:   但dev分支不干净，无法切换怎么办？
-    
-    解决: `git stash`
-    
-2. git stash 命令后 你会发现 你的 git status是干净的
-
-    即它将你本地的工作区【缓存区】的内容给藏起来了。
-
-    使用的原因： 我们无法在一个缓存区有内容的分支下 去切换到另一个分支
+   git tag v1.0
+   ```
 
 3. 
 
 
 
-
-#### Bug分支 
-## 
