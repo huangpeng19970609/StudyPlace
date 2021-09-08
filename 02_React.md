@@ -1,4 +1,4 @@
-### 1、 小试牛刀
+### 1 小试牛刀
 
 1. react.js：React核心库。
 
@@ -231,6 +231,79 @@ ReactDom.render(<Person />, xxx)
    }
    ````
 
+##### 4.2 关于事件
+
+- 使用 onXxxx 属性来指定事件的函数 【注意大小写】
+  1. 其使用的是 指定react 规定的事件， 而不是使用Dom原生。 目的是兼容
+  2. 使用的是事件委托 即委托事件于最外层即可。
+
+- react 希望不要滥用 ref， 故可以通过 e.target来回调想要的数据
+
+  ````js
+  <div onBlur={ this.eventBlur }
+  
+  eventBlur (event) {....}
+  ````
+
+##### 4.3  受控组件 与 非受控组件
+
+- 现用现取 即为 非受控组件
+- 类似于双绑机制， state同步的便是 受控组件。 依赖state
+
+```js
+<form action = 'xxx' onSubmit = {this.handleSubmit}
+	// 非受控
+	<input type='txt' name='user' ref= { c => this.userDom = c }
+	// 受控
+	<input type='txt' onChange = 'this.onChange'
+```
+
+##### 4.4 事件与 函数的柯里化
+
+- 请看如下的示范
+
+  > 事件绑定理应是 一个函数, 此处也应该返回一个函数
+  >
+  > 故我们巧用 函数柯里化, 帮助我们回调传参
+
+  ```js
+  <input onChange = { this.saveFormData('username') }
+  
+  saveFormData: type => {
+      return 
+          (e) => {
+          	this.setState( {[type], e.target.value} )
+          }
+      }
+  }
+  
+  # 当然可以不用函数柯里化!也是极其常见的方法
+  <input onChange = { e => this.saveFormData('userName', e.traget.value)  }
+  ```
+
+  > - 高阶函数
+  >
+  >   通俗, 函数的 开始 与 结尾 其一为函数, 便可以称呼为高阶函数
+  >
+  >   1. 满足 其函数的参数为函数,则就可以称为高阶函数
+  >   2. 其调用返回的值 为函数则可以称呼为高阶函数
+  >
+  >   举例: 
+  >
+  >   ```js
+  >   setTimeout 传入函数参数
+  >   数组的大多数方法也是高阶函数
+  >   promise也传入函数了!
+  >   ```
+  >
+  > - 函数柯里化
+  >
+  >   简而言之, 函数再次调用函数
+  >
+  >   ```js
+  >   add(1)(2)(3)
+  >   ```
+
 #### 5 props
 
 - 传递props给与组件内部
@@ -360,7 +433,7 @@ ReactDom.render(<Person />, xxx)
 
 > 官方不建议使用 this.$refs的形式，因为存在效率问题，不希望 refs有过多的对象！
 
-1. 最简单示范
+1. 官方不建议的写法
 
    ````js
    <input ref='input'>
@@ -408,15 +481,93 @@ ReactDom.render(<Person />, xxx)
 
    
 
+### 2  生命周期（旧）
+
+> 例子 
+>
+> 1. 一个重复添加定时器的错误例子
+
+原因: 每一次进行 setState 都会导致 render函数
+
+````js
+<div style={ {opcity: this.state.opcity } } // react语法 + 表达式
+
+render() {
+    setInterval(
+    	() => {
+            this.state.opcity--;
+            this.setState ( {} );
+        },
+        1000
+    )
+}
+````
+
+> 2. 为什么生命周期是 是方法， 而不是赋值函数。 这跟this的绑定有关系。
+>
+>    你当然可以把生命周期写成 赋值 + 箭头函数的形式，完全没问题！
+>
+>    ECMAScript 2015 提供了一种简明地定义以生成器函数作为值的属性的方法。可是作声明函数，是一种简写手段
+
+````js
+方法：             render() {}
+
+而不是这种赋值函数   render = () =>
+
+render() {} 是一种简写语法， 其
+````
+
+1. 在内部 会如此调用 person.render(); 通过实例对象调用原型上的render方法【隐式this】
+
+   故不会有任何的this指向问题！所以此处使用了简写。 
+
+2. 而比如 onClick = 'change' 其函数不通过实例调用，会导致丢失。故必须要使用箭头函数的形式才可以解决此问题！
+
+#### 0 construcor
+
+- 什么时候要用 constructor?
+  1. 为对应的方法显示绑定this指向时
+  2. 对state进行初始化的声明式
+- 这种情景下都有更好的方案来替换， 故一般情况 【construcor】可忽略
+
+#### 1 render
+
+- render会被调用多少次？
+
+  1. 每一次 setState时候都会调用一次
+  2. 初始化时候会被调用一次
+
+  答： n + 1次
+
+#### 2 componentWillMount
+
+组件将要挂载回调函数
+
+#### 3 componentDidMount 
+
+组件挂载回调函数
+
+#### 4 componentWillUnMount
+
+将要卸载组件
+
+#### 5 componentWillReceiveProps
+
+警告： 初次无效！接收的是 空， 第二次才会真正接收到props
+
+##### 6 shouldComponentUpdate
+
+`setState`会触发这里， 这里相当于阀门，控制是否update
+
+##### 7 componentWillUpdate
+
+`forceUpdate`会直接从这里触发往下走
+
+接下来 render => componentDidMount
+
+123
 
 
 
-
-
-
-
-
-
-
-
+### 3 生命周期【新】
 
