@@ -961,6 +961,35 @@ Vue也是如此做的， Vue的模板中有如下的内容 在 public目录下
     })
 ````
 
+````html
+#index.html
+
+	<% if (process.env.NODE_ENV === 'production' ) { %>
+      <script>
+          window.dojoConfigLocation = "http://hshydl.nhri.cn:8080/worldwind_api";
+      </script>
+    <% } %>
+        
+    <% if (process.env.NODE_ENV === 'development' ) { %>
+      <script>
+          window.dojoConfigLocation = "http://192.168.1.111/worldwind_api";
+      </script>
+    <% } %>
+        
+    <script>
+      var dojoConfig = {
+        packages: [
+          {
+            name: 'widgets',
+            location: window.dojoConfigLocation,
+          }
+        ]
+      }
+    </script>
+````
+
+
+
 ### 4 复制
 
 虽然我们从来没有引用过他们， 但有一些文件我们需要将其复制过去，
