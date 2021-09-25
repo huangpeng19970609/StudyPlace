@@ -27,12 +27,13 @@ Observer.prototype = {
       get: function reactiveGetter() {
         // 我不太明白为什么会要如此处理, 为什么每一个dep中都要有Dep.target
         // 我并没有看到每一次动态更改Dep.target的过程
+        // 现在我明白了！
         if (Dep.target) {
           dep.addSub(Dep.target);
         }
         return val;
       },
-      set: function reactiveSetter() {
+      set: function reactiveSetter(newVal) {
         if (newVal === val) {
           return;
         }
