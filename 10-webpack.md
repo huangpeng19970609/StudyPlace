@@ -4,46 +4,34 @@
 
 ## 序 注意事项
 
-- 实际开发过程应该使用局部的webpack 、 webpack-cli 保证版本统一。
-
-  package,json出现 devDependencies时， 也出现 package-lock.json的原因是什么？
-
-  package,json中的 scripts命令会优先在 本地的node_modules中寻找。
-
-  npx webpack 与 ./node_modules/./bin/webpack一致
-
 - `若你要修改某个基础的配置， 你应该有这种【思想】
 
-  1. 底层是可以通过命令行的， 所以一定有一个命令行语句可以提供。
-
-     但了解皆可。
+  1. 底层总是命令行作为接口
 
      ```js
-     ../node_modules/.bin/webpack
+   ../node_modules/.bin/webpack
      ```
-
+     
   2. 既然是可以命令行执行 对应的配置的， 那么便有【scripts】，脚本提供。
 
-     - 内置了一个脚本 
-
-     - 也可以在 scripts中写脚本
+     - 内置了一个脚本 ， 也可以在 scripts中写脚本
 
        ````js
-       1. npx webpack 
+     1. npx webpack 
        2. "build": "webpack"
-       ````
-
+     ````
+     
   3. 若其脚本命令中 是可以配置很多的，伴随命令行的增多， 脚本命令越来越长。
+  
+     故 提出 配置文件这种想法， 一次写完下次快速调用。如 `webpack.config.js`的出现
 
-     故 提出 配置文件这种想法
-
-     如 `webpack.config.js`的出现
+     
 
 - 为什么可以在 可以 require 一个 node_modules中不存在的 ‘path’ 呢？
 
   答： 因为 path是 nodeJs提供的 => node相当于一个环境 
 
-  ​		 比如 npm install 都是node环境提供的， 而webpack也是基于node环境执行的。
+  ​		  npm install 都是node环境提供的， 而`webpack也是基于node环境执行的`。
 
   ​          npm run dev，其实就是配置在pakcage.json中的`npm脚本命令`
 
@@ -59,7 +47,7 @@
 
 - process.env.isProduction
 
-  如 
+  Node环境存在的变量是不存在Boolean类型的
 
   ```js
   process.env.isProduction = isProduction; // 将 false 赋予其 会发现 候会转为String
@@ -68,19 +56,16 @@
 
 ## 一 新手村
 
-当代前端问题
-
-1. 模块化开发
-2. 高级特性兼容问题
-3. 热加载
-4. 压缩丑化优化
+- 当代前端问题 => webpack都提供了对应的解决措施
+  1. 模块化开发
+  2. 高级特性兼容问题
+  3. 热加载
+  4. 压缩丑化优化
 
 目前我们使用的方式：
 
 + 当下通过三大框架，使用了 vue、react、angular的脚手架可以帮助我们搭建框架。
 + 而这些脚手架（其中之一的方式）都是基于 webpack 来实现的
-
-
 
 > 什么是 webpack?
 >
@@ -88,7 +73,7 @@
 
 + 静态：最终打包后的资源是静态。
 + 模块化：webpack支持各种模块化开发。 
-+ 打包：打包。
++ 打包：压缩丑化优化。
 + 现代化应用程序：当代需求的。
 + webpack的两大核心： loader 与 plugins
 
@@ -112,8 +97,6 @@ webpack --config w.config.js
 1. 执行webpack 执行 `node_modules`下的 `.bin`目录下的 webpack文件夹的 index.js文件
 2. webpack进行执行时， 便会依赖 `webpack-cli`， 若未安装则报错。
    + `webpack-cli 执行才是webpack编译与打包的过程。`
-   + 第三方脚手架则不需要 webpack-cli 如vue-service-cli
-3. 判断标准的根本基础: 是否会使用 ./bin文件下的 webpack命令文件
 
 ### 3 初次场景
 
@@ -153,8 +136,7 @@ webpack --config w.config.js
    + `webpack`
 
      1. 使用webpack => 会多出 dist文件夹， 且有index.js文件
-     2. webpack 默认对打包进行模块化，自动会对 CommonJs进行模块化处理。
-     3. webpack默认处理规则处理 当前目录下的 src/index.js 文件作为入口文件。
+     2. `webpack 默认对打包进行模块化，自动会对 CommonJs进行模块化处理`
 
 ### 4 webpack初次使用
 
@@ -170,9 +152,7 @@ webpack --config w.config.js
    npm install webpack webpack-cli -D
    ````
 
-   此时 package.json 便有 属性 devDependencies 出现
-
-   也会有 package-lock.json文件
+   此时 package.json 便有 属性 devDependencies 出现也会有 package-lock.json文件
 
 3. 执行webpack局部命令
 
@@ -182,13 +162,13 @@ webpack --config w.config.js
    ./node_module/.bin/webpack
    ```
 
-   + 第二种
+   + 第二种 同理第一种
 
    ````js
    npx webpack
    ````
 
-   + 第三种
+   + 第三种 
 
    ````js
    在 package.json 中配置属性 
@@ -212,15 +192,15 @@ webpack --config w.config.js
 
 > 概念
 
-1. webpack 只能理解 JavaScript 和 JSON 文件.这是 webpack 开箱可用的自带能力
+1. webpack 本身能理解 JavaScript 和 JSON 文件.这是 webpack 开箱可用的自带能力
 2. **loader** 让 webpack 能够去处理其他类型的文件，并将它们转换为有效 [模块](https://webpack.docschina.org/concepts/modules)，以供应用程序使用，以及被添加到`依赖图`中
-3. ，loader 能够 `import` 导入任何类型的模块
+3. 理论上loader 能够 `import` 导入任何类型的模块
 
 ### 6 依赖图
 
 >  未被使用的 js文件会被打包吗❓    答： 不会`
 >
-> 故 => npm install -d 这种意义大吗？ 并不是很重要， 但规范还是应该遵守！
+>  npm install -d 这种意义大吗？ 并不是很重要， 但规范还是应该遵守！因为webpack打包可区分生产环境依赖与开发环境依赖。
 
 1. webpack 会根据 【命令行】 或【配置文件 】找到入口文件
 2. 入口文件 会作为《依赖关系图》的基础，包含所需的所有模块
@@ -271,8 +251,9 @@ cmd 中 => npx webpack --config ./wx.config.js
 
    根目录下建 【webpack.config.js】文件。
 
-   + `path.resolve(__dirname` 获得是 当前的路径
-
+   + `path.resolve(`
+   +  获得是 当前的路径
+   
    ````js
    const path = require('path'); // node提供了 path 插件
    module.exports = {
@@ -663,7 +644,7 @@ use: ["style-loader", "css-loader", "postcss-loader"],
 >
 > post-css-loader => css-loader => style-loader
 >
-> @import 的语法是在 js中的（此时负责的模块为 css - loader ），
+> `@import 的语法是在 js中的（此时负责的模块为 css - loader ）`，
 >
 > 对js模块进行处理的时候，其post-css-loader模块的处理接触不到
 
