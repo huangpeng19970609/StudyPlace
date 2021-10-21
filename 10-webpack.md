@@ -9,7 +9,7 @@
   1. 底层总是命令行作为接口
 
      ```js
-   ../node_modules/.bin/webpack
+      ../node_modules/.bin/webpack
      ```
      
   2. 既然是可以命令行执行 对应的配置的， 那么便有【scripts】，脚本提供。
@@ -1352,7 +1352,7 @@ __webpack_require__
 
    这是一个babel插件，使用这个插件的同时，必须同时安装@babel/runtime这个包，而且必须是安装在dependencies里面，而非devDependencies里面。
 
-
+### 实际开发
 
 > 真实开发当然是要实现配置化。
 
@@ -1803,7 +1803,6 @@ module.exports = {
 
 - watch 与 dev 是互斥的 注意下。
 
-- 、
 
 
 
@@ -1882,7 +1881,7 @@ webpack-dev-serve
    ```javascript
    # 其外你也可以这样查询文档来配置
    devServer: {
-       contentBase: path.join(__dirname, 'dist'),
+       static: path.join(__dirname, 'dist'),
        compress: true,
        port: 9000
     }

@@ -1,3 +1,0 @@
-http://www.flexboxdefense.com/
-flukeout.github.io
-https://rupl.github.io/unfold/
