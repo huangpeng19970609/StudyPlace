@@ -16,9 +16,7 @@ function shellSort(arr) {
   // gap => 5
   for (let gap = Math.floor(len / 2); gap > 0; gap = Math.floor(gap / 2)) {
     // gap为5时 => i为 5,6,7,8,9 => 对应 0 1 2 3 4的排序比较
-    console.log('-----------');
     for (let i = gap; i < len; i++) {
-
       let j = i;
       let currentVal = arr[i];
       while (j - gap >= 0 && currentVal < arr[j - gap]) {
