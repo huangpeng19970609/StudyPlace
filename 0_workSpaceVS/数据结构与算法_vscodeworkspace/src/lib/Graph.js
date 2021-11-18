@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-10-30 20:45:40
+ * @LastEditTime: 2021-11-18 14:14:23
  */
 // 使用链表实现图
 import { Dictionary } from './Dictionary';
@@ -13,10 +13,10 @@ const COLORS = {
   black: 2, //黑色: 已被访问，且被探索
 }
 class Graph {
-  constructor(isDirected = false) {
-    this.isDirected = isDirected;
+  constructor() {
     this.vertices = []; // 顶点存储点.每次有新顶点我们应该记录下他们
-    this.adjList = new Dictionary();
+    // adjList => AdjacencyList 邻接表, 我们使用邻接表模拟图结构
+    this.adjList = new Dictionary(); // 建议用Map同等含义
   }
   addVertex(v) {
     if (this.vertices.includes(v)) {

@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-10-30 20:40:10
+ * @LastEditTime: 2021-11-18 15:19:55
  */
 
 // 标记顶点状态
@@ -28,6 +28,7 @@ vertices.map(item => graph.addVertex(item));
 edge.map(item => {
   graph.addEdge(item[0], item[1]);
 });
+
 console.log(graph);
 console.log(graph.toString());
 

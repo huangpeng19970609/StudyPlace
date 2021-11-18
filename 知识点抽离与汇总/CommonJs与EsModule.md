@@ -211,7 +211,7 @@ ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析
 
 `export`通过接口，输出的是同一个值。`不同的脚本加载这个接口，得到的都是同样的实例。`
 
-<img src="images/wp-5" alt="image-20210729004809959" style="zoom: 67%;" />
+<img src="../images/wp-5" alt="image-20210729004809959" style="zoom: 67%;" />
 
 ### 2 CommonJs
 
@@ -286,7 +286,7 @@ let readfile = _fs.readfile;
 
 > 看一下此示例
 
-<img src="images/wp-13" alt="image-20210729000630507" style="zoom:67%;" />
+<img src="../images/wp-13" alt="image-20210729000630507" style="zoom:67%;" />
 
 为什么会这样？
 
@@ -300,7 +300,7 @@ let readfile = _fs.readfile;
 >
 > 闭包的原因。
 
-<img src="images/wp-14.png" alt="image-20210729001047845" style="zoom: 80%;" />
+<img src="../images/wp-14.png" alt="image-20210729001047845" style="zoom: 80%;" />
 
 
 
@@ -314,7 +314,7 @@ let readfile = _fs.readfile;
 
    ​	1、module.exports导出
 
-<img src="images/wp-12.png" style="zoom:67%;" />
+<img src="../images/wp-12.png" style="zoom:67%;" />
 
 #### 4、 import 为什么一定要在顶部？
 
@@ -364,11 +364,11 @@ import { stat, exists, readFile } from 'fs';
 
 我们导出的内容只是一个module的地址， 故是需要结构赋值的。
 
-<img src="images/wp-5.png" style="zoom: 67%;" />
+<img src="../images/wp-5.png" style="zoom: 67%;" />
 
 1. 不解构赋值也可以 反正我们使用的都是
 
-<img src="images/wp-6.png" style="zoom:50%;" />
+<img src="../images/wp-6.png" style="zoom:50%;" />
 
 2. 这样呢？
 
@@ -376,7 +376,7 @@ import { stat, exists, readFile } from 'fs';
 
    import() 相当于是 一个函数！这个函数目的是异步的加载模块！
 
-   <img src="images/wp-7.png" alt="image-20210725225054181" style="zoom:67%;" />
+   <img src="../images/wp-7.png" alt="image-20210725225054181" style="zoom:67%;" />
 
    ````js
    # 正确的应该是这样的syntax
@@ -409,7 +409,7 @@ a(100, 200)
 
  ❌ 错误的方式示范:
 
-<img src="images/wp-8.png" style="zoom:67%;" />
+<img src="../images/wp-8.png" style="zoom:67%;" />
 
 > 出现的原因 是因为 导出的方式为 `export default`，这只是一个语法糖的写法
 >
@@ -425,7 +425,7 @@ a(100, 200)
 >
 > 所以 由于这层原理的关系， require在这种情况 应该: 
 >
-> <img src="images/wp-8" alt="image-20210725231322036" style="zoom:67%;" />
+> <img src="../images/wp-8" alt="image-20210725231322036" style="zoom:67%;" />
 >
 > ````js
 > const a = require('./js/math.js').default;

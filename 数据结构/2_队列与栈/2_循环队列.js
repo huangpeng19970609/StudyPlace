@@ -8,6 +8,9 @@
  *  答： 因为判断的条件是 tail + 1 是否等于 head
  *       若你要 head - 1是否等于 tail 此时也应该进行 arr.length的加上以免出现负数情况
  */
+/*
+  1. 你应该清楚的
+*/
  var MyCircularQueue = function(k) {
   this.arr = new Array(k+1);
   this.front = 0;
@@ -35,6 +38,7 @@ MyCircularQueue.prototype.deQueue = function() {
   if (this.isEmpty()) {
     return false;
   } else {
+    this.arr[this.front] = null;
     this.front = (this.front + 1) % this.arr.length;
     return true;
   }
@@ -79,7 +83,7 @@ MyCircularQueue.prototype.isEmpty = function() {
 MyCircularQueue.prototype.isFull = function() {
   if ((this.tail+1) % this.arr.length === this.front) {
     return true;
-  } else {
+  } else { 
     return false;
   }
 };
@@ -91,9 +95,12 @@ queue.enQueue(2);
 queue.enQueue(3);
 queue.enQueue(4);
 queue.enQueue(5);
+
 queue.deQueue();
-queue.enQueue(500);
+queue.enQueue(100);
 queue.deQueue();
-queue.enQueue(500);
+queue.enQueue(200);
+queue.deQueue();
+queue.enQueue(300);
 console.log(queue);
 
