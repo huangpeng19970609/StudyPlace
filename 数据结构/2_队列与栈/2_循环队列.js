@@ -1,5 +1,12 @@
 /**
  * @param {number} k
+ * 为何 获取队列首位不需要 %  ? => 这是因为 front 永远指向队列首位
+ * 为何 获取队列尾部需要 -1? 
+ *    这是因为每次 enqueue后其总是 是将要插入的下一个位置
+ * 为什么获取尾部还需要加 arr.length => 这是因为 尾部若 -1 可能为负数
+ * 为何判满的时候 不需要减1呢？
+ *  答： 因为判断的条件是 tail + 1 是否等于 head
+ *       若你要 head - 1是否等于 tail 此时也应该进行 arr.length的加上以免出现负数情况
  */
  var MyCircularQueue = function(k) {
   this.arr = new Array(k+1);
@@ -19,7 +26,7 @@ MyCircularQueue.prototype.enQueue = function(value) {
     this.tail = (this.tail + 1) % this.arr.length;
     return true;
   }
-};
+};  
 
 /**
  * @return {boolean}
