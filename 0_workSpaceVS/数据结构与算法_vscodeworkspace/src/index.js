@@ -1,45 +1,34 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-11-18 15:19:55
+ * @LastEditTime: 2021-11-21 23:11:55
  */
-
-// 标记顶点状态
-
-import { Graph, BFS, getAllRouteByBFS, DFS } from './lib/Graph.js';
-
-
-
-let graph = new Graph();
-let vertices = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-let edge = [
-  ['A', 'B'],
-  ['A', 'C'],
-  ['A', 'D'],
-  ['C', 'D'],
-  ['C', 'G'],
-  ['D', 'G'],
-  ['D', 'H'],
-  ['B', 'E'],
-  ['B', 'F'],
-  ['E', 'I'],
-]
-vertices.map(item => graph.addVertex(item));
-edge.map(item => {
-  graph.addEdge(item[0], item[1]);
-});
-
-console.log(graph);
-console.log(graph.toString());
-
-let bfs = BFS(graph, graph.getVertices()[0])
-console.log(bfs);
-getAllRouteByBFS(
-  graph.getVertices(),
-  bfs.predecessors
-)
-
-DFS(
-  graph,
-  (value) => { console.log(value) }
-)
+debugger;
+var dailyTemperatures = function (temperatures) {
+  let stack = [];
+  let list = new Array(temperatures.length);
+  for (let i = 0; i < temperatures.length; i++) {
+    let val = temperatures[i];
+    // 若大于栈顶 退栈
+    let peek;
+    while (stack.length && val > (peek = temperatures[getStackPeek(stack)])) {
+      let index = stack.pop();
+      list[index] = i - index;
+      peek = temperatures[getStackPeek(stack)];
+    }
+    stack.push(i);
+  }
+  if (stack.length) {
+    for (let i = 0; i < stack.length; i++) {
+      list[stack[i]] = 0;
+    }
+  }
+  return list;
+  function getStackPeek(stack) {
+    return stack[stack.length - 1];
+  }
+};
+// [1,1,4,2,1,1,0,0]
+console.log(
+  dailyTemperatures([73, 74, 75, 71, 69, 72, 76, 73])
+);

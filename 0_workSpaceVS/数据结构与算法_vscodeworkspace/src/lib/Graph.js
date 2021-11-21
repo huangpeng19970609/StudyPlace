@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-11-18 14:14:23
+ * @LastEditTime: 2021-11-21 15:22:28
  */
 // 使用链表实现图
 import { Dictionary } from './Dictionary';
@@ -61,9 +61,13 @@ function initializeColor(vertices) {
  * predecessors: v 前溯的点
  */
 function breadFirstSearch(graph, startVertex) {
+  // 图的顶点集合
   const vertices = graph.getVertices();
+  // 图的邻接表
   const adjList = graph.getAdjList();
+  // 队列
   const Q = new Queue();
+  // 初始化颜色标识符
   const colors = initializeColor(vertices);
 
   const distance = {};
@@ -93,6 +97,7 @@ function breadFirstSearch(graph, startVertex) {
     predecessors
   }
 }
+
 // 根据BFS获取所有路径
 function getAllRouteByBFS(vertices, predecessors) {
   const fromVertex = vertices[0];
@@ -123,29 +128,24 @@ function depthFirstSearch(graph, callback) {
   for (let i = 0; i < vertices.length; i++) {
     const u = vertices[i];
     if (colors[u] === COLORS.white) {
-      depthFirstSearchVisis(u, colors, adjList, callback)
+      depthFirstSearchVisit(u, colors, adjList, callback)
     }
   }
 }
 
-function depthFirstSearchVisis(u, colors, adjList, callback) {
+function depthFirstSearchVisit(u, colors, adjList, callback) {
   colors[u] = COLORS.grey;
   if (callback) callback(u);
   const neighbors = adjList.get(u);
   for (let i = 0; i < neighbors.length; i++) {
     const w = neighbors[i];
     if (colors[w] === COLORS.white) {
-      depthFirstSearchVisis(w, colors, adjList, callback);
+      depthFirstSearchVisit(w, colors, adjList, callback);
     }
   }
   colors[u] = COLORS.black;
 }
 
-function betterDFS(graph) {
-  const vertices = graph.getVertices();
-  
-
-}
 
 export {
   Graph,
