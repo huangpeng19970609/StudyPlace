@@ -1,14 +1,12 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-11-19 17:11:03
+ * @LastEditTime: 2021-11-22 09:13:28
  */
 
 // 标记顶点状态
 
 import { Graph, BFS, getAllRouteByBFS, DFS } from './lib/Graph.js';
-
-
 
 let graph = new Graph();
 let vertices = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
