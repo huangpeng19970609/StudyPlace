@@ -1,7 +1,7 @@
 /*
  * @Author: 黄鹏
  * @LastEditors: 黄鹏
- * @LastEditTime: 2021-11-22 09:13:28
+ * @LastEditTime: 2021-11-23 10:12:26
  */
 
 // 标记顶点状态
@@ -31,6 +31,7 @@ console.log(graph);
 console.log(graph.toString());
 
 let bfs = BFS(graph, graph.getVertices()[0])
+console.log('bfs');
 console.log(bfs);
 getAllRouteByBFS(
   graph.getVertices(),
