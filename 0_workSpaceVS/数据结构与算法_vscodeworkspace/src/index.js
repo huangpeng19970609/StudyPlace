@@ -1,13 +1,16 @@
-var i = 10, root = {index: "NONE"}, node = root;
-
-// 创建链表
-while (i > 0) {
-  node.next = node = {};
-  node.index = i--;  // 这里可以开始给新node添加成员
-}
-console.log(root)
-// 测试
-node = root;
-while (node = node.next) {
-  console.log(node.index);
+class Graph {
+  constructor() {
+    this.vertices = [];
+    this.adjList = new Map(); // 邻接表
+  }
+  addVertex(v) {
+    if (this.vertices.includes(v)) return false;
+    this.vertices.push(v);
+    this.adjList.set([]);
+  }
+  addEdge(v, w) {
+    this.adjList.get(v).push(w);
+  }
+  getVertices() { return this.vertices }
+  getAdjList() { return this.adjList }
 }
