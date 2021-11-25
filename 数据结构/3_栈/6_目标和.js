@@ -27,5 +27,3 @@ var findTargetSumWays = function (nums, target) {
 };
 
 findTargetSumWays([1, 1, 1, 1, 1], 3);
-
-// 记忆化 + 动态规划
