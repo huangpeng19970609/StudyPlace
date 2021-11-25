@@ -1,3 +1,13 @@
+
+
+>code => Preference => user snippests 创建专属于你的用户片段
+>
+>你可以借助 snippet-generator.app此网站来进行快速生成json示范帮助你来生成。
+>
+>react准则: 
+>
+>1. all in js
+
 ### 1 小试牛刀
 
 1. react.js：React核心库。
@@ -8,11 +18,11 @@
 
 ````js
 # 首先要引入这三个基本的库
-
 <script type="text/babel">
     const VDOM = (
     	<h2 id="test">123</h2>
     )
+	// 参数一: react内容
     ReactDom.render(VDOM, document.querySelector(' #App')); // 即可渲染
 </script>
 ````
@@ -23,80 +33,155 @@
 >
 > 不过虚拟dom依旧会转为 dom
 
-#### 1 jsx规则
+### 1 jsx规则
 
-- VDOM防止变量时要使用花括号 此外虚拟dom在jsx里不要写引号
+> JavaScripteXtension 拓展，但又像xml 故也称jsxml
+>
+> 用js表述我们的html
+>
+> 你不需要学习任何模块语法 => 如 v-for,  v-html这类。
+>
+> ```js
+> const a = <h2 id={myId} >
+> ```
+>
+> 1. 若是 小写标签，回自动转为html标签
+> 2. 若是 大写标签，认为其是组件，并渲染组件方式。
 
-  ```js
-  const a = <h2 id={myId} >
-  ```
+#### 1 jsx绑定属性
 
 - 样式类名 应使用 clasName 而不是 class
 
   内联样式应以键值对形式
 
-  ````html
-  #1
+  ````jsx
+  #1 若是class
   const a = <h2 className = "test">123</h2>
   
-  #2 必须是 表达式 且是键值对， 故两个括号
+  #2 若是style 必须是 表达式 且是键值对， 故两个括号
   const b = <span style={{color: "white"}}></span>
-  
-  #
+        
+  #3 若是其他属性
+  const c = <img src={this.state.url}></img>
+  const d = <img src={formatSrc(this.state.url)}></img>
+        
+  #4 
   ````
 
-- 标签转换
-
-  React中 的虚拟dom 
-
-  1. 若是 小写标签，回自动转为html标签
-  2. 若是 大写标签，认为其是组件，并渲染组件方式。
+#### 2 遍历
 
 - 遍历
 
   1. react中的 {} 内仅可写 表达式，初次之外可以写数组，会自动遍历
   2. 但 {obj} 这种形式是不可的、
 
-  ```js
-  <ul>
-      arr.map((item, index) => <li key={index}>{item}</li>)
-  </ul>
+  ```jsx
+  
+  
+  render() {
+      const arr = [];
+      // let xx in x 是取 key
+      for(let movice of movices) {
+          arr.push(movice);
+      }
+      return (
+          # 方式一
+      	<ul>
+          	{
+                 arr.map((item, index) => <li key={index}>{item}</li>)
+              }
+          </ul>
+          # 方式二
+          <ul>
+      		{this.state.movices.map((item, index) => <li key={index}>{item}</li>)}
+  		</ul>
+      )
+  }
   ```
 
-- 模块与组件
+  
 
-  1. 模块指 js文件模块化，即js复用、抽离
-  2. 组件值 局部功能的集合， 组成这部分的功能的资源是各种各样的。
+  jsx中的注释
+
+  ```js
+  render() {
+      return (
+      	{/* 我是注释 */}
+      )
+  }
+  ```
+
+  jsx嵌入数据注意事项
+
+  1. 这三种值不显示
+
+     ```jsx
+     <h2>
+     	{null}
+         {undefined}
+         {false}
+     </h2>
+     ```
+
+  2. 对象不可作为jsx子类
+
+     ```jsx
+     <h2>
+     	{obj}
+     </h2>
+     ```
+
+  3. jsx中的{} 不仅只放变量，也可放表达式
+
+     - 运算符表达式
+     - 三元表达式
+     - 函数调用
+
+     ```jsx
+     const { name } = this.state;
+     return (
+     	<div>
+         	{ name * 50 }
+             { this.getName() }
+         </div>
+     )
+     ```
+
+     
+
+     
+
+  
 
 #### 2 函数式组件 与 类组件
 
 1. 函数式组件
 
-```js
+```jsx
 function Person() {
     # this 指向的是undefined, 由于React开启严格模式  “use strick”
     “use strick” // 函数的局部式是支持开启严格模式的！
-    return <h2>222</h2>
+    return (<h2>222</h2>)
 }
 ReactDom.render(<Person />, xxx)
 ```
 
 2. 类组件
 
-```js
+```jsx
 class Person extend React.Component {
     render() {
         # 此时 render中的this指向为当前 组件的实例对象
-        return {
+        return (
             <div></div>
-        }
+        )
     }
 }
 # new Person => 调用render => vdom转为 dom
 ReactDom.render(<Person />, xxx)
 ```
 
-#### 3 state
+#### 3 state（数据）
 
 >  若我们想要使用 state => 则是类组件
 >
@@ -108,14 +193,14 @@ ReactDom.render(<Person />, xxx)
 
   此外推荐 React 官方提供的 浏览器插件，其拓展了浏览器的控制台面板。
 
-  ```js
+  ```jsx
   class Weather extends React.Component {
       constructor (props) {
           super(props);
           this.state = { isHot: true };
       }
       render() {
-          return <h1>{this.state.isHot}</h1>
+          return (<h1>{this.state.isHot}</h1>)
       }
   }
   ```
@@ -137,7 +222,9 @@ ReactDom.render(<Person />, xxx)
   2. 每次调用 setState 都会重新执行一次 render函数！
 
       当然render会在初始化时也执行一次
-
+      
+  3. setState方法来自于React.Component父类的继承
+  
   ```js
   change = () => {
       this.setState (
@@ -154,15 +241,17 @@ ReactDom.render(<Person />, xxx)
 
 #### 4 事件
 
-##### 4.1 事件方法的优化
+##### 事件方法的优化
 
-1.   如何访问 实例组件对象
+1. 如何访问 实例组件对象, 第一个演示，不要这么写！虽然他可以符合预期。
 
    > 为了访问到 其组件内部实例的 state 属性， 可以通过外部声明函数的形式， 将this闭包来访问。
    >
    >  但这种其实过于分散，不利于开发。
 
-   - 当然真实开发这并不这么写
+   - 当然真实开发这并不这么写，但我们在此处特地强调。
+
+   - onClick 并不会帮你默认绑定this， 而是 change.apply(undefined)
 
    ```js
    #1
@@ -179,11 +268,12 @@ ReactDom.render(<Person />, xxx)
        }
        render() {
            return <h1 onClick="{change}">{this.state.isHot}</h1>
+   
        }
    }
    ```
 
-2. 如何访问 实例组件对象 
+2. 这是一个错误的示范
 
    ```js
    class xxx {
@@ -194,8 +284,8 @@ ReactDom.render(<Person />, xxx)
        change() { console.log(this) }
    }
    # 但此时 你会发现 this 的指向 为 undefined
-   原因:
-   onClick = this.change 
+   原因:	
+   onClick = this.change, 此外react处理的时候绑定此函数this的也是undefined
    再次点击 相当于 change 调用, 故this指向不对。 可视作this的默认绑定形式
    ```
 
@@ -205,15 +295,26 @@ ReactDom.render(<Person />, xxx)
    > 2. 原型上 change的 this 通过显示绑定
    > 3. 给实例添加change属性， 则每次onClick事件调用优先访问实例上属性
 
-   ````js
-   class xxx {
+   ````jsx
+   # 这种稍微常见一点,但也不推荐。
+   class xxx extends React.Component{
        constructor() {
            this.change = this.change.bind(this);
        }
        render() {
            return <h1 onClick="{this.change}">{this.state.isHot}</h1>
        }
-       # 那如此
+       change() { console.log(this) }
+   }
+   
+   # 不建议如此做, 方法多次调用时候多次冗余bind的调用,过于愚蠢。
+   class App extends React.Component{
+       constructor() { 
+       }
+       render() {
+           # 此时主动绑定此this也是同样效果 该this便是 App
+           return <h1 onClick="{this.change.bind(this)}">{this.state.isHot}</h1>
+       }
        change() { console.log(this) }
    }
    ````
@@ -221,31 +322,58 @@ ReactDom.render(<Person />, xxx)
 4. 如何访问 实例组件对象 一个优秀的方案！
 
    - 自定义方法： 使用 赋值 + 箭头函数 的形式
-
+   - 显示绑定 固然会让this绑定失效，但不会令传参失效。
+   
    ````js
    class Car {
-       // 为什么写箭头函数，因为保证 this的指向为Car
+       // 为什么写箭头函数，因为可以让 bind\call\apply 的this绑定失效
        change = () => {
            this.setState({});
        }
    }
    ````
 
-##### 4.2 关于事件
+##### 事件委托
 
-- 使用 onXxxx 属性来指定事件的函数 【注意大小写】
-  1. 其使用的是 指定react 规定的事件， 而不是使用Dom原生。 目的是兼容
-  2. 使用的是事件委托 即委托事件于最外层即可。
+```jsx
+return (
+	<ul>
+    	{
+            this.state.movice.map(item => {
+                return (
+                	<li 
+                        onClick={e => {this.liClick(item, e) } }>
+                        {item}
+                    </li>
+                )
+            })
+        }
+    </ul>
+)
+liClick = ((item, e) => {
+   	 
+});
+```
+
+
+
+##### event对象
+
+> 使用 onXxxx 属性来指定事件的函数 【注意大小写】.
+>
+> 其使用的是 指定react 规定的事件， 而不是使用Dom原生。 目的是兼容
 
 - react 希望不要滥用 ref， 故可以通过 e.target来回调想要的数据
 
+  默认情况下会将event对象传递给方法。
+  
   ````js
   <div onBlur={ this.eventBlur }
   
   eventBlur (event) {....}
   ````
 
-##### 4.3  受控组件 与 非受控组件
+##### 受控组件 与 非受控组件
 
 - 现用现取 即为 非受控组件
 - 类似于双绑机制， state同步的便是 受控组件。 依赖state
@@ -258,7 +386,7 @@ ReactDom.render(<Person />, xxx)
 	<input type='txt' onChange = 'this.onChange'
 ```
 
-##### 4.4 事件与 函数的柯里化
+#####  事件与 函数的柯里化
 
 - 请看如下的示范
 
@@ -267,6 +395,7 @@ ReactDom.render(<Person />, xxx)
   > 故我们巧用 函数柯里化, 帮助我们回调传参
 
   ```js
+  // onClick
   <input onChange = { this.saveFormData('username') }
   
   saveFormData: type => {
@@ -280,7 +409,7 @@ ReactDom.render(<Person />, xxx)
   # 当然可以不用函数柯里化!也是极其常见的方法
   <input onChange = { e => this.saveFormData('userName', e.traget.value)  }
   ```
-
+  
   > - 高阶函数
   >
   >   通俗, 函数的 开始 与 结尾 其一为函数, 便可以称呼为高阶函数
@@ -303,6 +432,40 @@ ReactDom.render(<Person />, xxx)
   >   ```js
   >   add(1)(2)(3)
   >   ```
+  >   
+  >   
+
+#### 4 条件渲染
+
+1. js => 适用于条件逻辑比较复杂的情况
+
+   ```jsx
+   render() {
+       let text = null;
+       if (this.state.isLogined) {
+           text = <span>欢迎换来</span>
+       }
+       else {
+           text = <span>请登录</span>
+       }
+       return (
+       	<div>
+           	{ text }
+           </div>
+       )
+   }
+   ```
+
+2. 逻辑与
+
+   ```jsx
+   <h2>{ isLogin && name }</h2>
+   { isLogin && <h2>{ name }</h2> } 
+   ```
+
+3. v-show的模拟
+
+   即使用 style属性动态切换。设置display: none
 
 #### 5 props
 
@@ -567,7 +730,7 @@ render() {} 是一种简写语法， 其
 
 123
 
-
-
 ### 3 生命周期【新】
+
+
 
