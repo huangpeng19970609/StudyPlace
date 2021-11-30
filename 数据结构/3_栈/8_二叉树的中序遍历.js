@@ -13,6 +13,15 @@
 var inorderTraversal = function (root) {
   if (!root) return [];
   const res = []; // 存储的值
-  const stk = []; // 栈
+  const stack = []; // 栈
+  while (root || stack.length) {
+    while (root) {
+      stack.push(root);
+      root = root.left;
+    }
+    root = stk.pop();
+    res.push(root.val);
+    root = root.right;
+  }
 
 };
