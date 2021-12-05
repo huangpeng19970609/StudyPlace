@@ -7,4 +7,14 @@
   若你不理解 你应该参照这张图看
   这是一个9格子的矩阵，你需要计算的是每一个格子距离0最近的位置
 */
+/**
+ * @param {number[][]} mat
+ * @return {number[][]}
+ */
+var updateMatrix = function (mat) {
 
+};
+function search(i, j, mat) {
+
+
+}
