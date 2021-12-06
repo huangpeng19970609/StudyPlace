@@ -1106,6 +1106,8 @@ ChildrenCpn.propTypes = {
 
 #### 单独示范
 
+> 即便不使用react 也是一个消息通信的插件
+
 reducer、store、actions
 
 这是一个简单的演示功能，其功能化、模块化需要抽离等等优化。
