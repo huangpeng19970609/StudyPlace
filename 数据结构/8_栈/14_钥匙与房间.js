@@ -23,7 +23,6 @@
   colors[0] = 1;
   // 每一次的pop都是一次打开房间 打开第一间房间
   while (enqueue.length) {
-    debugger;
     let keys = enqueue.shift();
     for (let j = 0; j < keys.length; j++) {
       let index = keys[j];
@@ -34,7 +33,6 @@
       }
     }
   }
-  console.log(i);
   if (i < rooms.length) return false;
   return true;
 };

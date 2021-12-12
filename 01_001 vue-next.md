@@ -104,9 +104,11 @@
    - npx vite build
    - npx vite preview 可以预览dist文件的页面
 
+### 前置知识
 
+#### proxy
 
-
+1. 
 
 ### 基本语法
 
@@ -170,10 +172,61 @@
 1.  vue3移除了 $children属性
 2. vue3移除了事件总线， on、off
 
+
+
+#### ⭐ Component API
+
+> vue2是一种options API, 即使用选项的时候来实现一个组件
+>
+> vue3建议你使用Composition API【前端的模式应该会慢慢转向Component API】
+
+`optionsAPI`
+
+1. `特点`   
+
+​	对应的属性编写对应的功能模块
+
+2. 弊端
+
+   ​      对应功能被拆分到各块，伴随项目的庞大会导致可读性极差。
+
+   ⭐ 逻辑关注点列表增大， 同一个功能的逻辑拆分的很分散， 尤其对于并不是开发此组件的人来说 
+
+`Composition`
+
+> 有什么办法将同一个逻辑里的代码收集到一起呢？
+>
+> setup
+>
+> setup是组件的另一个选项，但其可以帮我们`替代之前所编写的大部分其他选项`。如methods, computed， watch, data, 生命周期函数等
+
+##### 1 setup的参数
+
+```js
+export default {
+    setup (props, context) {
+        
+    }
+}
+```
+
+
+
+##### 2 setup的回调
+
+
+
 #### emits属性
 
 - 你可以视作起为emit的注册属性， 若你不注册此属性固然也可以！
 
+  你应与 【setup】使用，而不要使用vue2的旧语法
+  
+- emits的作用
+
+  1. 一种管理理念，我提前在告诉你本组件中emit类型的方法，告知与其父的联系
+  2. emits若为对象，提供了一种emit的发射限制，这在某些情况下 极其好用！
+  
   ````js
   # 写法一
   export default {
@@ -471,42 +524,4 @@ mixins: [
     })
 ```
 
-#### ⭐ Component API
-
-> vue2是一种options API, 即使用选项的时候来实现一个组件
->
-> vue3建议你使用Composition API【前端的模式应该会慢慢转向Component API】
-
-`optionsAPI`
-
-1. `特点`   
-
-​	对应的属性编写对应的功能模块
-
-2. 弊端
-
-   ​      对应功能被拆分到各块，伴随项目的庞大会导致可读性极差。
-
-   ⭐ 逻辑关注点列表增大， 同一个功能的逻辑拆分的很分散， 尤其对于并不是开发此组件的人来说 
-
-`Composition`
-
-> 有什么办法将同一个逻辑里的代码收集到一起呢？
->
-> setup
->
-> setup是组件的另一个选项，但其可以帮我们`替代之前所编写的大部分其他选项`。如methods, computed， watch, data, 生命周期函数等
-
-##### 1 setup的参数
-
-```js
-export default {
-    setup (props, context) {
-        
-    }
-}
-```
-
-
-
-##### 2 setup的回调
+##### 
