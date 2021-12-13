@@ -1,1 +1,20 @@
-<script src="./2_字符串/1.js"></script>
+<SCRipt>
+
+  var i = 100;
+  function foo() {
+    bbb: try {
+      console.log("Hi");
+      return i++; //  <-位置1：i++表达式将被执行
+      console.log('hp!')
+    }
+    finally {
+      break bbb;
+    }
+    console.log("Here");
+    return i; //  <-位置2
+  }
+  debugger;
+  console.log(
+    foo()
+  );
+</SCRipt>
