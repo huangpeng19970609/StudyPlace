@@ -299,7 +299,6 @@ React.render(message, document.getElementBy("app"))
        change() { console.log(this) }
    }
    ````
-   
 
 ##### 2 正确示范
 
@@ -1624,4 +1623,20 @@ diff算法 => 两棵树的比较最先进的算法也是O的n3次方， react对
       因为其 每一次的插入时候其index也会发生变化，其没有任何意义。建议使用id作为key。   
 
 
+
+### 官网教程
+
+一个组件接收一些参数，我们把这些参数叫做 `props`（“props” 是 “properties” 简写）
+
+组合简单的组件来构建复杂的 UI 界面
+
+#### props传递数据
+
+```jsx
+class Board extends React.Component {
+    renderCmp(i) {
+        return <Cmp value="{}"></Cmp>
+    }
+}
+```
 
