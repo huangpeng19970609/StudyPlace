@@ -1,5 +1,9 @@
 ### 前言
 
+vue文件中 对export default 的外部声明的变量是如何处理的?
+
+为什么不会被其他vue文件捕捉到？
+
 #### 细节
 
 1. 原生JS开发是命令式， 而Vue是声明式
@@ -171,50 +175,6 @@
 
 1.  vue3移除了 $children属性
 2. vue3移除了事件总线， on、off
-
-
-
-#### ⭐ Component API
-
-> vue2是一种options API, 即使用选项的时候来实现一个组件
->
-> vue3建议你使用Composition API【前端的模式应该会慢慢转向Component API】
-
-`optionsAPI`
-
-1. `特点`   
-
-​	对应的属性编写对应的功能模块
-
-2. 弊端
-
-   ​      对应功能被拆分到各块，伴随项目的庞大会导致可读性极差。
-
-   ⭐ 逻辑关注点列表增大， 同一个功能的逻辑拆分的很分散， 尤其对于并不是开发此组件的人来说 
-
-`Composition`
-
-> 有什么办法将同一个逻辑里的代码收集到一起呢？
->
-> setup
->
-> setup是组件的另一个选项，但其可以帮我们`替代之前所编写的大部分其他选项`。如methods, computed， watch, data, 生命周期函数等
-
-##### 1 setup的参数
-
-```js
-export default {
-    setup (props, context) {
-        
-    }
-}
-```
-
-
-
-##### 2 setup的回调
-
-
 
 #### emits属性
 
@@ -524,4 +484,415 @@ mixins: [
     })
 ```
 
-##### 
+ 
+
+### ⭐ Component API
+
+> vue2是一种options API, 即使用选项的时候来实现一个组件
+>
+> vue3建议你使用Composition API【前端的模式应该会慢慢转向Component API】
+
+`optionsAPI`
+
+1. `特点`   
+
+​	对应的属性编写对应的功能模块
+
+2. 弊端
+
+   ​      对应功能被拆分到各块，伴随项目的庞大会导致可读性极差。
+
+   ⭐ 逻辑关注点列表增大， 同一个功能的逻辑拆分的很分散， 尤其对于并不是开发此组件的人来说 
+
+`Composition`
+
+> 有什么办法将同一个逻辑里的代码收集到一起呢？ 
+>
+> setup
+>
+> setup是组件的另一个选项，但其可以帮我们`替代之前所编写的大部分其他选项`。如methods, computed， watch, data, 生命周期函数等
+
+#### 01 setup
+
+1. `setup 内不绑定this，它不会指向组件的实例（虽然是在组件实例创建后）`，
+
+   setup调用发生在 data、property、methods被解析之前，故你无法在setUp中获取他们，也无意义。
+
+   ````js
+   setUpComponent(instance) {
+       const { setup } = Component;
+       // 兼容性处理 f=> data()
+       if (setUp) {
+           
+       }
+   }
+   ````
+
+   
+
+2. setUp不会主动的帮你响应式
+
+3. 那你可以使用setUp的返回值去替代大部分选项
+
+##### 1 setup的参数
+
+1.  props
+
+   - props是一个 Proxy 对象。
+   - props定义类型还是如往常一样定义，不过可以在setup中直接获取到
+
+   ````js
+   # 获取传递给我的参数, 父组件传递来的
+   export default {
+       setup (props, context) {
+           console.log(props)
+       }
+   }
+   ````
+
+2. 【context】，即 setupContext
+
+   - context.attrs: 所有非prop的attribute都可以获取到
+
+     ````js
+     <cmp id="123456" class="123456"
+     ````
+
+   - context.slots
+
+     这个方法很少去使用，因为我们很少会获取插槽（除非我们主动来render）
+
+     ````vue
+     <home>
+     	<template #default>
+         	<h2>
+                 哈哈哈哈
+             </h2>
+         </template>
+     </home>
+     ````
+
+   - context.emit
+
+     相当于传统的 this.emit， 现在你应该使用这个context.emit来发送事件
+
+##### 2 setup的返回值的作用
+
+> 这很像 React的用法！ 你可以返回数据，返回方法
+
+- setup的返回值可以在template中使用, 若 data 与 setup同时存在，使用 setup
+
+- `可以使用setUp的返回值替代 data 选项`
+
+  但在 `setUp 中返回对象并不会自动的帮你自动响应式！`
+
+````js
+# 
+export default {
+    let counter = 100;
+    const increment = () => {
+        counter++;
+    }
+	return {
+        counter,
+        increment
+    }
+}
+````
+
+#### 02 Reactive API
+
+##### 1 Reactive 
+
+> 我们使用 setUp 后返回后数据并不会自动的响应式，这与data()声明不同
+
+````js
+import { reactive } from 'vue';
+export default {
+    setup() {
+        const state = reactive({
+            count++;
+        })
+        return {
+            # 此时 便会数据劫持 proxy => state.count 变成响应式的
+            state
+        }
+    }
+}
+````
+
+- 实现机理
+  1. 存在 Proxy - state，会劫持其 get 与 set
+  2. template存在 state.counter的使用， 故存在deps
+  3. 一旦修改 state.counter 便取出其 deps收集的所有依赖，再次重新执行所有依赖
+- ⭐注意事项
+  1. Reactive api 要求我们传入的类型 应该是【数组】、【对象】 
+
+
+
+##### 2 Reactive判断
+
+1. isProxy： 
+
+   是否是代理?， 是否由 reactive、readonly创建的proxy
+
+2. isReactive：
+
+    是否是响应式代理？， 是否由 reactive创建的响应式代理
+
+   - 若代理由readonly创建，但包裹了reactive创建的另一个代理依旧为true
+
+3. isReadonly
+
+   是否由readonly创建的只读代理
+
+4. toRaw
+
+   返回reactive 或 readonly 代理的原始对象 （请慎用，多处影响同一对象）
+
+5. shallowReactive （ shallowReadOnly）
+
+   - 浅层的reactive （readonnly）
+
+   创建一个响应式代理，只跟踪自身property的响应式 （自读）。不深层。
+
+#### 03 Ref API
+
+>  Reactive api 要求我们传入的类型 应该是【数组】、【对象】，
+>
+> 但有时候你希望仅仅是特例类型的处理，也没有一种办法只对【基本类型】的进行响应式呢？
+>
+> ref => reference 响应式的引用
+
+- counter为ref(100)
+
+  counter 便是 一个 ref的对象，按理应该使用 counter.value 来显示值。
+
+  但若在 template中使用， vue会自动帮你会解包，自动获取 counter.value！ \
+
+- setup中，并不会帮你 ref 自动解包，想要你自己解包。
+
+```js
+import { ref }  from 'vue';
+export default {
+    setup() {
+        let counter = ref(100);
+        const increment = () => {
+            counter.value++;
+        }
+        return {
+            counter;
+        }
+    }
+}
+```
+
+1. ref 的解包只是浅层解包
+
+   - 此时 {{ info.counter }} 并不会自动解包， 只能浅层解包！
+   - 因为 info 不是 ref， info只是一个普通的js对象
+
+   ```js
+   setup() {
+      	const info = {
+       	counter: ref(100),
+   	}
+       return info;
+   }	
+   
+   ```
+
+2. 实现解包
+
+   - 此时 info.counter可以自动解包！
+
+     即 最外层包裹是reactive会帮你解包
+
+   - 我们并不建议你如此做，vue之所以可以如此做仅是做了单独的判断。了解即可。
+
+   ````js
+   const info = reactive({
+       counter: ref(100);
+   })
+   ````
+
+##### 1 toRefs
+
+> 什么时候使用？ 当你相对一个 reactive对象的所有属性都解构出来 ref的时候！
+
+- 从当前 reactive对象解构出来，相当于赋值操作，故 并非是 Proxy 的劫持，不会双向绑定
+
+- 此时你应该使用 toRefs, 自动将其属性转为 ref
+
+  toRefs将reactive返回对象属性中的所有属性都转为 ref！
+
+- ⭐ 且 age 改变会 触发 name 的改变！ 相当于 建立了 属性之间的链接。
+
+````js
+import { toRefs } from 'vue'
+# 这种情况下 name、age 并非是响应式
+export default {
+    setup() {
+        let { name, age } = toRefs(reacitve({name: '1', age: 19}));
+        return {
+            name,
+            age
+        }
+    }
+}
+````
+
+##### 2 toRef
+
+- 若你不需要将对象所有属性转为 refs， 你可以如此只转化其中一个属性
+
+```js
+let  name  = toRef(info, 'name');
+```
+
+##### 3 unref
+
+- 场景
+
+  ```js
+  # 是 ref取value 否则直接取值
+  import {  isRef } from 'vue';
+  val = isRef(val) ? val.value : val
+  ```
+
+- 当你想获取ref对象的value的时候，你也可以使用 unref方法
+
+  ```js
+  # vue贴心的提供了语法糖
+  import { unref } from 'vue'
+  val = unref(val);
+  ```
+
+##### 4 ref判断
+
+1. isRef
+
+   - 判断是一个ref 
+
+2. shallowRef
+
+   -  ref
+
+     ```js
+     # info 是一个 ref对象， 此时如此修改必然会触发其 dep
+     info.value.name = 'james'
+     ```
+
+   - 创建一个浅层的
+
+     我希望 只有 ref最外层对象变更才触发更新
+
+   ````js
+   export default {
+       setup() {
+           const info = shallowRef({name: 'hp'});
+           const changeInfo = () => {
+               # 此时页面不会刷新
+               info.value.name = 'james'
+       		# 但我希望仅是 info 自身改变才触发响应式
+               info = {name: 'hello'}
+           }
+           return {
+        		 info,
+           }
+       }
+   }
+   ````
+
+3. triggerRef
+
+   - 手动去触发 和 shallowRef的副作用
+
+   ```js
+   triggerRef(info) => 手动去触发其强制刷新, 可视作 shallowRef 来触发的刷新
+   ```
+
+4. customRef
+
+   - 自定义的ref， 极少用
+
+     自定义ref，自定义跟踪与触发更新以控制
+
+   - 创建工程函数，函数接受 track、trigger函数作为参数， 并返回 携带get 与 set的对象
+
+   - debounce 防抖示范
+
+     1. 由于 频发的触发收集的deps数组（副作用）导致页面不断的刷新，故我们应该做一个节流 
+
+     ````vue
+     <template>
+     	<input v-model="value"/>
+     </template>
+     <script>
+         import { ref } from 'vue'
+         export default {
+             setup() {
+                 let value = ref(0);
+                 return {
+                     value
+                 }
+             }
+         }
+     </script>
+     
+     ````
+
+     2. 函数依赖
+
+        ```js
+        import { customRef } from 'vue'
+        export default function (value){
+            return customRef( (track, trigger) => {
+             	return {
+                    get() {
+                        // 收集依赖  
+                        track(); 
+                    	return value;
+                    }
+                    set(newValue) {
+                    	value = 
+                    }
+                }
+            })
+        }
+        ```
+
+        
+
+   
+
+
+
+#### 04 readonly
+
+vue3 不仅提供ref、reacive，也提供了readonly
+
+1. readonly返回原生对象的只读代理， 它依然基于 Proxy ，但其 set方法被劫持，使其不能修改
+
+````js
+本质如此
+const infoProxy = new Proxy(info, {
+    get(target, key) { return target[key] }
+    set() { warning('不可修改!') }
+})
+
+import { readonly } from 'vue';
+export default {
+    const info = readonly({name: 'me'});
+	info.name = '1000';
+}
+````
+
+#### 05 1
+
+###  Component API 的相关判断
+
+> 有这些api，这些的使用多存在于编写专业的插件库存在。
+
+1. 
+
