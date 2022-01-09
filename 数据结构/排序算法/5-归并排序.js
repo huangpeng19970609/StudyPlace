@@ -13,7 +13,7 @@ function mergeSort(arr) {
   const right = mergeSort(arr.slice(middle));
   arr = merge(left, right);
   return arr;
-}
+}   
 function merge(left, right) {
   let i = 0;
   let j = 0;
