@@ -130,12 +130,24 @@ resolve: {
 npm run server ✔
 ```
 
-### 03|ts-lint
+### 03 | ts-lint
 
 ```js
 npm install tslint -g
 tslint --init
 ```
+
+### 04 | 库
+
+默认情况下，ts已经有了很多类型
+
+当安装ts时，便会自动帮我们安装一些库。例如
+
+- Math、Date
+
+- DOM API
+
+  
 
 ## 1 强弱静动
 
@@ -298,14 +310,16 @@ const info = {
 
   但由于开发时存在  <div> 这类尖括号故有时候出现babel的编译问题。
   故应使用方式一【元素类型后加[]】， 不建议使用【尖括号形式】。
-  
+
+  【尖括号】即使用【泛型类】的方式并不是推荐， 这并非是两种写法，而是两种语法。
+
   ```ts
    # ⭐ => 写法一: 元素类型后直接加 []
   	let arr: string[]; // arr = ['1', '2', '3'];
       	arr: number[];
       	arr: any[];
   
-  # 不建议 => 写法二: Array<元素类型>
+  # 不建议 => 写法二: Array<元素类型> => 使用【泛型类】的方式来使用！但开发不建议
   	let arr: Array<number>;
   	let arr: Array<any>;
   ```
@@ -498,7 +512,9 @@ tuple是一种ts对js的拓展
 
 ### 12 | enum
 
-- 枚举类型
+- 枚举类型 => 为数不多的 ts特有类型
+
+- Gender.Male：阅读性大大提高
 
   ```js
   # 默认情况下，从0开始为元素编号
@@ -658,9 +674,24 @@ tuple是一种ts对js的拓展
   function fn(msg?: string) {}; // fn();
   ```
 
+### 16 | 交叉类型
+
+```ts
+# 【或】
+let i: string | number;
+let me: 1 | 2 | 3 | 4;
+
+# 【与】 符号
+let j: string & number; //  毫无意义
+let o: {name: string  } & {age: number } => o = {name: '1', age: 19}  ✔
+```
+
 ## 3   interface
 
-> interface 只是为了解构数据， 对接口成员做出规范
+> 1. interface 只是为了解构数据， 对接口成员做出规范。
+>
+> 2. 面向接口编程并不是很常用在 JS， 我们往往是面向函数式编程。
+> 3. 我们常用interface 来规范对象类型
 
 ```ts
 #1 示范
@@ -681,7 +712,7 @@ interface Cache {
 const cache: Cache: {}
 ```
 
-#### 3.1 索引类型
+### 3.1 索引类型
 
 - JS知识： 即使用【number】进行索引等价于使用【string】索引
 
@@ -720,7 +751,7 @@ const cache: Cache: {}
   }
   ```
 
-#### 3.2 函数类型
+### 3.2 函数类型
 
 - 建议还是使用 【类型别名】阅读性更好
 
@@ -757,7 +788,9 @@ function calc(num1: number, num2: number, calcFn: CalcFn) {
 calc(20, 30, add)
 ````
 
-#### 3.3 接口的继承
+### 3.3 接口的继承
+
+实现类似【联合继承】
 
 ````typescript
 interface ISwim {
@@ -776,7 +809,7 @@ const action: Iaction = {
 }
 ````
 
-#### 3.4 交叉类型
+### 3.4 交叉类型
 
 ````typescript
 # 联合类型
@@ -799,7 +832,152 @@ const obj: Mytype_1 {
 
 ````
 
+### 3.5 接口的实现
 
+1. 继承： 只可实现单继承
+2. 实现： 实现接口，类可以实现多个接口
+
+````typescript
+class Fish extends Animal implements ISwim, IEat {
+    swimming() {}
+    eattting() {}
+}
+
+# 当我们编写公用接口时 => 面向接口编程
+// ❌ 不具有通用性 并不是只有【Fish】才会游泳
+function swimAction(swimable: Fish) {
+    swimable.swimming();
+}
+````
+
+3. 接口
+
+   ⭐ 使用【类】去实现【接口】，一个类是可以实现多个接口的。更具备通用性。
+
+   `````typescript
+   function swimAction(swimable: Swim) {
+       swimable.swimming();
+   }
+   # 当我们编写公用接口时 => 面向接口编程
+   class Person implements ISwim {
+       swimming() {}
+   }
+   swimAction(new Person());
+   `````
+
+### 3.6 interface与type区别
+
+> 若涉及的对象确实不需要拆分、合并，依旧还是建议你使用interface。
+>
+> 大多数情况下根据你的个人爱好。若你真的需要官方建议，那就要用【interface】吧。
+
+1. 定义非对象类型推荐使用 【type】
+
+2. 若定义对象类型
+
+   - 【interface】可重复对某个接口来定义属性与方法
+
+     ````typescript
+     interface IFoo {
+         name: string
+     }
+     interface IFoo {
+     	age: number   
+     }
+     
+     # 此时你必须要同时由 【name】 与 【string】
+     const foo: Ifoo {
+         name: '1',
+         age: 100
+     }
+     ````
+
+     1. 为什么我们要分开写【interface】呢？
+
+        ````typescript
+        interface Window {
+            age: string
+        }
+        # 这样 window.age 才可以正常
+        window.age = 19;
+        ````
+
+   - 【type】定义的是别名，而别名是不可重复的。
+
+     ```typescript
+     ❌ # duplicate type 
+     type Window {}
+     ```
+
+### 3.7 擦除
+
+> 本质上是
+>
+> 1. 对象【引用】的赋值
+> 2. 对象【值】的赋值
+
+请看如下的这个例子
+
+````typescript
+interface IPerson {
+    name: string,
+    age: number,
+}
+# 此处多定义 address
+const person = {
+    name: '1',
+    age: 19,
+    address: '广州'
+}
+# 居然编译不报错?
+const p: IPerson = person;
+````
+
+1. 通常情况下，编译报错的原因
+
+   通常情况下， 直接将【字面量赋予】赋值。
+
+   右侧【字面量】类型推导： 便是拥有这三个属性的对象
+
+   故 两个类型推导错误，此时编译不通过。
+
+   ````js
+   ❌ # 编译不通过
+   const p: IPerson = {
+       name: '1',
+       age: 19,
+       address: '广州'
+   };
+   ````
+
+2. 为何编译不报错？
+
+   回到我们的请看，若将给【p】类型声明【IPerson】，将 【字面量】保存于【标识符】中再赋值给p
+
+   - 【对象引用】赋值会进行`refes`的【擦除】操作。
+
+     ⭐ person 是一个对象类型。person 赋值于 p，即将person这个【对象引用】赋予给p【标识符】。
+
+   - 【擦除】
+
+     擦除掉【多余的属性】， 看你是否还是满足类型声明。
+
+     ````typescript
+     const p: IPerson = person;
+     ````
+
+3. 为何ts提供了这种【擦除】语法？
+
+   因为剔除多余的属性，并不会导致有出乎意料的事情的发生。 
+
+   ````typescript
+   printInfo(p);
+   function printInfo(p: IPerson) {
+       console.log(p.address) # ❌ 不许你这么做
+   }
+   ````
+
+   
 
 ## 4 class
 
@@ -1097,13 +1275,18 @@ let s = new Student('hp', 18);
   makeAction([new Dog(), new Fish()]);
   ````
 
-## 5 泛型
+## 5 ⭐ 泛型
 
 > 定义函数、接口或类时我们不指定类型，调用时再指定类型
 >
-> 目的： 最大程度复用代码
+> 1. 泛型便是在外部将参数类型参数化
+> 2. 并让调用者在外部以参数的形式告知我们这些参数
+>
+> 目的： 最大程度复用代码。
+>
+> - 泛型为何重要？ 因其在【函数式编程】中发挥很高的作用。
 
-```js
+````typescript
 # 缺点 智能创建 Array<number>类型
 function createNumberArray(length: number, value: number): number[] {
     const arr = Array<number>(length).fill(value);
@@ -1114,7 +1297,168 @@ function createArray<T> (length: number, value: T[]) {
     const arr = Array<T>(length).fill(value)
     return arr;
 }
-```
+````
+
+### 01 | 何为泛型
+
+从【软件工程】说起，软件工程希望你明确和一致的API，使得代码复用性高。
+
+1. 例如封装函数，通过传入不同的函数参数，使得函数完成不同操作。
+
+   ````typescript
+   sum(19, 30);
+   sum(30, 40, 50)
+   ````
+
+2. 函数的参数类型是否也可以参数化呢？
+
+你当然可以使用【联合类型】来去解决这个【函数参数的参数化】，但问题在于
+
+1. 但联合类型也是存在共性的。你总是需要单独的判断，这让代码十分的不友好。
+
+   并且联合类型会越来越长，因为函数并非只有一个函数参数，每一个参数皆有参数类型。
+
+2. 我们希望是【调用者】来告知我们是什么函数参数类型
+
+故泛型即【函数的参数化】
+
+### 02 | 邂逅
+
+- 【Type】 可简写为 【T】
+
+````typescript
+function sum<Type>(num1: Type): Type {
+	return num1;
+}
+````
+
+1. 明确的传入类型
+
+   ````typescript
+   sum<number>(20, 30)
+   sum<{name: string}>({name: 'hp'});
+   sum<any[]>(["abc"])
+   ````
+
+2. 自动进行类型推导
+
+   ````typescript
+   // 自动推导 Type 为 59; 为字面量类型
+   sum(59); 
+   // 字面量类型 "111"
+   sum("111")
+   ````
+
+3. 可接受多个类型
+
+   若你希望泛型使用多个类型
+
+   ````typescript
+   function foo<T, E, O>(arg1: T, arg2: E, arg3: O) {
+       
+   }
+   foo<number, string, Boolean>(19, "abc");
+   ````
+
+### 03 | 泛型常用的名称
+
+这些名称是随便起的，不过约定俗称罢了。
+
+- T 即 Type
+- K 、V 即 Key、Value
+- E： Element
+- O：Object
+
+### 04 | 泛型接口
+
+> 过去在定义接口时，是否也可以使用泛型呢？
+
+````typescript
+interface IPerson<T1 = string, T2 = number> {
+	name: T1
+    age: T2
+}
+const p: IPerson<string, number> = {
+    name: 'hp',
+    age: 18
+}
+
+# ❌ 此时不能进行类型推导
+# 除非你接口进行了默认类型赋值，否则编译不通过
+const p: IPerson = {
+    name: 'hp',
+    age: 18
+}
+````
+
+### 05 | 泛型类
+
+````typescript
+class Point<T> {
+    x: T
+    y: T
+    z: T
+    constructor(x: T, y: T, z: T) {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
+}
+
+# 类型推导
+p: Point<string>
+const p = new Point("1.32", "2.22", "333.33")
+# 你也可以明确指定
+const p2 = new Point<string>("1.32", "2.22", "333.33")
+# 你还可以这样！
+const p3: Point<string> = new Point("1.32", "132", "1");
+````
+
+1. 那显然数组也会有这种写法
+
+   但不建议这种写法，还是因为解析问题。
+
+   ````typescript
+   const p3: Point<string> = new Point("1.32", "132", "1");
+   
+   # ⭐ 但开发不推荐！
+   const arr: Array<any> = new Array([1, 2, ,3])
+   ````
+
+### 06 | 泛型的类型约束
+
+> `extends`
+>
+> function getLength<T extends ILength>(arg: T) {}
+
+我们使用联合类型的时候存在缺陷，我们很难考虑到所有联合类型的情况。
+
+故我们使用【泛型】会更加合适。
+
+````typescript
+function getLength(arg: string | number | [] | { length: number } ) {
+    return arg.length;
+}
+# 存在缺陷
+function getLength<T> (arg: T) {
+    return arg.length
+}
+````
+
+依旧存在问题，其不一定存在 length属性。故我们使用一种泛型约束手段来优化。
+
+⭐ extends
+
+````typescript
+interface ILength {
+    length: number;
+}
+function getLength<T extends ILength>(arg: T) {
+    return arg.length;
+}
+````
+
+
 
 ## 6 类型声明
 
@@ -1233,65 +1577,8 @@ printMsgLength()
   }
   ```
 
-## 8 可选链
 
-> ES11（ES2020）提出了可选链。并非是ts提出的特性。
->
-> - 可选链使用 可选链 【?.】
-> - 当对象属性不存在时，会短路，返回undefined。若存在则继续执行。
-
-- 场景
-
-  ````typescript
-  type Person {
-  	name: string,
-  	friend?: {
-          name: string,
-          age?: number,
-      }
-  }
-  const p: Person = {
-      name: 'hp'
-  }
-  # name必然存在, 而friend不一定存在
-  console.log(
-     	# compile error ❌ Object is possibly "undefined"
-  	info.friend.name
-      # 故使用 【非空断言】 令其编译通过 但这种办法实在愚蠢， 头疼医头而已
-      # 逃过编译 运行依旧 error
-      info.friend!.name
-  )
-  ````
-
-- 解决办法:
-
-  1. 土办法
-
-     ````js
-     if (info.friend) {
-         console.log(info.friend.name);
-     }
-     if (info.friend && info.friend.age) {
-         console.log(info.friend.age);
-     }
-     ````
-
-  2. ⭐ 可选链
-
-     - 既可以令其编译通过
-     - 又可以让运行期不报错
-
-     ````js
-     // 若 friend 存在取 friend.name
-     // 若 friend 不存在即 undefined
-     console.log(info.friend?.name);
-     // 可以不写, 虽然可选, 但必然是 [Object].age
-     console.log(info.friend?.age);
-     console.log(info.friend?.age.girlfriend?.name);
-     ````
-
-
-## 9 类型缩小
+## 8 类型缩小
 
 > 类似于 type padding === 'numbr'的判断语句, 从而改变ts的执行路径。
 >
@@ -1366,9 +1653,7 @@ printMsgLength()
 
   5. 等等
 
-
-
-## 10 this、重载
+## 9 this、重载
 
 ### 01. this
 
@@ -1447,44 +1732,9 @@ function add(a: number | string, b: number | string) {
 
 3. 重载的时候，或许你应该尽量使用联合类型。
 
-##  联合类型与交叉类型
+##  其他
 
-1. 联合类型
-2. 交叉类型
-
-```ts
-# 【或】
-let i: string | number;
-let me: 1 | 2 | 3 | 4;
-
-# 【与】 符号
-let j: string & number; //  毫无意义
-let o: {name: string  } & {age: number } => o = {name: '1', age: 19}  ✔
-```
-
-## !! 与？？
-
-> 并非是ts特有的，而是JS的操作符。
-
-- !!  操作符
-
-- ?? 操作符
-
-  空值合并操作符， 是一个逻辑操作符。
-
-  操作符的左侧是 null、undefined时，返回右侧操作数， 否则返回左侧操作数。
-
-  ````typescript
-  const message: string | null = null;
-  const content = message ?? '默认值';
-  const content = message ? message : '默认值';
-  ````
-
-  
-
-## 其他
-
-### 01|ts讲述的变量声明
+### 01| ts讲述的变量声明
 
 > ts中额外向我们普及了 es6 语法提供的let、const与之前的var区别。再次看看吧！
 >
@@ -1534,5 +1784,214 @@ let o: {name: string  } & {age: number } => o = {name: '1', age: 19}  ✔
    - typescript现在是支持你对对象的属性也限制其只读了。
    - let 与 const的选择时， 也是我们代码根本思想的遵循，我们应该始终遵循`最小特权原则`
 
+### 02 |  !! 与？？
+
+> 并非是ts特有的，而是JS的操作符。
+
+- !!  操作符
+
+- ?? 操作符
+
+  空值合并操作符， 是一个逻辑操作符。
+
+  操作符的左侧是 null、undefined时，返回右侧操作数， 否则返回左侧操作数。
+
+  ````typescript
+  const message: string | null = null;
+  const content = message ?? '默认值';
+  const content = message ? message : '默认值';
+  ````
+
+- 此外既然说到 ??
+
+  那么 可选择链你也应该要记住
+
+  由于 可选择链的存在，这条语句不会运行中报错，而是undefined
+
+  ````js
+  window.screen.width?.asdaasd; 
+  ````
+
+### 03 | 可选链
+
+> ES11（ES2020）提出了可选链。并非是ts提出的特性。
+>
+> - 可选链使用 可选链 【?.】
+> - 当对象属性不存在时，会短路，返回undefined。若存在则继续执行。
+
+- 场景
+
+  ````typescript
+  type Person {
+  	name: string,
+  	friend?: {
+          name: string,
+          age?: number,
+      }
+  }
+  const p: Person = {
+      name: 'hp'
+  }
+  # name必然存在, 而friend不一定存在
+  console.log(
+     	# compile error ❌ Object is possibly "undefined"
+  	info.friend.name
+      # 故使用 【非空断言】 令其编译通过 但这种办法实在愚蠢， 头疼医头而已
+      # 逃过编译 运行依旧 error
+      info.friend!.name
+  )
+  ````
+
+- 解决办法:
+
+  1. 土办法
+
+     ````js
+     if (info.friend) {
+         console.log(info.friend.name);
+     }
+     if (info.friend && info.friend.age) {
+         console.log(info.friend.age);
+     }
+     ````
+
+  2. ⭐ 可选链
+
+     - 既可以令其编译通过
+     - 又可以让运行期不报错
+
+     ````js
+     // 若 friend 存在取 friend.name
+     // 若 friend 不存在即 undefined
+     console.log(info.friend?.name);
+     // 可以不写, 虽然可选, 但必然是 [Object].age
+     console.log(info.friend?.age);
+     console.log(info.friend?.age.girlfriend?.name);
+     ````
 
 
+
+### 04 | 命名空间
+
+> 【namespace】
+>
+> 一个模块的内部再进行作用域的划分，进而防止命名冲突的问题。
+>
+> 1. ts的模块化是在esModule的模块化之前而提出的，更多的是过去的方案
+> 2. 更加建议你不去使用命名空间，而去使用不同的函数名称
+
+示范：
+
+````typescript
+# 【export】 目的是在外部模块去使用
+export namespace time {
+    # 【export】在当前模块划分使用
+    export function formate(time: string) {
+    	return '2020'
+	}
+}
+
+export namespace number {
+    export function formate(num: number) {
+        return 100;
+    }
+}
+time.format('1000');
+````
+
+### 05 | 类型查找
+
+> ⭐ TS如何知道哪些类型可用？这些类型来自于哪里？TS是如何管理他们的？
+>
+> 1. 内置类型声明: 安装typescript便自动伴随
+> 2. 外部定义类型声明： 第三方库携带 .d.ts
+> 3. 自己定义类型
+
+1. typescript中使用其他的库
+
+   使用 loadsh的库，编译错误且运行也会报错
+
+   ````typescript
+   import lodash from 'lodash';
+   ````
+
+2. 为什么第三方库不可使用？
+
+   - TypeScript是否有提前声明决定这些库是否可以使用。
+
+   例如  document.getElementByID 编译通过。
+
+   是因为TS知道有Document类型，即而ts自带库才通过编译。而  hp.getElementById显然不可使用。
+
+3. 为什么 有的可用？有的不可用？
+
+   > .d.ts文件： 类型声明、类型检测。即告知typescript我们还有哪些类型。
+
+   1. 内置类型声明
+
+      【lib.dom.d.ts】等等。安装ts时候一起安装的。
+
+   2. 外部定义类型声明
+
+      【axios】其下有index.ts文件。第三库本身便有类型声明，故可使用。
+
+      【lodash】则没有类型声明。故而无法使用。
+
+      - 此外社区有公开库来存在类型声明文件，并不一定就在自己本身库中存放.
+
+        https://www.typescriptlang.org/dt/search?search=
+
+      - 比如 loadsh库，别人或官方帮其编写好了声明文件
+
+        ````js
+        npm i @types/lodash --save-dev
+        ````
+
+      - 若第三方库还是没有呢？ 自己编写。
+
+        创建【xxxxx.d.ts】文件
+
+        ````typescript
+        # 你可以去调用 loadash.join了
+        declare module 'lodash' {
+            export function join(arr: any[]): void;
+        }
+        ````
+
+   3. 自己定义类型
+
+      即我们自己编写的ts文件
+
+4. 何我们自己需要使用外部定义类型声明？
+
+   - 当 你在【index.html】中引入了相关的 JS 文件、声明相关变量时，你应该主动声明模板
+
+     ````typescript
+     declare let whyName: string;
+     declare let windowName: string; 
+     ````
+
+   - 当你引入一张文件模块时
+
+     ````typescript
+     # 某ts文件
+     import img from './img/nh.jpg ';
+     # 某.d.ts文件
+     declare module '*.jpg'
+     declare module '*.png'
+     # .vue文件声明
+     declare module '*.vue' {
+         import { DefineComponent } from 'vue'
+     }
+     ````
+
+   - 声明命名空间
+
+     ````typescript
+     declare namespace ${
+         export function ajax(setting: any) {} 
+     }
+     $.ajax
+     ````
+
+   
