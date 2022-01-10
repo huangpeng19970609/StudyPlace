@@ -1,0 +1,52 @@
+.main {
+  width: 30rem;
+  height: 30rem;
+  background: pink;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.main>div {
+  width: 100%;
+  height: 100%;
+
+}
+.item-1 {
+  background: green;
+  transition: transform 5s ease-in 0s;
+  transform: rotate(180deg) scale(.5, .5);
+}
+.item-1:hover {
+  transform: rotate(180deg) scale(.5, .5);
+}
+.item-2 {
+background: grey;
+}
+.item-3 {
+background: sandybrown;
+}
+.item-4 {
+background: slateblue;
+}
+
+@keyframes typing { from { width: 0; } }
+@keyframes blink-caret { 50% { border-color: transparent; } }
+
+h1 { 
+	font: bold 200% Consolas, Monaco, monospace;
+	border-right: .1em solid;
+	width: 16.5em; /* fallback */
+	width: 30ch; /* # of chars */
+	margin: 2em 1em;
+	white-space: nowrap;
+	overflow: hidden;
+	animation: typing 20s steps(30, end), /* # of steps = # of chars */
+	           blink-caret .5s step-end infinite alternate;
+}
+div {
+  animation: spin 1s linear infinite;
+  animation-play-state: paused;
+}
+
+div:hover {
+animation-play-state: running;
+}

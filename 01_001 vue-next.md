@@ -110,9 +110,43 @@ vue文件中 对export default 的外部声明的变量是如何处理的?
 
 ### 前置知识
 
-#### proxy
+#### 1 约定俗称-封装思想-useCounter
 
-1. 
+- 我们会抽离代码
+
+  ````js
+  // 单独的 hooks 文件夹 
+  # useCounter.js
+  import { ref, computed } from 'vue'
+  export default function() {
+  	const counter = ref(0);
+      const doubleCounter = computed( () => counter.value *= 2 )
+      const increment = () => counter.value++;
+      return {
+          counter,
+          doubleCounter,
+          increment
+      }
+  }
+  ````
+
+- 我们会加入这段逻辑
+
+  ⭐ 不管是 data、method、还是其他其他都被闭环在同一处了，很好维护！👍
+
+  ````js
+  import userCounter from './hooks/useCounter.js'
+  setup() {
+      // 逻辑被闭环在了同一处
+  	const { counter, doubleCounter, increment} = userCounter;
+  }
+  ````
+
+  
+
+#### 2 proxy
+
+
 
 ### 基本语法
 
@@ -534,7 +568,7 @@ mixins: [
 
 3. 那你可以使用setUp的返回值去替代大部分选项
 
-##### 1 setup的参数
+##### setup的参数
 
 1.  props
 
@@ -576,7 +610,7 @@ mixins: [
 
      相当于传统的 this.emit， 现在你应该使用这个context.emit来发送事件
 
-##### 2 setup的返回值的作用
+##### setup的返回值的作用
 
 > 这很像 React的用法！ 你可以返回数据，返回方法
 
@@ -600,11 +634,37 @@ export default {
 }
 ````
 
+##### setup中使用ref
+
+⭐ ref不需要加冒号，vue会特殊进行处理
+
+```js
+<div ref="title"></div>
+# vue2
+this.$refs['me']
+# vue3
+setup() {
+	const title = ref(null);
+    watchEffect( ()=> {
+        # watchEffect立刻执行一次, 且 ref 是在挂载后才能获得
+    	console.log(title)  // null => dom元素
+    })
+    return {
+        title
+    }
+}
+
+```
+
+
+
 #### 02 Reactive API
 
 ##### 1 Reactive 
 
 > 我们使用 setUp 后返回后数据并不会自动的响应式，这与data()声明不同
+>
+> - 能用ref的时候尽量去使用ref
 
 ````js
 import { reactive } from 'vue';
@@ -715,6 +775,17 @@ export default {
        counter: ref(100);
    })
    ````
+   
+3. 当传递给子组件的时候， 其值若为ref，则子组件依旧可以 逆向修改值
+
+   - 但实际中，我们并不希望子组件去修改我们父组件的值，设计准则。
+
+   - 实际中，我们应该 子 传递 父事件，通过事件在父祖件中修改其值。
+
+     ````js
+     故 在传递其子值的时候，使用
+     	readonly
+     ````
 
 ##### 1 toRefs
 
@@ -818,21 +889,24 @@ let  name  = toRef(info, 'name');
 
      自定义ref，自定义跟踪与触发更新以控制
 
-   - 创建工程函数，函数接受 track、trigger函数作为参数， 并返回 携带get 与 set的对象
+   - 要求:
+
+     创建工程函数，函数接受 track、trigger函数作为参数， 并返回 携带get 与 set的对象
 
    - debounce 防抖示范
 
      1. 由于 频发的触发收集的deps数组（副作用）导致页面不断的刷新，故我们应该做一个节流 
-
+   
      ````vue
      <template>
      	<input v-model="value"/>
      </template>
      <script>
          import { ref } from 'vue'
+         import { useDebounceRef } from 'xxxx.js';
          export default {
              setup() {
-                 let value = ref(0);
+                 let value = useDebounceRef(0);
                  return {
                      value
                  }
@@ -841,34 +915,41 @@ let  name  = toRef(info, 'name');
      </script>
      
      ````
-
+     
      2. 函数依赖
-
+     
+        useDebounceRef.js
+        
         ```js
         import { customRef } from 'vue'
         export default function (value){
+            let timer = null;
             return customRef( (track, trigger) => {
              	return {
                     get() {
-                        // 收集依赖  
-                        track(); 
+                        // 只要访问, 便收集依赖  
+                        track();
                     	return value;
                     }
                     set(newValue) {
-                    	value = 
+                        clearTimeout(timer);
+                        timer = setTimeout(()=> {
+                            value = newValue;
+                        	trigger();
+                        }, 1000)
                     }
                 }
             })
         }
         ```
-
         
-
+        
+   
    
 
 
 
-#### 04 readonly
+#### 04 readonly API
 
 vue3 不仅提供ref、reacive，也提供了readonly
 
@@ -888,11 +969,1204 @@ export default {
 }
 ````
 
-#### 05 1
 
-###  Component API 的相关判断
 
-> 有这些api，这些的使用多存在于编写专业的插件库存在。
+#### 05 生命钩子函数 API
 
-1. 
+示范
+
+- onXXXX
+
+- ⭐ 若你有 beforeCreated、created生命周期希望进行的函数操作
+
+  您应该在 setup中直接执行，这是等价的含义。
+
+  因为 setup本身就会在beforeCreated、created中执行。
+
+  ````js
+  import { onMounted, onUpdated, onUnmounted } from 'vue';
+  export default {
+      setup() {
+          onMounted( ()=> {} )
+          onUpdated( ()=> {} )
+          onUnmounted( ()=> {} )
+      }
+  }
+  ````
+
+
+
+#### provide/inject
+
+```js
+import { provide } from 'vue'; provide('name', name);
+import { inject } from 'vue'; const name = inject('name', name) // 获取到
+
+# 实际开发中 尽量不让子组件来修改
+import { provide, readonly } from 'vue'; 
+provide('name', readonly(name));
+```
+
+#### computed
+
+```js
+import { computed, ref } from 'vue';
+
+const firstName = ref('me');
+const last = ref('last')
+# 方式一 返回 ComputedRef 本质就是 ref
+const fullName = computed( ()=> firstName.value + " " + last.value)
+
+# 方式二
+const fullName_2 = computed({
+    get: () => firstName.value + " " +last.value,
+    set(val) {
+        const name = nameValue.split(" ");
+        firstName.value = name[0];
+        firstName.value = name[1];
+    }
+})
+
+return {
+    fullName,
+    fullName_2
+}  
+```
+
+#### watch
+
+- 手动去指定侦听的数据源
+
+- 完全等同普通watch， 略。惰性,  不管如何都会赋值于getter
+
+
+##### 1 监听属性
+
+```js
+import { watch } from 'vue'
+ export default {
+     setup() {
+         # 监听属性 传入一个get函数
+         watch(() => info.name, (newValue, oldValue) => {});
+         # 监听对象属性
+         	
+     }
+ }
+
+```
+
+##### 2 reactive
+
+获取的oldValue、newValue都是 reactive对象，而不是其对应属性的值
+
+````js
+const info = reactive({});
+watch(info, (newVal, oldVal) => {})
+
+# 如何直接获取属性
+watch( ()=>{
+    # 普通对象, 进入isFunction分支, 经过处理获取其返回的结果，为一个普通的对象
+	return {...info}
+}, (newValue) => {
+    //是一个普通的对象
+})
+````
+
+##### 3 ref
+
+获取的值是其ref.value值本身
+
+源码中帮你处理了ref，并将其返回其值
+
+```js
+const info = ref(100);
+```
+
+##### 4 侦听多个数据源
+
+源码: 遍历了数组
+
+```js
+watch([info, name], (newValue, oldValue) => {
+   # 值为对应的两个值，都会获取到 
+});
+
+# 返回值变成一个普通的对象
+watch([() => ({...info}), name], (newValue, oldValue) => {
+});
+```
+
+#####   deep\immediat      
+
+- 若是传入一个普通的对象你应该使用deep
+
+  ```js
+  watch(()=> {...info}, (newVal) => {
+  	console.log(newVal)
+  }, {
+      deep: true,
+      # 立即执行
+      immediate: true
+  })
+  ```
+
+- 若是可响应对象，其支持自动深度监听
+
+
+
+ 
+
+#### watchEffect
+
+- 自动收集`响应式数据`的依赖
+
+  立即执行，相当于 immediate，此时寻找所有响应式的依赖
+
+  ````js
+  import { watchEffect, ref } from 'vue';
+  export default {
+  	import {  watchEffect } from 'vue'
+  	setUp() {
+          const name = ref(0);
+          # 立刻执行一次，此时会立刻去查找对应的deps，
+          # 并将此处的函数加入进 对应依赖（name）的deps
+          # 故其默认进来的时候其必须被调用一次，
+          const stop = watchEffect( ()=> {
+      		console.log("name", name.value)   
+      	})
+          stop();
+      }
+  }
+  ````
+
+- 停止侦听
+
+  其提供了关闭监听的功能，即再某些情况下你希望停止监听。
+
+  其返回的是 watch的函数
+
+- 清除副作用
+
+  每次监听都发送网络请求，我们希望每一次触发清除上一次网络请求
+
+  - onValidate： 当副作用重新执行，或是 关闭watch时 | 组件被销毁时
+
+  ```js
+  const stop = watchEffect( (onValidate) =>{
+      const timer = setTimeout();
+  	onValidate(()=> {
+      	# 在这个函数内清除额外的副作用
+          clearTimout(timer;)
+      });
+  })
+  ```
+  
+- 指定mounted时 的 `执行时机`
+
+  ```js
+  watchEffect(()=> {
+      console.log('xxx')
+  }, {
+      flush: 'post'
+  })
+  ```
+
+
+### 高阶语法
+
+
+
+#### h函数
+
+> 【了解即可】
+>
+> vue推荐大多数情况下使用【模板】创建HTML，但若你想使用完全的JS代码来编写代码
+>
+> 你可以考虑使用 【h函数】
+>
+> - template 通过render编译  => VNode 组合树结构 => 虚拟DOM => 真实Dom
+>
+>   故 我们可以自己编写 createVNode函数，以生成VNode
+
+1. h函数
+
+   是用于创建vnode的一个函数
+
+   - 更为准确的名字应该为 createVNode函数，但简化称呼其 为 h函数
+
+2. 如何使用?
+
+   - 第一个参数： HTML标签名字、组件
+
+   - 第二个参数： props, 属性对象， 若无应传 null
+
+     第三个参数:    字符串、数组（存在其他子元素、子组件，嵌套）、对象
+
+3. 演练
+
+   - 正常开发并不会如此，只是演示render函数的使用,
+
+   ````js
+   export default {
+       data() {
+           return {
+               counter: 0
+           }
+       },
+       render() {
+       	return h("div", {class: 'app'}, [
+               h("h2", null, `当前计数${this.counter}`),
+               h("button", onClick: ()=> this.counter++)
+           ])
+       }
+   }
+   ````
+
+   - 使用setUp替代render函数
+
+     ```js
+     import { h } from 'vue'
+     export default {
+         setup() {
+             const counter = ref(0);
+             return () => {
+                 return h("div", {class: 'app'}, [
+                 	h("h2", null, `当前计数${counter.value}`),
+                 	h("button", onClick: ()=> counter.value++, "+1")
+             	])
+             }
+         }
+     }
+     ```
+
+   - 结合插槽、组件去使用高阶函数【h】
+
+     ````js
+     // App.vue
+     import { h } from 'vue'
+     import Hello from './Hello.vue'
+     export default {
+         setup() {
+             const counter = ref(0);
+             return () => {
+                 return h(Hello, {message: 'app'}, {
+                     # default对应的是函数 default 插槽
+                     # props便是 {name: 'coderwhy'}
+                     default: props => h(
+                     	"span", 
+                     	null, 
+                     	"app传入HelloWorld中内容" + props.name
+                     )
+                 })
+             }
+         }
+     }
+     // Hello.vue
+     import { h } from 'vue'
+     export default {
+     	render() {
+             return h("div", null, [
+                 h("h2", null, "i am hello"),
+                 this.$slots.default ? this.$slots.default({name: 'coderwhy'}) : '',
+             ])
+         }
+     }
+     ````
+
+####  JSX
+
+> 如h函数版，我们手动编写VNode，这种可读性真的是太差了！
+>
+> 我们能否有一个适中的方案解决这个问题呢？又有js的灵活也有模板的阅读性
+
+- 这便是 jsx语法
+
+  ```jsx
+  render() {
+      const counter = 0;
+      return ( 
+          <div>
+              <HelloWorld>
+              	{ {default: props => <button>我是插槽按钮</button> } }
+              </HelloWorld>
+              { counter }
+          </div>
+      )
+  }
+  ```
+
+babel配置
+
+> vue-next脚手架似乎已经默认支持了 jsx, 
+
+- 安装 npm install @vue/babel-plugin-jsx -D
+
+- 配置插件
+
+  babel-config.js
+
+  ```js
+  module.exports = {
+      presets: [
+          ' @vue/cli-plugin-babel/preset'
+      ]
+  }
+  ```
+
+
+#### 自定义指令
+
+> 在某些情况下对DOM元素进行底层的操作需要使用自定义指令
+>
+> 1. 自定义局部
+>
+> 2. 自定义全局
+>
+>    指令提供了以下的生命周期回调
+
+- 示范
+
+  1. 不使用指令实现
+
+     ````js
+     <input ref=“input” />
+     setup() {
+         const input = ref(null)
+         onMounted(() => {
+             input.value.focus();
+         });
+     }
+     ````
+
+  2. 使用指令
+
+     ```js
+     <input v-foucs />
+     export default {
+     	directives: {
+             focus: {
+                 # 核心
+                 mounted(el, bingdings, vnode, preVnode) {
+                     el.focus();
+                 }
+             }
+         }
+     }
+     ```
+
+  3. 全局注册
+
+     任何一处即可 <input v-foucs />
+
+     ```js
+     app.directive("focus", {
+        mounted(el, bingdings, vnode, preVnode) {
+            el.focus();
+        }
+     })
+     ```
+
+##### 生命周期
+
+- created
+- beforeMount
+- mounted
+- beforeUpdate
+- updated
+- beforeUnmount
+- unmounted
+
+##### bingding
+
+bingding可获取
+
+````js
+# 可以传递参数
+v-why.aaaa.bbb =“'my name'""
+# 
+created(el, bingding) {
+	bingding 
+}
+````
+
+1. 修饰符 - modife
+
+   binding.modify
+
+   - 即 aaaa 为 true,  bbb 也为true
+
+2. 当前绑定的值-value
+
+   bindging.value 变为 my name
+
+##### 示范: 
+
+使用自定ti义指令自动转换时间戳
+
+1. 自动将 【timestamp】 转换为 一个 被格式化的内容
+
+   过去我们会依赖computed、methods处理，现在我们可以更加简洁了
+
+   ```js
+   <h2 v-format-time>{{timestamp}}</h2>
+   ```
+
+2. 我们可以这样的模块化
+
+   我们将 app 导入过来，以完成我们的注册操作！bingo！
+
+   ```js
+   format.js
+   export default function(app) {
+       let formatString = 'YYYY-MM-DD';
+       app.directive('format-time', {
+           created(el, bingdings) {
+               # 若通过指令传递其他时间格式
+               if (bingdings.value) {
+                   formatString = bingdings.value
+               }
+           },
+           mounted(el) {
+               const textContent = el.textContent;
+              	const timestamp = parseInt(textContent);
+               # 模拟
+               el.textContent = textContent.format(formatString); // 即可
+           }
+       })
+   }
+   ```
+   
+
+#### teleport
+
+1. 一般而言，组件挂载形成组件嵌套从而有组件树
+2. 某些情况，不挂载组件，而挂载于某个元素，甚至说挂载至【`#app`】之外的其他位置，而非此组件树上。
+3. teleport便是Vue提供的这种内置的组件。teleport 心灵传输、远距离传输。
+   - to 目标元素
+   - disabled 是否禁用teleport功能
+
+举例
+
+```js
+# 根元素下
+<div id="app"/>
+<div id="hp"/>
+
+# xxx.vue
+<template>
+	<div class="app">
+        # 在这里
+        <teleport to="#hp">
+            ......组件、元素同理
+
+		<teleport to="#hp">
+            ......组件、元素同理
+```
+
+- 若同时存在多个，则合并
+
+- 将会脱离原本的app的树组件，一般而言我们实际的开发并不会如此去做。
+
+  当你真的有如此的需求的时候， 你应该使用的 【插件安装】形式, App.use这样更简单，后续再提。   
+
+  ````js
+  this.$message.info('xxxx')
+  ````
+
+#### Vue插件
+
+> 当我们向全局添加功能时，会使用插件的模式 ，此有两种编写模式
+>
+> 1. 对象类型：
+>
+>    对象，但必须包含install函数，此函数将在安装插件时执行
+>
+> 2. 函数
+>
+>    此函数将会在安装插件时执行
+
+#### 1 插件提供的功能
+
+- 添加全局属性、方法
+- 添加全局资源，如指令、过滤器、过渡等
+- 通过全局mixin添加组件选项
+- 添加库，提供自己的API以综合以上功能。
+
+#### 2 插件示范
+
+插件注册
+
+````js
+# main.js
+import pluginObject from './plugin/plugin_object.js';
+const app = createApp(App);
+// 内部会回调此对象或函数, 并传递参数app
+app.use(pluginObject); 
+````
+
+插件编写
+
+```js
+# plugin_object.js
+export default {
+    install(app) {
+        console.log(app)
+        // 添加全局属性 => this.$name 便可直接访问
+        app.config.globalProperties.name = 'coderwhy';
+        // 
+    }
+}
+```
+
+1. 全局属性
+
+   ```js
+    app.config.globalProperties.name = 'coderwhy';
+   
+   # vue2中你可以通过此便可以直接访问到
+    this.$name
+   
+   # vue3中略微复杂
+    import { getCurrentInstance } from 'vue';
+    export default {
+        setup() {
+            // 当前组件的实例
+            const instance = getCurrentInstance();
+            // 通过访问全局属性便可以获取
+            instance.appContent.config.globalProperties.name
+        }
+    }
+   ```
+
+
+#### 3 vue-源码
+
+##### 01| 为什么使用虚拟DOM
+
+1. 真实元素节点的抽象为虚拟节点，目的是为了后续操作。
+
+   - diff、clone若直接进行操作DOM会有限制，例如clone会克隆全部，diff算法比较问题。
+   - JS对象来表达非常多的逻辑，远比DOM操作更加方便。
+   - 回流性能问题，虚拟DOM可以尽量减少回流渲染，故提高性能
+
+2. 跨平台。
+
+   你总是可以将虚拟DOM渲染成你想要的节点！Vue是支持你开发属于你自己的渲染器的.
+
+   这便是中间件-虚拟层带来的好处。
+
+##### 02|虚拟DOM渲染过程
+
+1. template => AST
+
+2. render function
+
+   template经过compile变为 render函数。（后续会调用这个render函数）
+
+3. VNode
+
+   后续调用 render函数（h函数）时生成虚拟节点
+
+4. DOM
+
+   通过渲染器变成真实节点。（不同渲染器不同结果，这里仅讨论DOM渲染器）
+
+##### 03| compiler
+
+关于render函数的获得。
+
+1. compiler + runtime
+
+2. runtime-only
+
+   若使用如此，便必须使用工具来编译。
+
+   例vue脚手架，需vue-loader， 而vue-loader也需要@vue/compiler-sfc库， 将其转为 VNode
+
+##### 04| Vue源码
+
+> Vue源码包含三大核心， 三大模块协同工作。
+>
+> 编译、响应、渲染
+
+1. Compiler模块： 编译模板系统
+
+   - compiler-core
+   - compiler-dom
+
+2. RunTime模块： 运行时模块。
+
+   此模块核心 交付于 renderer模块去渲染。故也称呼为其Renderer模块，真正渲染模块。
+
+   虚拟节点 => 真实DOM此阶段， 最终在界面上显示。
+
+   - runtime-core
+   - runtime-dom
+   - runtime-test
+
+3. Reactively模块： 响应式系统
+
+   不管是data()、setup、reactive、ref的数据，数据改变后有diff算法=> patch，打patch（补丁）。
+
+   - reactivity
+
+### vue-router
+
+> 什么是路由?
+>
+> - 架构网络时候，需要路由器、交换机。路由器是映射ip地址与真实电脑的mac地址。
+> - 路由器维护映射表。映射表决定数据流向。
+>
+> 为什么SPA大行其道？
+>
+> - 因为现在路由由前端控制，前端之所以可以实现路由，抛弃JSP、asp、php
+> - 便是因为仅存在index.html一个页面。通过动态渲染而模拟出路由。再也不需要再次请求第二个html页面。
+> - 后端仅需要提供API即可，前端有 组件 - 路径 的映射关系
+
+URL-hash => location.hash来改变href => 页面不刷新，但有 # 号】
+
+更多的route请看我以前的vue2的笔记。
+
+#### 01 hash
+
+监听hash的改变，渲染对应组件
+
+#### 02 history
+
+h5增加History方法， 提供了改变URL而不刷新页面的方法。
+
+#### 03 路由
+
+> 二十三节的路由
+
+1. 路由是支持插槽的
+
+2. 二十三节有讲到动态的实现路由、动态的删除路由
+
+3. 动态路由导航守卫 
+
+   - 登录时候保存 token入localStorage
+
+     若存在token入首页。
+
+   - 你可以去官方查看完整的路由导航解析流程
+
+4. historyApiFallback
+
+   > 为什么vue-cli本身就不会有这个问题呢？
+   >
+   > 答： vue脚手架使用的是webpack， 自动配置了historyApiFallback为true。
+   >
+   > ​	     其自动帮我们返回了index.html
+
+   此处也属于webpack的知识
+
+   - 输入域名后，进行DNS解析，根据IP地址，到达服务器目标位置，以获取静态资源返回于前端。
+
+   - 解析静态资源渲染页面, 我们的前端route代码会帮助我们进行重定向。⭐ 这种重定向是前端在完成
+
+   - 但是用户刷新页面 home/message ， 此时浏览器依据ip地址/路径去 ngnix 去询问服务区。
+
+     一般情况下，后端不会有此种对应的后端资源。故用户刷新会导致404的问题。
+
+     解决办法
+
+     1. ngnix进行方案处理，进行路径处理。进行配置
+
+     2.  第一种方案已经可以解决。但仍存在一个问题。但我们启动本地服务器的时候，本地服务器资源并不支持这种配置，我们希望可以模拟这种返回效果！
+
+        
+
+### 源码探究
+
+- 渲染系统模块
+
+- 可响应系统模块
+
+- 应用程序入口 => createApp
+
+- compiler 略，比较复杂，略。
+
+  @vue/compiler-sfc实现。用户浏览器无此代码，仅是部署时候执行的插件。相当于一个编译器。
+
+#### 01 | 渲染系统
+
+> - h函数， 返回VNode
+> - mount函数，VNode挂载至DOM
+> - patch函数，对比VNode
+
+0. 主页
+
+    ````js
+    const vnode = h('div', {class: 'why'}, [
+        h("h2", null, '我是h'),
+        h("button", null, '+1')
+    ])
+    
+    // mount
+    mount(vnode, document.querySelector('#app'))
+    
+    // create a new vnode
+    const vnode1 = h('h2', {class: 'hp'}, 'hehehe');
+    patch(vnode, vnode1)
+    ````
+
+1. h函数
+
+   第一步使用 h函数创建VNode
+
+   ```js
+   # renderer.js
+   const h = (tag, props, children) => {
+       return {
+           tag,
+           props,
+           children
+       }
+   }
+   
+   ```
+
+2. mount函数
+
+   第二步 将虚拟DOM挂载至页面上
+
+   ````js
+   const mount = (vnode, container) => {
+       // 1. vnode => element, 并添加属性el保留真实DOM
+       const el = vnode.el =document.createElement(vnode.tag);
+       // 2. 处理 props
+   	if (vnode.props) {
+           for(const key in vnode.props) {
+               const value = vnode.props[key];
+               // 处理事件
+               if( key.startsWith("on") ) {
+                   el.addEventListener(key.slice(2).toLowerCase(), value);
+               } 
+               // 处理普通属性
+               else {
+                   el.setAttribute(key, value);
+               }
+           }
+       }
+       // 3. 处理 children 仅考虑字符串、数组
+       if (vnode.children) {
+           if (typeof vnode.children === 'string') {
+               el.textContent = vnode.children;
+           }
+           else {
+               vnode.children.forEach(item => {
+                   mount(item, el);
+               })	
+           }
+       }
+       //
+       container.appendChild(el)
+   }
+   ````
+
+3. patch
+
+    ```js
+    const patch = (n1, n2) => {
+        if (n1.tag !== n2.tag) {
+            const n1ElParent = n1.el.parentElement;
+            n1ElParent.removeChild(n1.el);
+            mount(n2, n1ElParent);
+        }
+        // 若类型相同
+        else {
+        	const el = n2.el = n1.el;
+            // 2 处理props
+            const oldProps = n1.props || {}
+            const newProps = n2.props || {}
+            // 2.1 
+          	for (const key in newProps) {
+                const oldValue = oldProps[key];
+                const newValue = newProps[key];
+                if (newValue !== oldValue) {
+                   if( key.startsWith("on") ) {
+                    	el.addEventListener(key.slice(2).toLowerCase(), newValue);
+                    } 
+                    // 处理普通属性
+                    else {
+                        el.setAttribute(key, newValue);
+                    }
+                }
+            }
+            // 2.2 删除旧的props
+            for (const key in oldProps) {
+                // 若不存在
+                if (!(key in newProps)) {
+                    if( key.startsWith("on") ) {
+                      	// 移除事件需要value
+                    	el.removeEventListener(key.slice(2).toLowerCase(), newValue);
+                    } 
+                    // 处理普通属性
+                    else {
+                        el.removeAttribute(key);
+                    }
+                }
+            }
+            // 处理children
+            const oldChildren = n1.children || [];
+            const newCildren = n2.children || [];
+            # 我们不考虑对象，太复杂
+            if (typeof newChildren === 'string') {
+                el.innerHTML = newChildren;
+            }
+            // 数组
+            else {
+                if (typeof oldChildren === 'string') {
+                    el.innerHTML = '';
+                    newChildren.forEach(item => {
+                       mount(item, el) 
+                    });
+                }
+                else {
+                    const cmmonLength = Math.min(oldChildren.length, newCildren.length);
+                	// 相同节点patch操作
+                    for (let i = 0; i< cmmonLength; i++) {
+                        patch(oldChildren[i], newChildren[i])
+                    }
+                    // 若 new > lod
+                    if (newCildren.length > oldChildren.length) {
+                        newCildren.slice(oldChildren.length).forEach(item => {
+                           mount(item, el); 
+                        });
+                    }
+                    // 若 new < old
+                    if (newCildren.length < oldChildren.length) {
+                        oldChildren.slice(newCildren.length).forEach(item => {
+                            el.removeChild(item.el);
+                        })
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+####    02 可响应实现
+
+````js
+class Dep {
+    constructor() {
+        this.subscribers = new Set(); // 集合
+    }
+    depend() {
+        # activeEffect的意义
+        if (activeEffect) {
+            this.subscribers.add(activeEffect)
+        }
+    }
+    notify() {
+        this.subscribers.forEach(effect => {
+            effect();
+        })
+    }
+}
+let activeEffect = null;
+const dep = new Dep();
+function watchEffect(effect) {
+    activeEffect = effect;
+    dep.depend();
+    activeEffect null;
+}
+
+const info = { counter: 0, count: 0 }
+watchEffect(function() {
+    console.log(info.counter++);
+})
+
+````
+
+- 优化： 按理 不同的属性应该有不同的依赖
+
+  ````js
+  // 数据改变，dep触发notify
+  info.counter++; dep['counter'].notify();
+  // 按理来说
+  info.count++; dep['info'].notify();
+  
+  # 依赖不应该随便收集, 应该有不同的收集方式
+  dep1(info.counter) subscribers
+  dep2(info.name) subscribers
+  dep3(foo.height) subscribers
+  # 我们应该有数据结构管理
+  const targetMap = new Map();
+  targetMap['info'] = new Map(info); // 其中保存其所有 info相关的订阅者
+  info这个Map的子属性再各自收集 subscribe 这里可以独立触发依赖
+  ````
+
+- 实现如上优化
+
+  1. 我们必须实现数据劫持，才可以实现依赖收集. 
+
+     以 vue2的实现为例
+
+     - 劫持数据以实现自动的收集依赖
+     - 数据劫持也实现了自动的 notify
+     - 使用targetMap去管理deps以实现我们预期。
+
+     ```js
+     // 用weakmap 
+     /*
+     	Map其key是字符串
+     	WeakMap其key是一个对象，其引用是弱引用，
+     		目的是更好的销毁， weakMap存变量保证其内部属性也会被销毁
+     */
+     const targetMap = new WeakMap();
+     
+     function getDep(target, key) {
+         let depsMap = targetMap.get(target)
+         // 1. 若不存在
+         if (!depsMap) {
+             depsMap = new Map();
+             targetMap.set(target, depsMap);
+         }
+         // 2. 取出具体dep对象
+         let dep = depsMap.get(target);
+         if (!dep) {
+             dep = new Dep();
+             depsMap.set(key, dep);
+         }
+         return dep;
+     }
+     
+     function reactive(raw) {
+         Object.keys(raw).forEach(key => {
+           const dep = new Dep();
+           let value = raw[key];
+           Object.defineProperty(raw, key, {
+               get() {
+                   dep.depend();
+               },
+               set(newValue) {
+                   if (value !== newValue) {
+                     value = newValue;
+                   	dep.notify();
+                   }
+               }
+           })  
+         })
+        	return raw; 
+     }
+     const info = reactive({counter: 100});
+     info.counter = 100;
+     ```
+
+  2. vue3的实现-`Proxy`
+
+     - defineProperty劫持对象的属性，若新增属性需要再次调用。
+
+       而Proxy`劫持的是整个对象`，不需要特殊处理👍
+
+     - 使用defineProperty修改原来的对象，修改原有的obj会触发拦截
+
+       而使用proxy，必须修改代理对象（Proxy）才会触发拦截。故往往你需要再对原对象处理。
+
+     - 观察的类型Proxy更多【不止劫持set、get】
+
+       1. has
+
+           在使用in的时候 has的操作符， 可劫持has
+
+       2. deleteProperty
+
+          delete操作， 可劫持has
+
+     ```js
+     function reactive(raw) {
+         return Proxy(raw, {
+             get(target, key, receiver) {
+                 const dep = getDep(target, key);
+                 dep.depend();
+                 // return Reflect(target, key);
+                 // 由于是代理对象 故不会导致死循环依赖 即死循环触发其get
+                 return target[key];
+             },
+             set(target, key, newValue) {
+             	const dep = getDep(target, key);
+                 target[key] = newValue;
+                 dep.notify();
+             }
+         });
+     }
+     ```
+
+#### 03|createApp
+
+````js
+function createApp(rootComponent) {
+    return {
+        mount(selector) {
+        	const container = document.querySelector(selector);
+            let isMounted = false;
+            let oldVNode;
+            // mount
+             watchEffect(function() {
+                if (!isMounted) {
+                    oldVNode = oldmount(rootComponent.render());
+                    mount(oldVNode, container)
+                    isMounted = true
+                }
+                else {
+                    const newVNode = rootComponent.render();
+                    patch(oldVNode, newVNode)
+                    oldVNode = newVNode;
+                }
+             })
+            
+        }
+    }
+}
+````
+
+#### 04 跟着老师探究路线
+
+第二十节视频， 具体源码略，不想看。
+
+> npm管理 => package.json查看【scripts】
+>
+> - 老师推荐插件 => 使用bookmarks阅读源码
+>
+>   crtl + 
+
+````js
+1. 下载vue源码
+2. 在 packages/vue/example创建文件夹demo/index.html 引入‘../../dist/vue.global.js’
+3. 请使用以下代码编写
+
+<template id="my-app">
+    <div>
+    	{{msg}}
+		<button @click="change"
+		
+# 来试试setup也可以！
+const App = {
+    template: '#my-app',
+    data() {
+        return {
+            msg: ''
+        }
+    },
+    methods: {
+        change() {
+            this.msg = '1000'
+        }
+    }
+}
+# 起源
+const app = Vue.createApp(App)
+app.mount('#app');
+````
+
+1. createApp
+
+   - runtime-dom中的index.ts
+
+   - ensureRenderer => 
+
+     createRenderer
+
+     runtime-core/render.ts文件 baseCreateRenderer 进入庞大的渲染器函数、
+
+     ````js
+     // 返回一个渲染器对象，其中包含createApp
+     return {
+         render,
+         hydrate,
+         // ⭐ 
+         createApp: createAppAPI(render, hydrate)
+     }
+     ````
+
+#### 05 模板更新
+
+由源码可知。
+
+- h函数本质便是创建createVNode, 进行 patchElement => 生成真实DOM
+
+- with语法
+
+```js
+const info = { name: 'me' }
+with(info) {
+    # 便可以自动获取到name， 使用with的好处
+    console.log(name)
+}
+```
+
+render函数
+
+```js
+// 作用域提升_1
+const _hoisted_1 
+const _hoisted_2
+return function render(_ctx, _cache) {
+    with(_ctx) {
+        return (openBlock(), _createBlock(_Fragement, null), [
+            _hoisted_1,
+            _hoisted_2,
+            _createdVNode(...),
+            _createdVNode(...)
+        ], 64)
+    }
+}
+```
+
+1. 何时执行 render函数?
+
+   初次挂载时会触发。
+
+   vue中更新是组件级别的，一旦data数据变化，整个组件重新渲染便会触发 => renderComponentRoot
+
+2. 为什么 _hoisted_1、_hoisted_2是放在 render 函数外部的
+
+   因为 hoisted_1、hoisted_2可能是不变的。render更新不代表两个静态节点变化。故作用域提升。
+
+3. 存在静态节点，即那些肯定不会变化的节点。但diff时候如何区分静、动节点呢？
+
+   ⭐ openBlock方法 => blockTree
+
+   render执行时， 执行openBlock
+
+   - 创建数组、有可能修改的节点，放入此数组中，此数组中包含可能会改变的VNode
+   - 进行diff算法的时候会比较此dynamci数组的算法 => 此处代码在vnode中
+
+#### 06 生命周期
+
+created、beforeCreated是直接调用的，与其他生命周期是不同的。
+
+beforeCreated 是调用组件之前吗？不准确，只能说顺口。
+
+1. 如何保证子组件也挂载的时候，组件再去触发created？
+
+#### 07 setup、data()同时存在
+
+setup生效.
+
+此时的proxy为
+
+````js
+ctx、setupState、data、props...
+````
+
+- ctx
+
+  computed（计算属性）放置于 ctx中
+
+  methods也放置于ctx中
+
+- setupState
+
+  获取setup的返回值结果。
+
+- data、props顾名思义
+
+而 setup的优先级更高的原因：
+
+- template使用数据的优先级的问题
+- template使用的数据，并非是setup覆盖了data， 他们其实是共存的。只不过是优先级的问题。
 
