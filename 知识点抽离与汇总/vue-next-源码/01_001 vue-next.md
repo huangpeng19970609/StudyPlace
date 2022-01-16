@@ -142,11 +142,6 @@ vue文件中 对export default 的外部声明的变量是如何处理的?
   }
   ````
 
-  
-
-#### 2 proxy
-
-
 
 ### 基本语法
 
@@ -557,13 +552,12 @@ mixins: [
        const { setup } = Component;
        // 兼容性处理 f=> data()
        if (setUp) {
-           
        }
    }
    ````
-
    
-
+   
+   
 2. setUp不会主动的帮你响应式
 
 3. 那你可以使用setUp的返回值去替代大部分选项
@@ -655,8 +649,6 @@ setup() {
 }
 
 ```
-
-
 
 #### 02 Reactive API
 
@@ -2169,4 +2161,61 @@ ctx、setupState、data、props...
 
 - template使用数据的优先级的问题
 - template使用的数据，并非是setup覆盖了data， 他们其实是共存的。只不过是优先级的问题。
+
+### 项目感悟
+
+> 以coderwhy老师出现的项目代码作为感触，总结代码中出现的新的含义，进而打开Vue3的大门。
+>
+> 见其知义即可。
+
+1. 手动导入element-plus组件
+
+2. 全局注册
+
+   ````js
+   // 只是interface
+   import { App } from 'vue' 
+   
+   app: App
+   app.config.globalProperties
+   ````
+
+3. import type
+
+   此处已在ts讲解中展开了
+
+   ```js
+   import type { RouteRecordRaw } from 'vue-router'
+   ```
+
+4. vue-router与vuex
+
+   vue-router的使用出现了略微的不同，请参考.感触vue-next的带来的改变。
+
+   vue-router-next版本  https://next.router.vuejs.org/zh/
+
+   vuex-next版本 https://next.vuex.vuejs.org/zh/
+
+   注：vue-x的其实并没有太大的改变，仅是支持了ts【TypeScript支持】
+
+   https://next.vuex.vuejs.org/zh/guide/typescript-support.html#usestore-%E7%BB%84%E5%90%88%E5%BC%8F%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%A3%B0%E6%98%8E
+
+5. defineComponent
+
+   vue总是会导入 defineComponent
+   
+   - 返回的值具有一个合成类型的构造函数，用于手动渲染函数、 TSX 和 IDE 工具支持
+   - 给与组件正确的参数类型推断
+   
+   ````js
+   import { defineComponent, computed } from 'vue';
+   export default defineComponent({...})
+   ````
+   
+   1. 本质：   {} 就变成了 defineComponent 的参数，故可进行类型的推导。
+   2. 更加详细的解释： https://juejin.cn/post/6994617648596123679
+   
+   
+   
+   
 
