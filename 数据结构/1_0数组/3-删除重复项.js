@@ -3,15 +3,15 @@
     不需要考虑数组中超出新长度后面的元素。
     nums = [0,0,1,1,1,2,2,3,3,4] => nums = [0,1,2,3,4,]
 */
-var removeDuplicates = function(nums) {
-    if (nums.length <= 1) return nums.length;
-    let j = 1;
-    for (let i = 0; i <= nums.length ; i++) {
-        if (nums[i + 1] > nums[i]) {
-            nums[j] = nums[i + 1]
-            j++;
-        }
+var removeDuplicates = function (nums) {
+  if (nums.length <= 1) return nums.length;
+  let j = 1;
+  for (let i = 0; i <= nums.length; i++) {
+    if (nums[i + 1] > nums[i]) {
+      nums[j] = nums[i + 1];
+      j++;
     }
-    return j;
+  }
+  return j;
 };
-let arr = [1, 2, 3, 4, 4, 4, 5, 5]
+let arr = [1, 2, 3, 4, 4, 4, 5, 5];
