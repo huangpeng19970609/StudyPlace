@@ -1,8 +1,87 @@
-> https://zhuanlan.zhihu.com/p/58428287
+> https://zhuanlan.zhihu.com/p/58428287\
+
+
+
+## 阮一峰
+
+Promise 是异步编程的一种解决方案。
+
+> 你应该注意的信息
+
+### 1、promise
+
+- promise的状态一旦更改，就不会就不会改变
+- 对象的状态不受外界影响
+- promise一旦新建无法中止。
+
+`Promise`对象是一个构造函数
+
+或许你可以将 resolved 叫做为 fullfilled， 但也应该记住 pending、fulfilled、rejected
+
+### 2 一些细节
+
+- 调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行
+
+  故 建议你 
+
+  宏任务执行完毕，再微任务
+
+  ```js
+  new Promise((resolve, reject) => {
+    # return resolve(2)
+    resolve(2);
+    console.log(1);
+  }).then(r => {
+    console.log(r);
+  });
+  ```
+
+- promise的`链式调用`
+
+- promise的`catch`
+
+  我们总是建议使用catch，
+
+  1.  因为catch不仅仅可捕获到  promise的状态为 【rejected】，
+
+     更是可以 捕获到 其then方法中的【运行错误】
+
+  2. Promise 对象抛出的错误不会传递到外层代码， 即不会阻碍外部代码的正常执行。这相当于自带了try...catch
+
+- Promise.`all`
+
+  Promise.all的参数不一定是 promise 的数组。它可以是任何一个对象，但这个对象的的迭代器生成函数的结果必须每一项都是 promise实例。
+
+  1. 任何一项变成了 rejected， 其promise若有catch则优先此catch回调，否非 走 Promise.all的catch回调。
+  2. 全部变成了 fullfiled， 其才会fufilled， 并调用then
+
+- Promise.`race `与 Promise.`any`
+
+  race 与 any 类似于Promise.all
+
+  1. race 讲就是的 谁率先改变状态（无论是rejected还是resolved）
+
+  2. any 讲究的是 任意一个fulfilled， 就执行回调then
+
+     但要注意的是 既然any遵守这种规则，就代表Promise.any必须所有promise变为 rejected 才会rejected
+
+- `Promise.resolve`
+
+  1. Promise实例
+
+  2. thenable对象
+
+     若其期待then函数，其then函数携带回调函数，那么率先执行 此 then函数。
+
+     若其对应的回调函数（第一个回调函数）执行，则 状态对应变更。
+
+  3. 非 thenable对象、非对象、不携带参数
+
+     立刻变为 resolved
+
+  此外 Proemise.rejected立刻返回一个状态值 为 rejected的函数
 
 ## 手动实现一个Promise
-
-
 
 ### 01 | 功能实现
 
