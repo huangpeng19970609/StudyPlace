@@ -712,3 +712,6 @@ export function computed<T>(
 }
 ````
 
+## diff
+
+https://segmentfault.com/a/1190000038654183
