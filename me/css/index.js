@@ -1,7 +1,10 @@
-let arrayLike = { length: 2, 0: 'a', 1: 'b' };
-
-
-// 正确
-for (let x of Array.from(arrayLike)) {
-  console.log(x);
+class a {
+  constructor() {
+    this.state = 111;
+  }
+  qwer = 1000;
+  change() {
+    console.log(this);
+  }
 }
+console.log(new a());

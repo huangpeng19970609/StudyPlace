@@ -1,16 +1,6 @@
->code => Preference => user snippests 创建专属于你的用户片段
->
->你可以借助 snippet-generator.app此网站来进行快速生成json示范帮助你来生成。
->
->react准则: 
->
->1. all in js
->
->一个插件推荐
->
->1. React Snippets
+react准则： all in js
 
-### *  初次认识
+### 初次认识
 
 1. react.js：React核心库。
 
@@ -29,17 +19,11 @@
 </script>
 ````
 
-> 关于虚拟Dom
->
-> 虚拟dom属性相对于原生属性极少，因为虚拟dom由react使用，不关心无关样式、属性。
->
-> 不过虚拟dom依旧会转为 dom
+###  jsx规则
 
-### *  jsx规则
+JavaScripteXtension 拓展，但又像xml 故也称jsxml 即 使用  js 表示 html
 
-> JavaScripteXtension 拓展，但又像xml 故也称jsxml 用js表述我们的html
->
-> 你不需要学习任何模块语法 => 如 v-for,  v-html这类 。
+和 vue相比， 你不需要学习任何模块语法 => 如 v-for,  v-html这类 。
 
 ####  0 jsx
 
@@ -61,7 +45,7 @@ React.render(message, document.getElementBy("app"))
 
 
 
-#### 1 jsx绑定属性
+#### 01 | jsx绑定属性
 
 - 样式类名 应使用 clasName 而不是 class
 
@@ -82,87 +66,82 @@ React.render(message, document.getElementBy("app"))
   const d = <img src={formatSrc(this.state.url)}></img>
   ````
 
-#### 2 遍历
+#### 02 | jsx中的小细节
 
-- 遍历
+循环
 
-  1. react中的 {} 内仅可写 表达式，初次之外可以写数组，会自动遍历
-  2. 但 {obj} 这种形式是不可的、
-
-  ```jsx
-  
-  
-  render() {
-      const arr = [];
-      // let xx in x 是取 key
-      for(let movice of movices) {
-          arr.push(movice);
-      }
-      return (
-          # 方式一
-      	<ul>
-          	{
-                 arr.map((item, index) => <li key={index}>{item}</li>)
-              }
-          </ul>
-          # 方式二
-          <ul>
-      		{this.state.movices.map((item, index) => <li key={index}>{item}</li>)}
-  		</ul>
-      )
-  }
-  ```
-
-  
-
-  jsx中的注释
-
-  ```js
-  render() {
-      return (
-      	{/* 我是注释 */}
-      )
-  }
-  ```
-
-  jsx嵌入数据注意事项
-
-  1. 这三种值不显示
-
-     ```jsx
-     <h2>
-     	{null}
-         {undefined}
-         {false}
-     </h2>
-     ```
-
-  2. 对象不可作为jsx子类
-
-     ```jsx
-     <h2>
-     	{obj}
-     </h2>
-     ```
-
-  3. jsx中的{} 不仅只放变量，也可放表达式
-
-     - 运算符表达式
-     - 三元表达式
-     - 函数调用
-
-     ```jsx
-     const { name } = this.state;
-     return (
-     	<div>
-         	{ name * 50 }
-             { this.getName() }
-         </div>
-     )
-     ```
+```jsx
 
 
-#### 3 state（数据）
+render() {
+    const arr = [];
+    // let xx in x 是取 key
+    for(let movice of movices) {
+        arr.push(movice);
+    }
+    return (
+        # 方式一
+    	<ul>
+        	{
+               arr.map((item, index) => <li key={index}>{item}</li>)
+            }
+        </ul>
+        # 方式二
+        <ul>
+    		{this.state.movices.map((item, index) => <li key={index}>{item}</li>)}
+		</ul>
+    )
+}
+```
+
+jsx中的注释
+
+```js
+render() {
+    return (
+    	{/* 我是注释 */}
+    )
+}
+```
+
+jsx嵌入数据注意事项
+
+1. 这三种值不显示
+
+   ```jsx
+   <h2>
+   	{ null }
+       { undefined }
+       { false }
+   </h2>
+   ```
+
+2. 对象不可作为jsx子类
+
+   ```jsx
+   <h2>
+   	{obj}
+   </h2>
+   ```
+
+3. jsx中的{} 不仅只放变量，也可放表达式
+
+   - 运算符表达式
+   - 三元表达式
+   - 函数调用
+
+   ```jsx
+   const { name } = this.state;
+   return (
+   	<div>
+       	{ name * 50 }
+           { this.getName() }
+       </div>
+   )
+   ```
+
+
+#### 03 | state（数据）
 
 >  若我们想要使用 state => 则是类组件
 >
@@ -198,31 +177,33 @@ React.render(message, document.getElementBy("app"))
   
 - setState
 
-  1. this.setState 是 合并操作， 不过将state所有属性覆盖
+  1. this.setState 是 合并操作， 不会将state所有属性覆盖
 
-  2. 每次调用 setState 都会重新执行一次 render函数！
+  2. 每次调用 setState 都会重新执行一次 render函数。
 
-      当然render会在初始化时也执行一次
+      但不是充分条件，因为  render 会在初始化时可以自己执行一次。
       
   3. setState方法来自于React.Component父类的继承
   
-  ```js
-  change = () => {
-      this.setState (
-      	{
-              isHot: true
-          }
-      )
-  }
-  ```
+      ````js
+      change = () => {
+          this.setState (
+          	{
+                  isHot: true
+              }
+          )
+      }
+      ````
+  
 
-> 总结
->
-> state  应该使用赋值的方式最简单也是最合适
+#### 04 | 事件
 
-#### 4 事件
+##### 事件方法的进化
 
-##### 1 事件方法的进化
+进化的目的
+
+> 1. 遵循this的规则，让this指向我们的预期， 解决【隐形丢失】的问题。
+> 2. 使用箭头函数， 避免【隐形丢失】
 
 1. 如何访问 实例组件对象, 第一个演示，不要这么写！虽然他可以符合预期。
 
@@ -232,7 +213,8 @@ React.render(message, document.getElementBy("app"))
 
    - 当然真实开发这并不这么写，但我们在此处特地强调。
 
-   - onClick 并不会帮你默认绑定this， 而是 change.apply(undefined)
+     onClick 并不会帮你默认绑定this， 而是 change.apply(undefined)
+
 
    ```js
    #1
@@ -248,27 +230,42 @@ React.render(message, document.getElementBy("app"))
            that = this;
        }
        render() {
-           return <h1 onClick="{change}">{this.state.isHot}</h1>
-   
+           return <h1 onClick= {change} >{this.state.isHot}</h1>
        }
    }
    ```
 
-2. 这是一个错误的示范
+2. 这是一个错误
 
    ```js
    class xxx {
        render() {
-           return <h1 onClick="{this.change}">{this.state.isHot}</h1>
+           return <h1 onClick={ this.change }>{this.state.isHot}</h1>
        }
        # 那如此
        change() { console.log(this) }
    }
    # 但此时 你会发现 this 的指向 为 undefined
    原因:	
-   onClick = this.change, 此外react处理的时候绑定此函数this的也是undefined
-   再次点击 相当于 change 调用, 故this指向不对。 可视作this的默认绑定形式
+   	onClick = this.change, 此外react处理的时候绑定此函数this的也是undefined
+   	再次点击 相当于 change 调用, 故this指向不对。 可视作this的默认绑定形式
    ```
+
+   - 为什么会产生这个错误
+
+     因为 React的调用位置，是独立调用函数的
+
+     ```js
+     render() {
+        return React.createElement(
+         "a", 
+         # 此处的 onClick 最终会 经过赋值操作, 产生所谓的【隐形丢失】
+         # 此处 是与【事件合成】有关系的！
+         { onClick: this.handleClick}, 
+         "click me"
+         );
+     }
+     ```
 
 3. 如何访问 实例组件对象 
 
@@ -283,24 +280,24 @@ React.render(message, document.getElementBy("app"))
            this.change = this.change.bind(this);
        }
        render() {
-           return <h1 onClick="{this.change}">{this.state.isHot}</h1>
+           return <h1 onClick={ this.change }>{this.state.isHot}</h1>
        }
        change() { console.log(this) }
    }
    
-   # 不建议如此做, 方法多次调用时候多次冗余bind的调用,过于愚蠢。
+   # 不建议如此做, 方法多次调用时候，多次冗余bind的调用,过于愚蠢。
    class App extends React.Component{
        constructor() { 
        }
        render() {
            # 此时主动绑定此this也是同样效果 该this便是 App
-           return <h1 onClick="{this.change.bind(this)}">{this.state.isHot}</h1>
+           return <h1 onClick={ this.change.bind(this) }>{this.state.isHot}</h1>
        }
        change() { console.log(this) }
    }
    ````
 
-##### 2 正确示范
+#####  正确示范
 
    - 自定义方法： 使用 赋值 + 箭头函数 的形式
    - 显示绑定 固然会让this绑定失效，但不会令传参失效。
@@ -310,7 +307,7 @@ React.render(message, document.getElementBy("app"))
        // 为什么写箭头函数，因为可以让 bind\call\apply 的this绑定失效
        render() {
            # 此时主动绑定此this也是同样效果 该this便是 App
-           return <h1 onClick="{e => {this.change(item, index, e)}}">{this.state.isHot}</h1>
+           return <h1 onClick={e => {this.change(item, index, e)}}>{this.state.isHot}</h1>
        }
        change = (item, index, e) => {
            this.setState({});
@@ -318,7 +315,9 @@ React.render(message, document.getElementBy("app"))
    }
    ````
 
-##### 3 事件委托
+#####  事件委托
+
+你可以这样写，反正会帮你优化。
 
 ```jsx
 return (
@@ -339,9 +338,7 @@ liClick = ((item, e) => {
 });
 ```
 
-
-
-##### 4 event对象
+##### event对象
 
 > 使用 onXxxx 属性来指定事件的函数 【注意大小写】.
 >
@@ -405,7 +402,7 @@ liClick = ((item, e) => {
   >
   >   ```js
   >   setTimeout 传入函数参数
-  >   数组的大多数方法也是高阶函数
+  >   	数组的大多数方法也是高阶函数
   >   promise也传入函数了!
   >   ```
   >
@@ -417,9 +414,8 @@ liClick = ((item, e) => {
   >   add(1)(2)(3)
   >   ```
   >   
-  >   
 
-#### 4 条件渲染
+#### 05 | 条件渲染
 
 1. js => 适用于条件逻辑比较复杂的情况
 
@@ -451,84 +447,13 @@ liClick = ((item, e) => {
 
    即使用 style属性动态切换。设置display: none
 
-#### 5 props
-
-- 传递props给与组件内部
-
-  ````js
-  ReactDom.render(<Person name="tom" age="18"/>)
-  ````
-
-- 调用
-
-  ````js
-  {this.props.name}
-  ````
-
-- 批量传递props
-
-  ```` js
-  # 相当于解构赋值， 可视作语法糖， 将 p 的属性一一赋予 props
-  <Person {...p} /> 
-  ````
-
-  1. 关于解构赋值
-
-     解构赋值可以用于函数传参
-
-     ````js
-     function hello (...numbers) {
-         numbers[0]\ numbers[1]、 numbers[2] 这种来访问
-     }
-     还比如可以如此
-     let p3 = { ...p3, name: '黄鹏'}
-     ````
-
-  2. 此处批量传递仅是语法糖，且按理 扩展语算符不可解构对象，但此处居然可以了，
-
-     - 这里使用的原因 因为 react + babel 令其可以使用 ...p 这种形式
-     - ...arr 是可以的， ...obj 是不可以的, 对于扩展预算符
-
-- props的限制
-
-  1. 初次认识 props 校验 、 默认值
-
-  ````js
-  class Person extneds React.Component {}
-  Person.propTypes = {
-      name: React.PropTypes.string // 这是 React15的版本
-  }
-  // 不过也可以如此
-  # 你首先要引入 prop-types文件来使用 => 令全局有 PropType 对象
-  Person.propTypes = {
-      name: PropTypes.string // 这是 React15的版本
-      sex: PropTypes.string.isRequired,
-      speak: PropTypes.func
-  }
-  
-  
-  #默认值
-  Person.defaultProps {
-      sex: 1,
-  }
-  ````
-
-  2. 更好的写法
-
-     ```js
-     class Person extends React.Component {
-         static propTypes: {},
-     	static defaultProps: {}
-     }
-     ```
-
-  3. 函数组件使用props
+- 3. 函数组件使用props
 
      - 首先要明确的是 函数组件是无实例产生的， 故无法通过this来访问
        1. refs 无法获取
        2. state 无法获取
        3. props借助传参可以实现
-
+  
      ````js
      function Person (props) {
          // 可以访问props
@@ -540,136 +465,7 @@ liClick = ((item, e) => {
      <Person name="18">
      ````
 
-#### 6 构造器
-
-> 1. 为什么constructor 是可有可无的, 什么时候要用？
-> 2. 关于 其中的super一定要用吗？
-
-1. constructor一定要有吗？
-
-   - 初始化 state时， 例如你要在构造器中初始化 state
-
-   - 事件函数绑定实例时 比如 
-
-     ```js
-     // 实例属性     原型属性
-     this.change = this.change.bind(this);
-     ```
-
-2. 为什么一定要先super ？
-
-   ```js
-   class Person extends React.Component {
-       constructor (props) {
-           super(props)
-       }
-   }
-   ```
-
-   - 若你想要 通过 this的实例方式来访问 props 那么你需要如此做
-
-     ```js
-     this.props.xxx
-     ```
-
-     但其实 construcor 本身接收参数便可以获得props，
-
-     故super完全可以省略。
-
-
-### * 脚手架
-
-#### 了解PWA
-
-1. PWA全称为Progressive Web App 渐进式Web应用
-2. 一个PWA 首先是一个网页， 且可以通过Web技术编写网页应用
-3. 随后加上 App Manifest 与 Service Woker实现 pwa的安装与离线
-4. 这种web存在的形式，称呼为Web App
-
-他解决了哪些问题？
-
-1. 可添加在主屏幕上 => 网页作为图标安装到 手机上
-2. 离线缓存， 即使用户无网络 也可离线使用
-3. 实现消息推送
-4. 其他 Native app的功能
-
-#### 使用
-
-1. 安装
-
-   ```js
-   npm install -g create-react-app // 不可有大写字母 
-   ```
-
-2. react项目创建时 默认有 manifest、serviceWoker
-
-   若你不需要pwa项目 你最好删除他们。
-
-3. 暴露配置文件，此命令不可逆
-
-   ```js
-   npm run eject => 
-   	1. package.json #暴露出所有react脚手架的依赖
-       2. scripts #其标签命令发生改变 => node script/start.js 暴露底层执行文件
-       3. 
-   ```
-
-4. 初始化
-
-   ```jsx
-   import React from 'react';
-   import ReactDom from 'react-dom';
-   import App from './App.js'
-   ReactDom.render(App, document.querySelector('#app') )
-   ```
-
-   注意你可以这么使用， 变得更加简洁。
-
-   ```js
-   import React, { Component } from 'react';
-   ```
-
-### * 组件开发
-
-> 是否关注 UI的展示，是否关注数据的逻辑 以此划分组件。
->
-> 1. 组件的名称开头必须是大写, jsx严格区分 标签的小写 与 组件的大写
-
-#### 函数式组件
-
-1. 无内部状态 => 故提出了hooks 支持函数式组件内支持状态
-
-```jsx
-function Person() {
-    # this 指向的是undefined, 由于React开启严格模式  “use strick”
-    “use strick” // 函数的局部式是支持开启严格模式的！
-    let count = 0;
-    return (	
-        <h2>{count}</h2>
-    )
-}
-ReactDom.render(<Person />, xxx)
-```
-
-#### 类组件
-
-1. 类组件需要继承 React.Component
-2. 类组件必须实现React
-
-```jsx
-class Person extend React.Component {
-    render() {
-        # 此时 render中的this指向为当前 组件的实例对象
-        return (
-            <div></div>
-        )
-    }
-}
-# new Person => 调用render => vdom转为 dom
-ReactDom.render(<Person />, document.querySelector('#app'))
-```
-
-####  refs
+####  06 | refs
 
 > 官方不建议使用 this.$refs的形式，因为存在效率问题，不希望 refs有过多的对象！
 
@@ -720,7 +516,7 @@ ReactDom.render(<Person />, document.querySelector('#app'))
    <input ref={this.myRef2}
    ````
 
-5. refs的种类
+4. refs的种类
 
    - 组件对象
    - HTML元素
@@ -735,6 +531,46 @@ ReactDom.render(<Person />, document.querySelector('#app'))
    但某个情况需要获取【函数组件内的某个元素】
     你可以通过 【 React.forwardRef 】
    ```
+
+### 组件概念
+
+> 是否关注 UI的展示，是否关注数据的逻辑 以此划分组件。
+>
+> 1. 组件的名称开头必须是大写, jsx严格区分 标签的小写 与 组件的大写
+
+#### 函数式组件
+
+无内部状态 => 故提出了hooks 支持函数式组件内支持状态
+
+```jsx
+function Person() {
+    # this 指向的是undefined, 由于React开启严格模式  “use strick”
+    “use strick” // 函数的局部式是支持开启严格模式的！
+    let count = 0;
+    return (	
+        <h2>{count}</h2>
+    )
+}
+ReactDom.render(<Person />, xxx)
+```
+
+#### 类组件
+
+1. 类组件需要继承 React.Component
+2. 类组件必须实现React
+
+```jsx
+class Person extend React.Component {
+    render() {
+        # 此时 render中的this指向为当前 组件的实例对象
+        return (
+            <div></div>
+        )
+    }
+}
+# new Person => 调用render => vdom转为 dom
+ReactDom.render(<Person />, document.querySelector('#app'))
+```
 
 #### 受控组件
 
@@ -795,265 +631,6 @@ handleChange(event) {
    ```
 
    
-
-### * 组件通信
-
-请参考老师的代码实现。
-
-
-
-#### 1 父=>子
-
-Main 为父组件， son 为 子组件。
-
-- 官方文档提供了一个语法糖 【属性展开】
-
-  ```jsx
-  <children {...props}></children>
-  ```
-
-1. 父 => 子 使用props传递
-
-   - name 属性 传递给 props
-
-   - 不去书写 constructor 其 子组件 render也是没有任何问题的。Component的内部实现。
-
-     1. super(props);
-
-     2. super(); 
-
-        this.props = props; 
-
-     3. super() 也可以
-
-   ````jsx
-   # 类组件示范
-   class Children() { 
-       constructor(props) {
-           //super(); this.props = props;
-           // super(props);
-           super();
-       }
-       render() {
-           const { name } = this.props;
-           return { name };
-       }
-   }
-   
-   render() {
-       return (
-       	<div>
-           	<Children name="why" age={18}/>
-           </div>
-       )
-   }
-   # 函数式组件示范
-   function Children(props) {
-       const { name } = props;
-       return { name };
-   }
-   ````
-
-   
-
-#### 2 子 => 父 
-
-itemClick属性 赋值一个函数， 从而使之在父中执行。
-
-注意 自定义事件 onClick的this指向问题,依旧是这三个规则
-
-1. onClick = { this.crement.bind(this) }
-2. increment = () => {}
-3. onClick =  {e => { this.crement() } }
-
-````jsx
-父
-constructor() {
-  super();
-  this.state = {
- 	counter: 0
-  }
-}
-render() {
-    return (
-    	<div>
-        	<button onClick = {e => this.increment()}></button>
-            <CounterButton onClick={this.increment} name=”why“></CounterButton>
-        </div>
-    )
-}
-increment = () =>{
-    // 触发这里！
-    this.setState({
-        counter: this.state.counter + 1
-    });
-}
-
-# 子 事件在 子组件，但执行的是父祖件的方法
-class CounterButton () {
-    render() {
-        const { onClick } = this.props;
-        return <button onClick="onClick"></button>
-    }
-}
-````
-
-#### 3 Context
-
-非父子组件数据的共享
-
-- React提供了一个组件共享值的方式， 不必组件树逐层传递props
-- context目的便是全局数据共享。
-
-其
-
-1. React.createContext
-   - 创建一个需要共享的Context
-   - 若组件订阅了Context， 则此组件从离最近的Provider当取当前context值
-   - defaultValue是组件在顶层查找过程中若未寻找到，则默认值
-2. Context. Provider
-   - 返回Provider React组件， 它承诺消费组件订阅context的变化
-   - Provider接受value， 传递给消费组件
-   - 一个Provider可有多个消费组件
-   - Provider的value变化，其内部消费组件重新渲染
-
-```jsx
-const UserContext  = React.createContext({
-   name: 'aaa',
-   level: 99,
-});
-# 1. 若是类组件
-class Chilldren extends Component{
-    render() {
-        // this.context 便是 【Cmp】的 Provider提供的值
-    	console.log(this.context)
-    }
-} 
-# 2. 若是函数组件， 其父组件不变
-function Chilldren extends Component {
-    return (
-    	<UserContext.Consumer>
-        {
-        	value => {
-                return {
-                    <div>
-                    	{this.context.name}
-                    </div>
-                }
-            }        
-        }
-        </UserContext.Consumer>
-    )
-}
-
-# 父组件
-export default class Cmp extends Component{
-    constructor() {
-        this.state = {
-            name: 'state',
-            level: -1
-        }
-    }
-    render() {
-        return (
-        	<div>
-            	<UserContext.Provider value={this.state}>
-                	<Chilldren></Chilldren>
-                </UserContext>
-            </div>
-        )
-    }
-}
-Chilldren.contextType = UserContext;
-```
-
-3. 若你有多个context共享
-
-   - 真实开发使用redux， 了解此处即可。
-
-   ````jsx
-   <UserContext.Provider value={this.state}>
-   	<ThemeContext.Provider value={{color: 'red'}}>
-           <Profile></Profile>
-       </ThemeContext.Provider>
-   </UserContext.Provider>
-   
-   function Profile() {
-       return (
-       	<UserContext.Consumer>
-               {
-                   value => {
-                       return (
-                       	<ThemeContext>
-                           	{
-                                   theme => {
-                                       return (
-                                       	....
-                                       )
-                                   }
-                               }
-                           </ThemeContext>
-                       )
-                   }
-               }
-           </UserContext.Consumer>
-       )
-   }
-   ````
-
-#### 4 全局事件
-
-1. 安装
-
-   ````jsx
-   yarn add events
-   ````
-
-2. 使用
-
-   ```jsx
-   import { EventEmitter } from 'events';
-   
-   const eventBus = new EventEmitter();
-   
-   render() {
-       return <button onClick={ e => this.emmitEvent()}></button>
-   }
-   
-   emmitEvent() {
-       eventBus.emit('say', 'hello!', 123)
-   }
-   
-   
-   # 事件监听
-   class ohterCmp from PureComponent {
-       // 添加监听
-       componentDidMount() {
-           eventBus.addListener('say', this.handleSayListener);
-       }
-       // 解绑监听
-       componentWillUnmount() {
-           eventBus.removeListener('say')
-       }
-       
-       handleSayListener(args) {
-           console.log(args)
-       }
-   }
-   ```
-
-   
-
-3. 
-
-#### 组件传值-数据校验
-
-```js
-import PropTypes from 'prop-types';
-ChildrenCpn.propTypes = {
-    name: PropTypes.string,
-}
-```
 
 ### * Redux
 
@@ -1323,9 +900,318 @@ class Cmp extends PureComponent {
 
 
 
+### class组件
+
+#### 01 | 组件通信
+
+请参考老师的代码实现。
+
+1. 父=>子
+
+   - 官方文档提供了一个语法糖 【属性展开】
+
+   ```jsx
+   <children {...props}></children>
+   ```
+
+   - name 属性 传递给 props
+
+     不去书写 constructor 其 子组件, render也是没有任何问题的。Component的内部实现。
+
+     1. super(props);
+
+     2. super(); 
+
+        this.props = props; 
+
+     3. super() 也可以
+
+     ````jsx
+     # 类组件示范
+     class Children() { 
+         constructor(props) {
+             //super(); this.props = props;
+             // super(props);
+             super();
+         }
+         render() {
+             const { name } = this.props;
+             return { name };
+         }
+     }
+     
+     render() {
+         return (
+         	<div>
+             	<Children name="why" age={18}/>
+             </div>
+         )
+     }
+     # 函数式组件示范
+     function Children(props) {
+         const { name } = props;
+         return { name };
+     }
+     ````
+
+2. 子 => 父 
+
+   itemClick属性 赋值一个函数， 从而使之在父中执行。
+
+   注意 自定义事件 onClick的this指向问题,依旧是这三个规则
+
+   1. onClick = { this.crement.bind(this) }
+   2. increment = () => {}
+   3. onClick =  {e => { this.crement() } }
+
+   ````jsx
+   父
+   constructor() {
+     super();
+     this.state = {
+    	counter: 0
+     }
+   }
+   render() {
+       return (
+       	<div>
+           	<button onClick = {e => this.increment()}></button>
+               <CounterButton onClick={this.increment} name=”why“></CounterButton>
+           </div>
+       )
+   }
+   increment = () =>{
+       // 触发这里！
+       this.setState({
+           counter: this.state.counter + 1
+       });
+   }
+   
+   # 子 事件在 子组件，但执行的是父祖件的方法
+   class CounterButton () {
+       render() {
+           const { onClick } = this.props;
+           return <button onClick="onClick"></button>
+       }
+   }
+   ````
+
+3. Context
+
+   非父子组件数据的共享
+
+   - React提供了一个组件共享值的方式， 不必组件树逐层传递props
+   - context目的便是全局数据共享。
+
+   其
+
+   1. React.createContext
+
+      - 创建一个需要共享的Context
+      - 若组件订阅了Context， 则此组件从离最近的Provider当取当前context值
+      - defaultValue是组件在顶层查找过程中若未寻找到，则默认值
+
+   2. Context. Provider
+
+      - 返回Provider React组件， 它承诺消费组件订阅context的变化
+      - Provider接受value， 传递给消费组件
+      - 一个Provider可有多个消费组件
+      - Provider的value变化，其内部消费组件重新渲染
+
+      `````jsx
+      const UserContext  = React.createContext({
+         name: 'aaa',
+         level: 99,
+      });
+      # 1. 若是类组件
+      class Chilldren extends Component{
+          render() {
+              // this.context 便是 【Cmp】的 Provider提供的值
+          	console.log(this.context)
+          }
+      } 
+      # 2. 若是函数组件， 其父组件不变
+      function Chilldren extends Component {
+          return (
+          	<UserContext.Consumer>
+              {
+              	value => {
+                      return {
+                          <div>
+                          	{this.context.name}
+                          </div>
+                      }
+                  }        
+              }
+              </UserContext.Consumer>
+          )
+      }
+      
+      # 父组件
+      export default class Cmp extends Component{
+          constructor() {
+              this.state = {
+                  name: 'state',
+                  level: -1
+              }
+          }
+          render() {
+              return (
+              	<div>
+                  	<UserContext.Provider value={this.state}>
+                      	<Chilldren></Chilldren>
+                      </UserContext>
+                  </div>
+              )
+          }
+      }
+      Chilldren.contextType = UserContext;
+      `````
+
+   3. 若你有多个context共享
+
+      但真实开发使用redux， 了解此处即可。
+
+      ````jsx
+      <UserContext.Provider value={this.state}>
+      	<ThemeContext.Provider value={{color: 'red'}}>
+              <Profile></Profile>
+          </ThemeContext.Provider>
+      </UserContext.Provider>
+      
+      function Profile() {
+          return (
+          	<UserContext.Consumer>
+                  {
+                      value => {
+                          return (
+                          	<ThemeContext>
+                              	{
+                                      theme => {
+                                          return (
+                                          	....
+                                          )
+                                      }
+                                  }
+                              </ThemeContext>
+                          )
+                      }
+                  }
+              </UserContext.Consumer>
+          )
+      }
+      ````
+
+   4. 全局事件
+
+      1. 安装
+
+         ````jsx
+         yarn add events
+         ````
+
+      2. 使用
+
+         ```jsx
+         import { EventEmitter } from 'events';
+         
+         const eventBus = new EventEmitter();
+         
+         render() {
+             return <button onClick={ e => this.emmitEvent()}></button>
+         }
+         
+         emmitEvent() {
+             eventBus.emit('say', 'hello!', 123)
+         }
+         
+         
+         # 事件监听
+         class ohterCmp from PureComponent {
+             // 添加监听
+             componentDidMount() {
+                 eventBus.addListener('say', this.handleSayListener);
+             }
+             // 解绑监听
+             componentWillUnmount() {
+                 eventBus.removeListener('say')
+             }
+             
+             handleSayListener(args) {
+                 console.log(args)
+             }
+         }
+         ```
 
 
-### * 生命周期
+#### 02 | props
+
+- 传递props给与组件内部
+
+  ````js
+  ReactDom.render(<Person name="tom" age="18"/>)
+  ````
+
+- 调用
+
+  ````js
+  { this.props.name }
+  ````
+
+- 批量传递props
+
+  ```` js
+  # 相当于解构赋值， 可视作语法糖， 将 p 的属性一一赋予 props
+  <Person {...p} /> 
+  ````
+
+  此处批量传递仅是语法糖
+
+  - 这里使用的原因 因为 react + babel 令其可以使用 ...p 这种形式
+  - ...arr 是可以的， ...obj 是不可以的, 对于扩展预算符
+
+- props的限制
+
+  1. 初次认识 props 校验 、 默认值
+
+  ````js
+  class Person extneds React.Component {}
+  Person.propTypes = {
+      name: React.PropTypes.string // 这是 React15的版本
+  }
+  // 不过也可以如此
+  # 你首先要引入 prop-types文件来使用 => 令全局有 PropType 对象
+  Person.propTypes = {
+      name: PropTypes.string // 这是 React15的版本
+      sex: PropTypes.string.isRequired,
+      speak: PropTypes.func
+  }
+  
+  #默认值
+  Person.defaultProps {
+      sex: 1,
+  }
+  ````
+
+  2. 更好的写法
+
+     ```js
+     class Person extends React.Component {
+         static propTypes: {},
+     	static defaultProps: {}
+     }
+     ```
+
+- 校验props
+
+  ```js
+  import PropTypes from 'prop-types';
+  ChildrenCpn.propTypes = {
+      name: PropTypes.string,
+  }
+  ```
+
+#### 03 | 生命周期
 
 > 例子 
 >
@@ -1367,7 +1253,7 @@ render() {} 是一种简写语法， 其
 
 2. 而比如 onClick = 'change' 其函数不通过实例调用，会导致丢失。故必须要使用箭头函数的形式才可以解决此问题！
 
-####  Mounting
+##### Mounting
 
 1. construcor
 
@@ -1419,9 +1305,10 @@ render() {} 是一种简写语法， 其
 
      组件将要挂载回调函数
 
-#### Updating
+##### Updating
 
 1. render
+
    - New Props触发
    - setState时触发
    - foreceUpdate时触发、
@@ -1447,7 +1334,7 @@ render() {} 是一种简写语法， 其
 
    警告： 初次无效！接收的是 空， 第二次才会真正接收到props
 
-#### Unmounting
+##### Unmounting
 
 1. componentWillUnMount
 
@@ -1457,7 +1344,7 @@ render() {} 是一种简写语法， 其
    - 清理timer
    - 取消网络请求
 
-#### 不常用的
+##### 不常用的
 
 1. getDerivedStateFromProps
 
@@ -1471,7 +1358,288 @@ render() {} 是一种简写语法， 其
 
    类似于 beforeUpdated
 
-### * 其他
+
+
+##### 04 | 构造器
+
+> 为什么constructor 是可有可无的, 什么时候要用？
+>
+> 关于 其中的super一定要用吗？
+
+1. constructor一定要有吗？
+
+   - 初始化 state时， 例如你要在构造器中初始化 state
+
+   - 事件函数绑定实例时 比如 
+
+     ```js
+     // 实例属性     原型属性
+     this.change = this.change.bind(this);
+     ```
+
+2. 为什么一定要先super ？
+
+   ```js
+   class Person extends React.Component {
+       constructor (props) {
+           super(props)
+       }
+   }
+   ```
+
+   - 若你想要 通过 this的实例方式来访问 props 那么你需要如此做
+
+     ```js
+     this.props.xxx
+     ```
+
+     但其实 construcor 本身接收参数便可以获得props，
+
+     故super完全可以省略。
+
+---
+
+### *函数组件
+
+#### 01 | **React Hooks**
+
+Hook意为钩子。
+
+- 组件应总是纯函数。需要外部功能与副作用，应用钩子把【外部代码】 hooks进来
+
+- 钩子总是用 【use】作为前缀
+
+  比如React默认提供了一些钩子
+
+  useState、useContext、useReducer、useEffect
+
+##### useState 状态钩子
+
+纯函数不能有状态， 现在我们有了 【状态钩子】——useState可以帮我们表示 函数组件的状态
+
+````jsx
+import React, { useState } from 'react';
+export default function Button() {
+    const [ buttonText, setButtonText ] = useState("Click me,   please");
+    
+    return (<button 
+              onClick={ ()=>setButtonText('clicked') }> }
+            { buttonText }
+        	</button>)
+}
+````
+
+- useState具有的功能
+  1.  接受一个参数作为初始化的值
+  2.  返回一个 数组， 第一个值作为状态， 第二个值为一个函数， 用于修改状态
+  3. setXXX 会触发重新渲染
+
+##### useContext 共享状态钩子
+
+组件之间共享状态的时候，你需要使用 这个hooks
+
+- 注册 Context
+
+  ````jsx
+  const AppContext = React.createContext({});
+  
+  return (
+      #  AppContext.Provider 提供了 Context对象, 此对象可被 子组件共享
+      <AppContext.Provider value={{
+        username: 'superawesome'
+      }}>
+        <div className="App">
+          <Navbar/>
+          <Messages/>
+        </div>
+      </AppContext.Provider>
+  )
+  ````
+
+- 子组件获取数据
+
+  ````jsx
+  import { useContext } from 'react';
+  const Message = () => {
+      const { username } = useContext();
+      return (
+      	<div>
+            <p> {username}</p>
+          </div>
+      )
+  }
+  ````
+
+##### useReducer() action 钩子
+
+React并不提供状态管理功能，通常我们的选择是借助外部库， 比如Redux
+
+- Redux
+
+  1. 组件发出 【action】与 【状态管理器】通信
+
+  2. 【状态管理器】收到后，使用【Reducer函数】计算新的状态值
+
+     ````js
+     # Reducer
+     ( state, action ) => newState 
+     ````
+
+- 引入 Reducer
+
+  接受 Reducer 函数和状态的初始值作为参数, 并返回一个数组
+
+  返回的数组，其第二个成员是发送 action的dispatch 函数
+
+  ```js
+  const [state, dispatch] = useReducer(reducer, initialState);
+  ```
+
+- 来看一个例子吧！
+
+  1. redux
+
+     ````js
+     const myReducer = (state, action) => {
+         switch (action, type ) {
+         	case 'countUp': 
+                 return {
+                     ...state,
+                     count: state.count + 1;
+                 }
+             default:
+                 return state;
+         }
+     }
+     ````
+
+  2. 使用 【useReducer】
+
+     ````jsx
+     function App() {
+         const [ state, dispatch ] = useReducer(myReducer, { count: 0 })
+         return (
+         	<div className="App">
+               <button onClick={() => dispatch({ type: 'countUp' })}>
+                 +1
+               </button>
+               <p>Count: {state.count}</p>
+             </div>
+         )
+     }
+     ````
+
+##### useEffect 副作用钩子函数
+
+用来引入副作用的操作。最常见的便是【向服务器请求数据】。
+
+即class组件的【componentDidMount】生命周期所作的那些操作，现在可以用【useEffect】
+
+- useEffect
+
+  1. 第一个参数是【回调函数】
+  2. 第二个参数是 【数组】， 用于给出依赖项，一旦这个数组变化，便useEffect便会执行！
+
+  ````js
+  useEffect(()  =>  {
+    // Async Action
+  }, [dependencies])
+  ````
+
+- 一个适合使用 useEffect的场景
+
+  ````jsx
+  const Person = ({ personId }) => {
+      
+   
+    const [loading, setLoading] = useState(true);
+    const [person, setPerson] = useState({});
+  
+    useEffect(() => {
+      setLoading(true); 
+      fetch(`https://swapi.co/api/people/${personId}/`)
+        .then(response => response.json())
+        .then(data => {
+          setPerson(data);
+          setLoading(false);
+        });
+    }, [personId])
+  
+    if (loading === true) {
+      return <p>Loading ...</p>
+    }
+  
+    return <div>
+      <p>You're viewing: {person.name}</p>
+      <p>Height: {person.height}</p>
+      <p>Mass: {person.mass}</p>
+    </div>
+  }
+  ````
+
+  
+
+
+
+---
+
+### 脚手架
+
+#### 01 | 了解PWA
+
+1. PWA全称为Progressive Web App 渐进式Web应用
+2. 一个PWA 首先是一个网页， 且可以通过Web技术编写网页应用
+3. 随后加上 App Manifest 与 Service Woker实现 pwa的安装与离线
+4. 这种web存在的形式，称呼为Web App
+
+他解决了哪些问题？
+
+1. 可添加在主屏幕上 => 网页作为图标安装到 手机上
+2. 离线缓存， 即使用户无网络 也可离线使用
+3. 实现消息推送
+4. 其他 Native app的功能
+
+#### 02 | 使用
+
+1. 安装
+
+   ```js
+   npm install -g create-react-app // 不可有大写字母 
+   ```
+
+2. react项目创建时 默认有 manifest、serviceWoker
+
+   若你不需要pwa项目 你最好删除他们。
+
+3. 暴露配置文件，此命令不可逆
+
+   ```js
+   npm run eject => 
+   	1. package.json #暴露出所有react脚手架的依赖
+       2. scripts #其标签命令发生改变 => node script/start.js 暴露底层执行文件
+       3. 
+   ```
+
+4. 初始化
+
+   ```jsx
+   import React from 'react';
+   import ReactDom from 'react-dom';
+   import App from './App.js'
+   ReactDom.render(App, document.querySelector('#app') )
+   ```
+
+   注意你可以这么使用， 变得更加简洁。
+
+   ```js
+   import React, { Component } from 'react';
+   ```
+
+   
+
+
+
+### 其他
 
 #### setState
 
