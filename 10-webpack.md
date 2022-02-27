@@ -863,9 +863,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
    ]
    ```
 
-## 四 优雅开发
+## 面向开发
 
-#### 01 | source-map
+### 01 | source-map
 
 1. 为什么我们要sourceMap？
 
@@ -1076,7 +1076,7 @@ Prettier - Code formatter
 
 3. pretter 结合 eslint来使用
 
-###  vue
+###  03 | vue
 
 1. 在 index.js的入口文件引入一个vue， 并引入vue文件作为vue的入口文件。
 
@@ -1098,7 +1098,429 @@ Prettier - Code formatter
 
    ![image-20210801161320053](images/wp-47)
 
-## Babel
+### 04 | hrm
+
+- 当前
+
+  我们通常访问 打包后的 build下的index.html文件, 或通过vsCode提供的插件的 open online serve插件来打开这个文件。
+
+- 缺点
+
+  我们每次访问都会重新进行 一次 `npm run build`命令， 在我们修改源代码的时候， 这种开发模式效率很慢，我们希望寻求一种热部署的方式。
+
+- watch 与 dev 是互斥的 注意下。
+
+
+
+
+#### hrm失效
+
+1. browserslist 导致 webpack-dev-server 的自动刷新失
+
+   正常启动应该, hot失败则只有一行
+
+   ```prolog
+   [HMR] Waiting for update signal from WDS... index.js:48 
+   [WDS] Hot Module Replacement enabled.
+   [WDS] Live Reloading enabled.
+   ```
+
+   解决办法： 
+
+   ````js
+   module.exports = {
+    ...,
+    target: "web",
+    target: process.env.NODE_ENV === 'development' ? 'web' : 'browserslist'
+   }
+   ````
+
+####  watch
+
+`build: "webpack --watch" `
+
+1. 方式一
+
+   build: "webpack --watch" =>在编译模式的时候 使用watch来监听源代码的改变
+
+   当你的源码被修改后，重新编译。
+
+   浏览器会重新读入文件！
+
+2. 方式二
+
+   webpack.config.js中添加 属性 watch： true
+
+   进入 wacth模式。
+
+   浏览器会重新读入文件！
+
+3. 借助插件
+
+   open online serve插件使用一个服务来启动项目，这样好处是可以避免一些 module跨域问题， 并且位于watch模式的时候修改源代码，会实时重载 最近的index.js文件。
+
+   live-serve用于发现文件的变化的。
+
+> 缺点
+
+1. 所有的源代码都会被重新编译 => 在项目过大的时候尤其明显
+2. 编译成功后有新的文件生成 会导致 浏览器每一次都会重新写入文件。
+3. live-serve是vscode插件，我们应该保证这种没必要的开发环境。且此插件会重载所有页面，重载所有的内容。更重要的是我们希望是局部刷新。
+
+####  devServe
+
+`"serve": "webpack serve" `
+
+此时 控制会提示 ： `[WDS] Live Reloading enabled`
+
+webpack-dev-serve
+
+1. 第一步： cnpm install webpack-dev-server -D
+
+2. 第二步:   配置 你应在 package.json中添加一项选项
+
+   *"serve"*: "webpack serve" 
+
+   ```javascript
+   # 其外你也可以这样查询文档来配置
+   devServer: {
+       static: path.join(__dirname, 'dist'),
+       compress: true,
+       port: 9000
+    }
+   ```
+
+- 目前
+
+  1. 会对所有的源码进行 重新编译， 会将编译的结果放入内存当中。
+
+     每次都会生成新的文件！
+
+  2. 他会帮我们做刷新整个页面这个操作！
+
+- 番外， 其实你也可以定制你的webpack-serve的服务
+  `webpack-dev-middleware`
+
+  cnpm install webpack-dev-middleware express
+
+  详情略！
+
+#### devServe => HMR
+
+> Hot Module Replacement 即热部署, 模块热替换 
+
+- 重载部份内容， 仅更新我们需要变化的内容， 而不需要重载所有页面！
+
+- 修改css、js立会立即更新对应的内容 => 相当于修改 浏览器 devtool的工具
+
+使用要求:
+
+1. 不能为 watch mode， 即你的编译模式不应该是watch
+2. 不能使用 webpack-dev-middleware 你不能自定义服务。
+
+```js
+  devServer: {
+    hot: true,
+  },
+```
+
+效果如下
+
+1. HRM是可用的！ 					[WDS] Hot Module Replacement enabled.
+2. HRMK在 等待WDS的信号  · [HMR] Waiting for update signal from WDS...
+
+<img src="images/wp-48" alt="image-20210801230847575" style="zoom: 67%;" />
+
+注意❗
+
+你会发现这样依旧会对所有模块刷新， 浏览器刷新页面的效果。
+
+`故你需要在入口文件index.js中指定哪些模块需要热更新,`
+
+1. 如果你开启模块热更新
+2. module.hot.accept("./math2.js") 请这样设置
+
+```js
+if (module.hot) {
+  // math2.js 是热更新了！
+  module.hot.accept("./math2.js")
+  // 模块热更新成功后的回调事件， 每次更新都会回调。
+  module.hot.accept("./math.js", () => {
+    console.log("mat12321h模块发生了更新~");
+  });
+}
+```
+
+#### vue-hrm
+
+![image-20210801232351163](images/wp-49.png)
+
+#### react-hrm
+
+react的热更新略。
+
+![image-20210801232802988](images/wp-50.png)
+
+vue的HRM使用 vue-loader即可。
+
+再额外使用 插件 
+
+````js
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+````
+
+![image-20210801232830041](images/wp-51.png)
+
+#### hrm原理
+
+![image-20210801233924307](images/wp-52.png)
+
+![image-20210801233946586](images/wp-53.png)
+
+### 05 | 区分生产环境
+
+1. 方式一： 配置文件中回调函数中获取  `env.production`
+
+   ````js
+   "build": "webpack --config ./config/webpack.common.js --env production",
+   "serve": "webpack serve --config ./config/webpack.common.js --env development"
+   ````
+
+   此时你可以通过 回调函数来获取到其。
+
+   ```js
+   // common.config.js
+   let config = {...}
+   module.exports = function(env) {
+     const isProduction = env.production; // env.development 这是boolean
+   	return config;
+   };
+   ```
+
+2. 配置文件中的mode，可以决定`process.env.NODE_ENV`
+
+   js文件中都可以获取到这个常量。相当于在全局中配置了一个环境的常量， 在任何的js都可获取到的.
+
+   - 在任何源代码 访问都可以获得
+
+   ```js
+     mode: "development", // process.env.NODE_ENV === 'development'
+     mode: "production",  // process.env.NODE_ENV === 'production'
+   ```
+
+   <img src="images/wp-72.png" alt="image-20210807215726552" style="zoom:67%;" />
+
+3. 配置webpack中 babel.config.js 如何判断生产环境？
+
+   >  注意： babel.config,js， 我们访问 process.env.NODE_ENV是访问不到的，因为其不属于模块内。
+   >
+   >  故 我们应该 通过【env.production】
+
+   - babale,config.js 是babel-loader去使用的配置文件。 
+
+     而babel-loader并不会给我们添加 process.env对应的值。并不属于我们的源代码
+
+   - 故在common.config.js中， 我们需要有一种解决方案。
+
+     1. webpack中的配置文件可以通过 【配置文件中回调参数】来获取是否是开发与生产环境的问题。
+
+        我们直接在当前的node的环境中自己写入此变量。
+
+        作用： babel.cofig.js会直接从node环境变量中获取到。 
+
+     2. 变量名随便。此处相当于重新盖掉了 process.env.NODE_ENV
+
+     3. `process.env.production `不可以是字符串类型！ 
+
+        设置 node的process.env的若是 undefined会将其转为字符串。=> 导致报错，此不可是String类型
+
+        故建议是使用 process.env.NODE_ENV 更好一点点。
+
+        我们通过 字符串的内容来判断，不通过boolean来判断。
+
+   ```js
+   // common.config.js的exports回调函数
+   process.env.NODE_ENV = env.production ? "production": "development";
+   
+   // babel.config.js中
+   const isProduction = process.env.NODE_ENV === "production";
+   ```
+
+<img src="images/wp-71.png" alt="image-20210807215439630" style="zoom: 50%;" />
+
+### 06 | CDN
+
+> 方式一： 将打包后的资源直接放入CDN服务器 => 但花费高
+>
+> 方式二： 引用第三方已有的CDN
+
+![image-20210814115650550](images/image-20210814115650550.png)
+
+- 自己的CDN使用示范
+
+  ![image-20210814115823279](images/image-20210814115823279.png)
+
+- 常用的方式： 引入指定的cdn
+
+  虽然依旧需要打开的时候使用到这些包的环境， 但我们可以设置生产环境的打包不对这些元素进行打包。
+
+  1. webpack进行配置， 不进行打包
+
+     PS： 如何才能找到暴露的全局变量，只有读源码，看规律，看暴露对象来寻找。
+
+     在webpack文件进行配置
+
+     ```js
+     externals: {
+         lodasg: '_', // 值为暴露出来的全局变量
+         dayjs: 'dayjs' 
+     }
+     ```
+
+  2. 初次之外，在生产环境我们需要引入对应的包， 但是在开发环境我们再次引用不是多次一举吗？\
+
+     - 故我们可以根据 node环境来进行一处优化的处理
+     - 当然你可以在script中加上 defer="defet"
+
+     ```js
+      <!-- ejs中的if判断 -->
+       <% if (process.env.NODE_ENV === 'production') { %> 
+       	<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+       	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"	           </script>
+       <% } %> 
+     ```
+
+### 07 | shimming
+
+>  垫片，相当于给我们的代码填充一些垫片来处理一些问题
+
+- 高情商：存在隐含依赖（比如全局变量）的彼此隔离的模块 
+
+- 场景
+
+  问题所在： 引入的一个第三方库【此库本身依赖lodash】但默认并没有对loadsh进行引入
+
+  ​					这个第三方库认为你肯定引入了此库，且在全局中使用了此库。
+
+```js
+    plugins: [
+      //  当在代码中遇到某一个变量找不到时, 我们会通过ProvidePlugin, 自动导入对应的库
+        
+      // val为第三方库的名称， key为 若遇到此值无法找到，则导入对应的key
+      new webpack.ProvidePlugin({
+         axios: "axios", 
+         get: ["axios", "get"] // 遇到 【get】找不到， 调用 axios.get
+       })
+    ],
+```
+
+### 08 | 三种hash
+
+1. Hash
+
+   - 比如我们现在有两个入口index.js和main.js；
+
+     它们分别会输出到不同的bundle文件中，并且在文件名称中我们有使用hash；\
+
+   - 两个文件的名称都会发生变化
+
+2. chunkHash
+
+   `我们不希望hash另一个入口文件改变`
+
+   可以有效的解决上面的问题，它会根据不同的入口进行借来解析来生成hash值;
+
+   比如我们修改了index.js，那么main.js的chunkhash是不会发生改变的；
+
+3. contentHash
+
+   `chunkHash依赖的文件也会改变怎么办？`
+
+   - 比如我们的index.js，引入了一个style.css，style.css有被抽取到一个独立的css文件中
+
+   - 这个css文件在命名时，如果我们使用的是chunkhash.那么当index.js文件的内容发生变化时，css文件的命名也会发生变化；
+   - 这个时候我们可以使用contenthash；
+
+### DLL库 （了解）
+
+> 注： webpack4性能很好！我们没必要专门去做dll库为了打包的性能提升。
+
+1. 动态链接库
+
+   目的是 将可共享、不经常改变的、可抽取的代码抽成库。目的就是减少打包的内容。
+
+2. 步骤
+
+   - 第一步要打包一个dll库
+
+   - 第二步项目引入dll库
+
+     引入时 要有dll库， 且此时dll库也要打包进入。
+
+3. 打包dll库
+
+   打包此库，相当于一个webpack的项目， 我们进行单独的打包配置即可。
+
+```js
+const path = require('path');
+const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+
+module.exports = {
+  entry: {
+    react: ["react", "react-dom"]
+  },
+  output: {
+    path: path.resolve(__dirname, "./dll"),
+    filename: "dll_[name].js",
+    // 打包为库需要设置此处
+    library: 'dll_[name]'
+  },
+  // 关闭注释文件
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false
+      })
+    ]
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      name: "dll_[name]",
+      // 描述文件 
+      path: path.resolve(__dirname, "./dll/[name].manifest.json")
+    })
+  ]
+}
+```
+
+4. 如何在另一个文件中使用dll库？ 
+
+   虽然我们引用了，但还是需要进行安装  npm install 对应的内容。因为我们在开发的环境下。
+
+   我们目的只是不再打包react代码！跟下载react执行是两码事情。
+
+   ```js
+   import React from "react" // 此时还是通过 node_modules下找的，故需要下载！
+   ```
+
+   ![image-20210814183850109](images/image-20210814183850109.png)
+
+来看看
+
+```js
+# 复制到 build文件夹下
+# 并且 index.html自动引入
+const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin
+                                   
+图中的 context 为mainfest的上下文
+```
+
+![image-20210814184827089](images/image-20210814184827089.png)
+
+
+
+## babel
 
 > 前言
 
@@ -1164,7 +1586,9 @@ Prettier - Code formatter
   而 `babel` 是通过 对于 JS 代码的一个编译过程，进行了词法分析与语法分析的过程。
 
 - **转换** Transform
-  对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 `babel-traverse` 对其进行遍历，在此过程中进行添加、更新及移除等操作。
+  对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 `babel-traverse` 对其进行遍历，
+  
+  在此过程中进行添加、更新及移除等操作。
   
 - **生成** Generate
   将变换后的 AST 再转换为 JS 代码, 使用到的模块是 `babel-generator`。
@@ -1409,7 +1833,7 @@ rules参考
 
    这个函数其实就是依赖全局需要引入 `regenerator-runtime` 这个 polyfill 。
 
-### 6. plugin-transform-runtime
+### 6  plugin-transform-runtime
 
 > 一般情况下，@babel/plugin-transform-runtime插件不需要传入任何配置。
 >
@@ -1612,194 +2036,9 @@ tsc index.ts
 
 
 
-## 九、HMR
 
-- 当前
 
-  我们通常访问 打包后的 build下的index.html文件, 或通过vsCode提供的插件的 open online serve插件来打开这个文件。
-
-- 缺点
-
-  我们每次访问都会重新进行 一次 `npm run build`命令， 在我们修改源代码的时候， 这种开发模式效率很慢，我们希望寻求一种热部署的方式。
-
-- watch 与 dev 是互斥的 注意下。
-
-
-
-
-### 遇到的一些问题
-
-1. browserslist 导致 webpack-dev-server 的自动刷新失效[
-
-> 正常启动应该, hot失败则只有一行
->
-> ```prolog
-> [HMR] Waiting for update signal from WDS... index.js:48 
-> [WDS] Hot Module Replacement enabled.
-> [WDS] Live Reloading enabled.
-> ```
->
-> 解决办法： 
->
-> ```js
-> module.exports = {
->     ...,
->     target: "web",
->     target: process.env.NODE_ENV === 'development' ? 'web' : 'browserslist'
-> }
-> ```
-
-2. 代码分离设置多入口文件 会导致 hrm失败 => 解决办法待定。
-
-###  watch
-
-`build: "webpack --watch" `
-
-1. 方式一
-
-   build: "webpack --watch" =>在编译模式的时候 使用watch来监听源代码的改变
-
-   当你的源码被修改后，重新编译。
-
-   浏览器会重新读入文件！
-
-2. 方式二
-
-   webpack.config.js中添加 属性 watch： true
-
-   进入 wacth模式。
-
-   浏览器会重新读入文件！
-
-> 总结
-
-1. 借助open online serve插件使用一个服务来启动项目，这样好处是可以避免一些 module跨域问题， 并且位于watch模式的时候修改源代码，会实时重载 最近的index.js文件。
-
-   live-serve用于发现文件的变化的。
-
-2. 使用watch模式 => wacth来监听文件的变化的。
-
-> 缺点
-
-1. 所有的源代码都会被重新编译 => 在项目过大的时候尤其明显
-2. 编译成功后有新的文件生成 会导致 浏览器每一次都会重新写入文件。
-3. live-serve是vscode插件，我们应该保证这种没必要的开发环境。且此插件会重载所有页面，重载所有的内容。我们希望是局部刷新。
-
-###  devServe
-
-`"serve": "webpack serve" `
-
-此时 控制会提示 ： `[WDS] Live Reloading enabled`
-
-webpack-dev-serve
-
-1. 第一步： cnpm install webpack-dev-server -D
-
-2. 第二步:   配置 你应在 package.json中添加一项选项
-
-   *"serve"*: "webpack serve" 
-
-   ```javascript
-   # 其外你也可以这样查询文档来配置
-   devServer: {
-       static: path.join(__dirname, 'dist'),
-       compress: true,
-       port: 9000
-    }
-   ```
-
-- 目前
-
-  1. 会对所有的源码进行 重新编译， 会将编译的结果放入内存当中。
-
-     每次都会生成新的文件！
-
-  2. 他会帮我们做刷新整个页面这个操作！
-
-- 番外， 其实你也可以定制你的webpack-serve的服务
-  `webpack-dev-middleware`
-
-  cnpm install webpack-dev-middleware express
-
-  详情略！
-
-### devServe => HMR
-
-> Hot Module Replacement 即热部署, 模块热替换 
-
-- 重载部份内容， 仅更新我们需要变化的内容， 而不需要重载所有页面！
-
-- 修改css、js立会立即更新对应的内容 => 相当于修改 浏览器 devtool的工具
-
-使用要求:
-
-1. 不能为 watch mode， 即你的编译模式不应该是watch
-2. 不能使用 webpack-dev-middleware 你不能自定义服务。
-
-```js
-  devServer: {
-    hot: true,
-  },
-```
-
-效果如下
-
-1. HRM是可用的！ 					[WDS] Hot Module Replacement enabled.
-2. HRMK在 等待WDS的信号  · [HMR] Waiting for update signal from WDS...
-
-<img src="images/wp-48" alt="image-20210801230847575" style="zoom: 67%;" />
-
-注意❗
-
-你会发现这样依旧会对所有模块刷新， 浏览器刷新页面的效果。
-
-`故你需要在入口文件index.js中指定哪些模块需要热更新,`
-
-1. 如果你开启模块热更新
-2. module.hot.accept("./math2.js") 请这样设置
-
-```js
-if (module.hot) {
-  // math2.js 是热更新了！
-  module.hot.accept("./math2.js")
-  // 模块热更新成功后的回调事件， 每次更新都会回调。
-  module.hot.accept("./math.js", () => {
-    console.log("mat12321h模块发生了更新~");
-  });
-}
-```
-
-### react与vue的hrm
-
-![image-20210801232351163](images/wp-49.png)
-
-##### 1 react
-
-react的热更新略。
-
-![image-20210801232802988](images/wp-50.png)
-
-##### 2 vue
-
-vue的HRM使用 vue-loader即可。
-
-再额外使用 插件 
-
-````js
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-````
-
-![image-20210801232830041](images/wp-51.png)
-
-### hrm原理
-
-![image-20210801233924307](images/wp-52.png)
-
-![image-20210801233946586](images/wp-53.png)
-
-## 十、webpack的配置
-
-### 0、 其他
+##  webpack的配置
 
 1. 封装path
 
@@ -1816,7 +2055,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
    
 
-2. 不希望出现txt的注释文件可以这样配置
+2. 去除webpack默认的 txt生成文件
 
    ```js
      const TerserPlugin = require("terser-webpack-plugin");
@@ -1841,17 +2080,21 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 ---
 
-### 1、output.publicPath的作用
+### 1 output.publicPath的作用
 
-> 作用: 打包之后的静态资源前面做一个路径的拼接！
+output 属性告诉 webpack 在哪里输出它所创建的 *bundles*，以及如何命名这些文件
+
+> output.publicPath
 >
-> 看起来简单，要多实践。
+> 该配置能帮助你为项目中的所有资源指定一个基础路径，它被称为公共路径(publicPath).
+>
+> (所有资源的基础路径是指项目中引用css，js，img等资源时候的一个基础路径)
 
-像 script的src、css的src或图片这类等等的引入，其 由 `output.publickPath + 文件名`组成
+具体形式要看我们的打开方式， 是file形式还是serve形式 
 
-具体形式要看我们的打开方式， 是file形式还是serve形式 => 这也跟为什么我们总是通过服务器启动项目的根本原理有关系，此处不累述。请注意这种区别带来的差别。
+这也跟为什么我们总是通过服务器启动项目的根本原理有关系，此处不累述。请注意这种区别带来的差别。
 
-1. output.publicPath的默认值是一个空字符串
+1. output.publicPath的默认值是一个空字符串为什么可以成功呢？
 
    ```js
    <script defer src="bundle.js"></script></head>
@@ -1879,9 +2122,24 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
      <img src="images/wp-57.png" alt="image-20210802221743896"  />
 
-### 2、devServer.publicPath
+2. outpublic
 
-> 作用： 指定本地服务器所在的文件夹
+   ````js
+   output.publicPath = '/dist/'
+   
+   # 最终图片的访问路径为
+   output.publicPath + 'img/[name].[ext]?[hash]' = '/dist/img/[name].[ext]?[hash]'
+   # 最终js的访问路径
+   output.publicPath + '[name].js' = '/dist/[name].js'	
+   ````
+
+### 2 devServer.publicPath
+
+> devServer运行下所编译的文件皆存在于内存中，不会改变本地文件。
+>
+> 在服务运行中如果内存中找不到想要的文件时，devServer 会根据文件的路径尝试去本地磁盘上找，如果这样还找不到才会 404
+
+- 作用： 指定本地服务器所在的文件夹
 
  <img src="images/wp-58.png" alt="image-20210802225013885" style="zoom: 50%;" />
 
@@ -1896,9 +2154,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
      此时访问的是 此处的 index.html
 
-     而缓存后的服务器路径并非是在此处。这里只是项目的相对地址。
-
-     真正做缓存文件的服务器地址并非此处！
+     显然这里只是 html-template-plugin插件所使用
 
      <img src="images/wp-59.ng" alt="image-20210802225623145" style="zoom:50%;" />
 
@@ -1906,9 +2162,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
      此时会发现依旧是 404，
 
-     因为服务器缓存后的打包文件的路径现在是位于 http://localhost:8080/abc下，
+     因为⭐【开发环境下编译后的打包文件】的路径现在是位于 http://localhost:8080/abc下，
 
-     而你打包后src访问的路径依旧是 http://localhost:8080/下，显然不对。
+     而你打包后，dist文件的 js文件的路径依旧是 http://localhost:8080/下，显然无法引用到对应的js。
 
      <img src="images/wp-60.png" alt="image-20210802225853638" style="zoom: 67%;" />
 
@@ -1916,13 +2172,23 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
      <img src="images/wp-61.png" alt="image-20210802230221998" style="zoom:67%;" />
 
-2. 故：  devServer.publicPath 与 output.publicPath相同；
+   故：  devServer.publicPath 与 output.publicPath相同；
 
-### 3、devServer.contentBase 
 
-> 在devServer中还有一个可以监听contentBase发生变化后重新编译的一个属性：*watchContentBase*。
->
-> 设置watchContentBase为true 可以热更新那些引入的文件
+### 3 devServer.contentBase
+
+启动本地服务进行开发调试的时候，会出现静态资源找不到的问题。
+
+- contentBase是静态资源所在的路径
+
+- 在devServer中还有一个可以监听contentBase发生变化后重新编译的一个属性：*watchContentBase*。
+
+  设置watchContentBase为true 可以热更新那些引入的文件
+
+```js
+# 经过这种配置方案, 开发环境下的静态资源便会得到了一个前缀定位。
+contentBase: path.join(__dirname, "public")
+```
 
 1. 场景： 
 
@@ -1930,9 +2196,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
    <img src="images/wp-62" alt="image-20210802232303124" style="zoom:80%;" />
 
-2. 使用 serve启动， 此js依旧可启动，是因为
+2. 使用 serve启动， 此js依旧可启动
 
-   - 当前的服务的目录位于根目录下， 你访问的是本地的目录，但最后上线文件是打包的文件， 你并没有此处将此处打包进入。
+   - 当前的服务的目录位于根目录下
 
    <img src="images/wp-63.png" alt="image-20210802234521476" style="zoom: 67%;" />
 
@@ -1940,13 +2206,17 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
    <img src="images/wp-64.png" alt="image-20210802234609896" style="zoom: 80%;" />
 
-3. 依旧存在问题 打包后的文件，其实并没将其打包进入
+3. 虽然可以开发环境成功，但生产环境，其实并没将其打包进入， 毕竟你设置的是 devServe
 
    ![image-20210802235010859](images/wp-65.png)
 
 即便index.html是否直接访问到这个js文件，此处也会有问题。故解决办法是什么呢？
 
-### 4、devServe
+- 将静态资源的文件夹打包进来。
+
+
+
+### 4 devServe
 
 #### 1 hotOnly
 
@@ -2076,7 +2346,7 @@ port设置监听的端口，默认情况下是8080
       }
   ```
 
-### 5、output.entry & context
+### 5 output.entry & context
 
 > 一般而言，weback.config.js文件都属于根目录, 
 >
@@ -2104,7 +2374,7 @@ context的作用是用于解析入口（entry point）和加载器（loader）
    };
    ```
 
-### 6、resolve
+### 6 resolve
 
 - mainFiles: 若目标是文件夹
 
@@ -2112,11 +2382,9 @@ context的作用是用于解析入口（entry point）和加载器（loader）
 
 ![image-20210804000704169](images/wp-67.png)
 
-> resolve确定是文件还是文件夹？
+- resolve确定是文件还是文件夹？
 
-![image-20210804002246763](images/wp-68.png)
-
-![image-20210806000924912](images/wp-69.png)
+<img src="images/wp-68.png" alt="image-20210804002246763" style="zoom: 50%;" />
 
 ```js
   resolve: {
@@ -2128,109 +2396,109 @@ context的作用是用于解析入口（entry point）和加载器（loader）
   },
 ```
 
+1. extension： 
 
+   自动解析确定的扩展， 能够使用户在引入模块时不带扩展。
 
-## 十一、 环境分离
+2. alias
 
-#### 认识环境分离
+   创建 `import` 或 `require` 的别名，来确保模块引入变得更简单
+
+3. mainFiles
+
+   解析目录时要使用的文件名
+
+   ```js
+   mainFiles: ["index"]
+   ```
+
+   
+
+## 环境分离（配置拆分）
+
+### 方案
 
 > 开发与生产环境耦合在一起总是不好的，索性就分离吧。
->
-> 分离的方式有两种
->
-> 1. 拆分两个文件来分别维护他们
-> 2. 一个文件，但根据打包命令传参区分。
-> 3. 在这里我们使用综合的， 使用抽离公用，再合并单独。
 
-- 拆分两个文件来分别维护他们
+1. 方案一： 拆分两个文件来分别维护他们
 
-  开发环境  即 serve
+   开发环境  即 serve
 
-  生产环境 即  build
+   生产环境 即  build
 
-  ````js
-  "build": "webpack --config ./config/webpack.prod.js",
-  "serve": "webpack serve --config ./config/webpack.dev.js",
-  ````
+   ````js
+   "build": "webpack --config ./config/webpack.prod.js",
+   "serve": "webpack serve --config ./config/webpack.dev.js",
+   ````
 
-- 相同的一个入口配置文件，通过设置参数来区分它们
+2. 方案二：一个文件，但根据打包命令传参区分。
 
-  ```js
-  "build": "webpack --config ./config/webpack.common.js --env production",
-  "serve2": "webpack serve --config ./config/webpack.common.js --env development"
-  ```
+   相同的一个入口配置文件，通过设置参数来区分它们
 
-  1. 传递了 参数 production
+   ````json
+   "build": "webpack --config ./config/webpack.common.js --env production",
+   "serve": "webpack serve --config ./config/webpack.common.js --env development"
+   ````
 
-     ⭐ 细节注意： 从前这里 module.exports 是一个对象！现在 是一个回调的函数！
+   ⭐ 细节注意： 从前这里 module.exports 是一个对象！现在 是一个回调的函数！
 
-  2. 不过你都这样干了， 大可以再写两个js文件来分别维护，虽然文件变多了，但模块化了。
+   ````js
+   module.exports = function(env) {
+       console.log(env)
+   	const isProduction = env.production;
+       // 此时再进行一些列配置文件的控制
+       if (isProduction) {}
+   }
+   ````
 
-     ```js
-     module.exports = function(env) {
-         console.log(env)
-     	const isProduction = env.production;
-         // 此时再进行一些列配置文件的控制
-         if (isProduction) {}
-     }
-     ```
+   ![image-20210807185305037](images/wp-70.png)
 
-     console的env打印结果
+3. 方案三
 
-     ![image-20210807185305037](images/wp-70.png)
+   - 抽离公用，再合并单独
 
-#### 拆分
+   ````js
+   "build": "webpack --config ./config/webpack.common.js --env production",
+   "serve": "webpack serve --config ./config/webpack.common.js --env development"
+   ````
 
-> 三个文件夹文件
->
-> 1. 某些配置是在开发环境需要使用的 => dev
-> 2. 某些配置是在生产环境需要使用的 => production 
-> 3. 某些配置是在开发和生成环境都会使用的 => common
+   - 但是在common-js的内部 的划分现在是通过 两个不同的文件。
 
-- common
+     而是通过 webpack提供的 【merge】来实现了合并！
 
-  1. entry 
+   
 
-  2. output 
+### 1-分离文件
 
-  3. resolve
+> 在这里我们使用综合的， 使用抽离公用，再合并单独。
 
-     不管是开发还是打包，处理时都需要依赖resolve来处理文件的路径
-
-  4. module 
-
-     不管开发还是打包都需要将不同文件类型通过loader模块化
-
-  5. plugins => 具体情况具体分析
-
-- dev
-
-  1.  mode: "development",
-  2. devServer
-  3. plugins => 具体情况具体分析
-
-- production
-
+- 【webpack.`dev`.js】  某些配置是在开发环境需要使用的 
+  1.  mode: "development": webpackzi自动帮你进行了配置
+  2.  devServer： 开发环境才需要 devServe
+  3.  plugins => 具体情况具体分析
+- 【webpack.`production`.js】某些配置是在生产环境需要使用的
   1. mode: "production",
-
   2. plugins
+- 某些配置是在开发和生成环境都会使用的 => common
+  1. entry：入口文件
 
-     打包时要用到的插件
+  2. output： 出口文件
 
-     ```js
-       plugins: [
-         // 生成环境
-         new CleanWebpackPlugin({}),
-     
-       ]
-     ```
+  3. resolve：不管是开发还是打包，处理时都需要依赖resolve来处理文件的路径
+
+  4. module：不管开发还是打包都需要将不同文件类型通过loader模块化
+
+  5. plugins
 
 
-#### 合并
+### 2-合并文件
 
-> common.config.js
+> webpack.config.js
 
 ```js
+const commonConfig = require("./config/webpack.comm");
+const devConfig = requie("./config/webpack.development");
+const prodConfig = require("./config/webpack.development")
 const { merge } = require("webpack-merge");
 
 module.exports = function(env) {
@@ -2242,100 +2510,38 @@ module.exports = function(env) {
 
   return mergeConfig;
 };
-
 ```
 
-#### isProduction
 
-1. 方式一： 配置文件中回调参数  `env.production`
 
-   ````js
-   "build": "webpack --config ./config/webpack.common.js --env production",
-   "serve": "webpack serve --config ./config/webpack.common.js --env development"
-   ````
+## chunk（代码分离）
 
-   此时你可以通过 exports的回调函数来对应
+- 目的
 
-   ```js
-   // common.config.js
-   let config = {...}
-   module.exports = function(env) {
-     const isProduction = env.production; // env.development 这是boolean
-   	return config;
-   };
-   ```
+  是将代码分离到不同的bundle中
 
-2. mode决定的`process.env.NODE_ENV`
+- 作用：chunk是为了更好的优化。
 
-   并非是你在 package的环境配置 --env， 而是因为 mode的类型写入的， 在日后的js文件中都可以获取到这个。相当于在全局中配置了一个环境的常量， 在任何的js都可获取到的.
+  1. 之后我们可以按需加载，或者并行加载这些文件、
+  2. 代码分离可以分出出更小的bundle，以及控制资源加载优先级，提供代码的加载性能； 
 
-   - 在任何源代码 访问都可以获得！前提是属于模块内的！
+- 场景
 
-   ```js
-     mode: "development", // process.env.NODE_ENV === 'development'
-     mode: "production",  // process.env.NODE_ENV === 'production'
-   ```
+  比如默认情况下，所有的JavaScript代码（业务代码、第三方依赖、暂时没有用到的模块）在首页全部都加载， 就会影响首页的加载速度；
 
-   <img src="images/wp-72.png" alt="image-20210807215726552" style="zoom:67%;" />
+  （但过多的chunk，会导致过多的http请求，以至于服务器压力过大）
 
-3. 配置webpack中 babel的开发与生产环境 自己来写入
+- 实现方式有三种，互不影响
 
-   >  但是在 babel.config,js我们访问 process.env.NODE_ENV是访问不到的！
-
-   - babale,config.js 是babel-loader去使用的配置文件。 而babel-loader并不会给我们添加 process.env对应的值。并不属于我们的源代码
-
-   - 故在common.config.js中， 我们需要有一种解决方案。
-
-     1. webpack中的配置文件可以通过 【配置文件中回调参数】来获取是否是开发与生产环境的问题。
-
-        我们直接在当前的node的环境中自己写入此变量。
-
-        作用： babel.cofig.js会直接从node环境变量中获取到。 
-
-     2. 变量名随便。此处相当于重新盖掉了 process.env.NODE_ENV
-
-     3. `process.env.production `不可以是字符串类型！ 
-
-        设置 node的process.env的若是 undefined会将其转为字符串。=> 导致报错，此不可是String类型
-
-        故建议是使用 process.env.NODE_ENV 更好一点点。
-
-        我们通过 字符串的内容来判断，不通过boolean来判断。
-
-   ```js
-   // common.config.js的exports回调函数
-   process.env.NODE_ENV = env.production ? "production": "development";
-   
-   // babel.config.js中
-   const isProduction = process.env.NODE_ENV === "production";
-   ```
-
-<img src="images/wp-71.png" alt="image-20210807215439630" style="zoom: 50%;" />
-
-## 十二、代码分离
-
-> - 目的
->
->    是将代码分离到不同的bundle中
->
-> - 作用
->
->   1. 之后我们可以按需加载，或者并行加载这些文件、
->   2. 代码分离可以分出出更小的bundle，以及控制资源加载优先级，提供代码的加载性能； 
->
-> - 场景
->
->   比如默认情况下，所有的JavaScript代码（业务代码、第三方依赖、暂时没有用到的模块）在首页全部都加载， 就会影响首页的加载速度；
->
-> - 实现
->
->   1. 入口起点：使用entry配置手动分离代码；
->   2. 防止重复：使用Entry Dependencies或者SplitChunksPlugin去重和分离代码；
->   3. 动态导入：通过模块的内联函数调用来分离代码；
+  1. 入口起点：使用entry配置手动分离代码；
+  2. 防止重复：使用Entry Dependencies或者SplitChunksPlugin去重和分离代码；
+  3. 动态导入：通过模块的内联函数调用来分离代码；
 
 ### 1、entry 入口起点
 
 - 入口分离示范
+
+  入口分离更应该用于多页应用(MPA)，SPA往往不需要这种多入口。
 
 ```js
 entry:{
@@ -2348,9 +2554,13 @@ entry:{
 
 ### 2、防止重复
 
-> 在 入口分离， 单纯的使用entry将其分为两个打包文件，其中会遇到如此的场景
->
-> index.js和main.js都依赖两个库：lodash、dayjs,或者依赖共同的一个文件，那么打包后的代码中就会有这出的重叠代码，我们希望【防止重复】
+在 入口分离， 单纯的使用entry将其分为两个打包文件，其中会遇到如此的场景。
+
+（换句话说，多入口，总是要进行 防止重复代码！）
+
+- 场景index.js和main.js都依赖两个库：lodash、dayjs,或者依赖共同的一个文件，
+
+  那么打包后的代码中就会有这出的重叠代码，我们希望【防止重复】
 
 1. `Entry Dependencies`
 
@@ -2368,12 +2578,16 @@ entry:{
    >
    > Webpack提供了SplitChunksPlugin默认的配置，我们也可以手动来修改它的配置
 
-- 默认的配置  chunks仅仅针对于异步（async）请求```js
+- 默认的配置  chunks仅仅针对于异步（async）请求```
 
-        1. async异步导入  
-           2. initial同步导入 
-           3. all 异步/同步导入
+       1. async异步导入  
+    
+          一般而言，我们确实也仅需要对异步进行chunk
 
+     2. initial 同步导入 
+  
+     3. all 异步/同步导入
+  
   ```js
     optimization: {
       splitChunks: {
@@ -2381,7 +2595,7 @@ entry:{
       },
     },
   ```
-
+  
   ![image-20210808185154501](images/image-20210808185154501.png)
 
 ### 2.1⭐ SplitChunksPlugin
@@ -2757,177 +2971,9 @@ runtimeChunk: {
        }
    ```
 
-## 十三、CDN, shimming, hash, DLL
+## CDN, shimming, hash, DLL
 
-### 1 CDN
 
-> 方式一： 将打包后的资源直接放入CDN服务器 => 但花费高
->
-> 方式二： 引用第三方已有的CDN
-
-![image-20210814115650550](images/image-20210814115650550.png)
-
-- 自己的CDN使用示范
-
-  ![image-20210814115823279](images/image-20210814115823279.png)
-
-- 常用的方式： 引入指定的cdn
-
-  虽然依旧需要打开的时候使用到这些包的环境， 但我们可以设置生产环境的打包不对这些元素进行打包。
-
-  1. webpack进行配置， 不进行打包
-
-     PS： 如何才能找到暴露的全局变量，只有读源码，看规律，看暴露对象来寻找。
-
-     在webpack文件进行配置
-
-     ```js
-     externals: {
-         lodasg: '_', // 值为暴露出来的全局变量
-         dayjs: 'dayjs' 
-     }
-     ```
-
-  2. 初次之外，在生产环境我们需要引入对应的包， 但是在开发环境我们再次引用不是多次一举吗？\
-
-     - 故我们可以根据 node环境来进行一处优化的处理
-     - 当然你可以在script中加上 defer="defet"
-
-     ```js
-      <!-- ejs中的if判断 -->
-       <% if (process.env.NODE_ENV === 'production') { %> 
-       	<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-       	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"	           </script>
-       <% } %> 
-     ```
-
-### 2 shimming
-
->  垫片，相当于给我们的代码填充一些垫片来处理一些问题
-
-- 高情商：存在隐含依赖（比如全局变量）的彼此隔离的模块 
-
-- 场景
-
-  问题所在： 引入的一个第三方库【此库本身依赖lodash】但默认并没有对loadsh进行引入
-
-  ​					这个第三方库认为你肯定引入了此库，且在全局中使用了此库。
-
-```js
-    plugins: [
-      //  当在代码中遇到某一个变量找不到时, 我们会通过ProvidePlugin, 自动导入对应的库
-        
-      // val为第三方库的名称， key为 若遇到此值无法找到，则导入对应的key
-      new webpack.ProvidePlugin({
-         axios: "axios", 
-         get: ["axios", "get"] // 遇到 【get】找不到， 调用 axios.get
-       })
-    ],
-```
-
-### 3三种hash
-
-1. Hash
-
-   - 比如我们现在有两个入口index.js和main.js；
-
-     它们分别会输出到不同的bundle文件中，并且在文件名称中我们有使用hash；\
-
-   - 两个文件的名称都会发生变化
-
-2. chunkHash
-
-   `hash另一个入口文件也改变了怎么办？`
-
-   可以有效的解决上面的问题，它会根据不同的入口进行借来解析来生成hash值;
-
-   比如我们修改了index.js，那么main.js的chunkhash是不会发生改变的；
-
-3. contentHash
-
-   `chunkHash依赖的文件也会改变怎么办？`
-
-   - 比如我们的index.js，引入了一个style.css，style.css有被抽取到一个独立的css文件中
-
-   - 这个css文件在命名时，如果我们使用的是chunkhash.那么当index.js文件的内容发生变化时，css文件的命名也会发生变化；
-   - 这个时候我们可以使用contenthash；
-
-### 4、**DLL库** （了解）
-
-> 注： webpack4性能很好！我们没必要专门去做dll库为了打包的性能提升。
-
-1. 动态链接库
-
-   目的是 将可共享、不经常改变的、可抽取的代码抽成库。目的就是减少打包的内容。
-
-2. 步骤
-
-   - 第一步要打包一个dll库
-
-   - 第二步项目引入dll库
-
-     引入时 要有dll库， 且此时dll库也要打包进入。
-
-3. 打包dll库
-
-   打包此库，相当于一个webpack的项目， 我们进行单独的打包配置即可。
-
-```js
-const path = require('path');
-const webpack = require('webpack');
-const TerserPlugin = require('terser-webpack-plugin');
-
-module.exports = {
-  entry: {
-    react: ["react", "react-dom"]
-  },
-  output: {
-    path: path.resolve(__dirname, "./dll"),
-    filename: "dll_[name].js",
-    // 打包为库需要设置此处
-    library: 'dll_[name]'
-  },
-  // 关闭注释文件
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false
-      })
-    ]
-  },
-  plugins: [
-    new webpack.DllPlugin({
-      name: "dll_[name]",
-      // 描述文件 
-      path: path.resolve(__dirname, "./dll/[name].manifest.json")
-    })
-  ]
-}
-```
-
-4. 如何在另一个文件中使用dll库？ 
-
-   虽然我们引用了，但还是需要进行安装  npm install 对应的内容。因为我们在开发的环境下。
-
-   我们目的只是不再打包react代码！跟下载react执行是两码事情。
-
-   ```js
-   import React from "react" // 此时还是通过 node_modules下找的，故需要下载！
-   ```
-
-   ![image-20210814183850109](images/image-20210814183850109.png)
-
-来看看
-
-```js
-# 复制到 build文件夹下
-# 并且 index.html自动引入
-const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin
-                                   
-图中的 context 为mainfest的上下文
-```
-
-![image-20210814184827089](images/image-20210814184827089.png)
 
 ## 十四 、丑化与压缩
 
