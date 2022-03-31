@@ -17,18 +17,20 @@
 
 4. throw、return、next的本质：使用不同的语句替换`yield`表达式
 
-5. yield*  是 Generator 函数中 for...of 的语法糖
+5. 你可以使用next 传参，修改 yield表达式的返回值，从而进行修改内部的【generator函数】
 
-6. Generator 函数与与普通构造函数的不同之处
+6. yield*  是 Generator 函数中 for...of 的语法糖
 
-   - Generator 其返回的是遍历器对象，普通构造函数返回的是this
-   - Generator 可以暂停执行，暂时退出堆与栈，冻结当前状态。
+7. Generator 函数与与普通构造函数的不同之处
 
-7. generator是一个半协程机制，不完全实现。
+   - Generator 其返回的是遍历器对象，普通构造函数（new）返回的是this
+   - Generator 可以暂停执行，暂时退出堆与栈，冻结当前状态⭐
+
+8. generator是一个半协程机制，不完全实现。
 
    Generator 函数的调用者，才能将程序的执行权还给 Generator 函数，而不是任何函数都可以做到。
 
-8. generator应用
+9. generator应用
 
    1. 状态机：控制流管理
    2. 处理数据： Iterator 接口

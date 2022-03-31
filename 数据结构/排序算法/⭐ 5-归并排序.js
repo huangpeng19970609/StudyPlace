@@ -6,7 +6,9 @@
 // 大数组 => 拆分为小数组 => 在对小数组们进行排序 => 重复如此,直至只有一项
 // 只有一项后便进行合并[这是递归栈的形式实现]
 function mergeSort(arr) {
-  const { length } = arr;
+  const {
+    length
+  } = arr;
   if (length <= 1) return arr;
   const middle = Math.floor(length / 2);
   const left = mergeSort(arr.slice(0, middle));
@@ -14,6 +16,7 @@ function mergeSort(arr) {
   arr = merge(left, right);
   return arr;
 }
+
 function merge(left, right) {
   let i = 0;
   let j = 0;
@@ -29,6 +32,6 @@ function merge(left, right) {
   else return result.concat(right.slice(j));
 }
 
-let arr = [9, 8, 7, 6, 6, 6, 5, 4, 3, 2, 1];
+let arr = [2, 2, 1, 100];
 arr = mergeSort(arr);
 console.log(arr);

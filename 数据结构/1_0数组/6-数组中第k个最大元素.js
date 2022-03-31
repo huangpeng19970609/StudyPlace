@@ -11,6 +11,7 @@ function mergeSort(nums) {
   let right = mergeSort(nums.slice(middle));
   return nums = merge(left, right);
 }
+
 function merge(left, right) {
   let i = 0;
   let j = 0;
@@ -18,20 +19,30 @@ function merge(left, right) {
   while (i < left.length && j < right.length) {
     if (left[i] > right[j]) {
       arr.push(left[i++]);
-    }
-    else {
+    } else {
       arr.push(right[j++]);
     }
   }
   // left没放完
   if (i < left.length) {
     return arr.concat(left.slice(i));
-  }
-  else return arr.concat(right.slice(j));
+  } else return arr.concat(right.slice(j));
 }
 
-var findKthLargest = function(nums, k) {
+var findKthLargest = function (nums, k) {
   nums = mergeSort(nums);
-  console.log(nums);
-  return nums[k - 1];
+  k = k - 1;
+  let j = 1;
+  for (let i = 0; i <= nums.length; i++) {
+    if (nums[i + 1] < nums[i]) {
+      nums[j] = nums[i + 1];
+      j++;
+    }
+  }
+  return nums[k];
 };
+
+const arr = [1, 2, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 9, 10];
+console.log(
+  findKthLargest(arr, 4)
+);
