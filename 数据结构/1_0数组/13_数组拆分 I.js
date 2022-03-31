@@ -17,13 +17,15 @@
  */
 // 数学规律如此 既然想让下一个也是最大 那必然要排除第二大
 var arrayPairSum = function (nums) {
-  nums.sort( (a, b) => a - b);
+  nums.sort((a, b) => a - b);
+  console.log(nums);
   let i = 0;
   let res = 0;
   while (i < nums.length) {
     res += nums[i];
-    i+=2;
-  }  
+    i += 2;
+  }
   return res;
 };
 // 倒数排序解法
+arrayPairSum([1, 4, 3, 2]);
