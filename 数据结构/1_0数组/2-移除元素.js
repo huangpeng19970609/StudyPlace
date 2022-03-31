@@ -6,8 +6,8 @@
 function deleteItem(nums, val) {
   let j = 0;
   for (let i = 0; i < nums.length; i++) {
-    if ( nums[i] !== val) {
-      [ nums[i] , nums[j] ] = [ nums[j], nums[i] ]
+    if (val !== nums[i]) {
+      [nums[i], nums[j]] = [nums[j], nums[i]]
       j++;
     }
   }

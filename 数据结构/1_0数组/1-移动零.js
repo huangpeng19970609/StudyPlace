@@ -6,12 +6,12 @@
 function moveZero(nums) {
   let j = 0;
   for (let i = 0; i < nums.length; i++) {
-    if (nums[i] !== 0) {
-      [ nums[j], nums[i] ] = [ nums[i], nums[j] ] 
-      j++;
-    }    
+    if (nums[i] === 0) {
+      continue;
+    }
+    [ nums[i], nums[j] ] = [ nums[j], nums[i] ]
+    j++;
   }
-  return nums;
 }
 let arr = [0, 0, 0, 1, 2, 3, 0, 4, 5]
 moveZero(arr);
