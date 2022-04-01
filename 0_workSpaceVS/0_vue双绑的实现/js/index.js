@@ -8,9 +8,9 @@ function Vue(options) {
   this.vm = this;
   this.data = options.data;
   // 数据代理
-  Object.keys(this.data).forEach( function(key) {
+  Object.keys(this.data).forEach(function (key) {
     selft.proxyKeys(key);
-  })
+  });
   observe(this.data);
   new Compile(options.el, this.vm);
   return this;
@@ -23,10 +23,10 @@ Vue.prototype = {
       enumerable: true,
       get: function proxyGetter() {
         return self.data[key];
-    },
-    set: function proxySetter(newVal) {
+      },
+      set: function proxySetter(newVal) {
         self.data[key] = newVal;
-    }
+      },
     });
-  }
-}
+  },
+};

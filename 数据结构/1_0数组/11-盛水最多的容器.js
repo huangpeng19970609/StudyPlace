@@ -1,4 +1,3 @@
-
 /*
   # 对撞指针
   给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai)
@@ -26,11 +25,12 @@ var maxArea = function (height) {
     if (height[i] < height[j]) {
       area = Math.max(area, (j - i) * height[i]);
       i++;
-    }
-    else {
+    } else {
       area = Math.max(area, [j - i] * height[j]);
       j--;
     }
   }
-  return area
+  console.log(area);
+  return area;
 };
+maxArea([1, 8, 6, 2, 5, 4, 8, 3, 7]);

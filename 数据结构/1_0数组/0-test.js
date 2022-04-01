@@ -1,24 +1,21 @@
 /* 
-输入：numbers = [2,7,11,15], target = 9
-输出：[1,2]
-解释：2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2 
-提示: 双指针、缩减搜索空间以达到O(n)的办法
+  给定一个二进制数组， 计算其中最大连续 1 的个数。
+示例：
+输入：[1,1,0,1,1,1]
+输出：3
+解释：开头的两位和最后的三位都是连续 1 ，所以最大连续 1 的个数是 3.
 */
-
-function twoSum(numbers, target) {
-  let i = 0;
-  let j = numbers.length - 1;
-  let sum;
-  while (i <= j) {
-    sum = numbers[i] + numbers[j];
-    if (sum > target) {
-      j--;
-    } else if (sum < target) {
-      i++;
-    } else return [i + 1, j + 1]
+function findMaxConsecutiveOnes(nums) {
+  let count = 0;
+  let max = 0;
+  for (let i = 0; i < nums.length + 1; i++) {
+    if (nums[i] === 1) count++;
+    else {
+      max = Math.max(max, count);
+      count = 0;
+    }
   }
-  return [-1, -1]
+  return max;
 }
-console.log(
-  twoSum([2, 7, 11, 15], 9)
-);
+
+console.log(findMaxConsecutiveOnes([0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1]));

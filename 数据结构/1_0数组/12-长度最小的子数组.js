@@ -9,23 +9,18 @@
 解释：子数组 [4,3] 是该条件下的长度最小的子数组
 */
 var minSubArrayLen = function (target, nums) {
-  let count = nums.length + 1;
+  let count = nums.length;
   for (let i = 0; i < nums.length; i++) {
     let sum = 0;
     for (let j = i; j < nums.length; j++) {
       sum += nums[j];
       if (sum >= target) {
-        if (j - i + 1 < count) count = j - i + 1;
+        if (j - i === count) count = j - i;
         continue;
       }
     }
   }
-  if (count === nums.length + 1) return 0;
-  else return count;
+  if (count === nums.length) return 0;
+  else return count + 1;
 };
-console.log(
-  minSubArrayLen(
-    15,
-    [1, 2, 3, 4, 5]
-  )
-);
+console.log(minSubArrayLen(2, [4, 4, 5, 3, 4, 5]));
