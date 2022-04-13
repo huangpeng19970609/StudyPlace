@@ -6,31 +6,24 @@
   如果输入长度为7的数组{2,3,1,0,2,5,3}，
   那么对应的输出是第一个重复的数字2。
 */
-// 时间复杂度 O(n)
-var findRepeatNumber = function (nums) {
-  for (let i = 0; i < nums.length; i++) {
-    let value = nums[i];
-    if (nums[value] === nums[i]) return value;
-    // 交换
-    let temp = nums[value];
-    nums[value] = nums[i];
-    nums[i] = temp;
-  }
-};
-// 但
+// 方法一：排序 + 判断重复
+
+//
 var findRepeatNumber = function (nums) {
   let i = 0;
-  // 原地交换
-  while (i < nums.length) {
-    let value = nums[i];
-
-    // 他被放入到了理所应当的位置
+  while (i <= nums.length - 1) {
+    const value = nums[i];
+    // 1 若其在正确的位置 指针移动
     if (value === i) {
       i++;
       continue;
     }
-    if (nums[value] === nums[i]) return nums[i];
-    nums[i] = nums[value];
-    nums[value] = value;
+    // 2 若其相同 则代表重复
+    if (nums[i] === nums[value]) return nums[i];
+    // 3 若其不相同 那便移动 （由于我们的限制, i 总是在顺序的移动的 i++）
+    [nums[i], nums[value]] = [nums[value], nums[i]];
   }
+  return -1;
 };
+
+console.log(findRepeatNumber([3, 4, 2, 0, 0, 1]));
