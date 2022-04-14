@@ -15,17 +15,27 @@
 #### 02 | Tree shaking support
 
 - 未用的模块便不会被打包，拥有更多的功能，却更加mini。
-- 即 vue3.0 做成了按需引入
+  1. 编译阶段利用`ES6 Module`判断哪些模块已经加载
+  2. 判断那些模块和变量未被使用或者引用，进而删除对应代码
+- 即 vue3.0 做成了按需引入 （ 这也是Composition API的必然）
 
 #### 03 |  Composition API
 
 - 过去的 mixin不再建议使用，而Composition API更可以实现灵活且无副作用的复用代码。
+
 - option api 也是支持使用的
+
 - vue-3的可响应模块也可以与其他框架使用
+
+- 而传统的OptionsAPI中， 当业务复杂时，弊大于利
+
+  新增或者修改一个需求，就需要分别在data，methods，computed里修改
 
 #### 04 | fragment & teleport
 
-- fragment ： 不再需要一个template 包裹整个组件。一个文本一个标签。
+- fragment （多template） 
+
+  组件支持多个template 。
 
 - teleport（传入）
 

@@ -1,4 +1,4 @@
-### vueX
+### 1 vueX
 
 > vuex的store有State、 Getter、Mutation 、Action、 Module五种属性\
 
@@ -9,11 +9,11 @@
 
 如何共享？
 
-1. vuexinit混淆进Vue的beforeCreacte钩子
+1. vuex-init混淆进Vue的beforeCreacte钩子
 
    beforeCreate的时候注册了store， 若为根元素可直接获取，否则从parent上取store
 
-### vue传值方式
+### 2 vue传值方式
 
 1. 依赖注入 provide / inject => **一个祖先组件向其所有子孙后代注入一个依赖**
 
@@ -74,7 +74,7 @@
 
 7. 插槽
 
-### 父组件监听子组件的生命周期
+### 3 父组件监听子组件的生命周期
 
 1. @hook对应的生命周期即可
 
@@ -86,9 +86,9 @@
 
 
 
-### 虚拟DOM
+### 4 虚拟DOM
 
-#### 1 真实DOM的解析过程
+#### 01 | 真实DOM的解析过程
 
 创建DOM树 => 创建StyleRules => 创建Render树 => 布局Laypit => 绘制Painting
 
@@ -98,31 +98,40 @@
 4. 有了Render树，浏览器开始布局。为每个Render树上的节点确定一个在显示屏上出现的精确坐标。
 5. Render树和节点显示坐标都有了，就调用每个节点**paint方法，把它们绘制**
 
-#### 2 为什么虚拟DOM快？
+#### 02 | 为什么虚拟DOM快？
 
-1. 为什么真实DOM慢?
+- 虚拟DOM是真实DOM的一层抽象数据（AST）
 
-   答：JS操作DOM时。浏览器会从构建DOM树开始从头到尾执行一遍流程。即便你还有9次更新，这9次更新也会重复这步骤。不会缓存之前的任何结果。
+  1. 虚拟DOM更快？
 
-2. 虚拟DOM的好处
+     - 占用了更多的内存， 以内存换取原本操作DOM的操作。Javascript 操作 Javascript 对象自然是快。
 
-   为什么一次性更快呢 ?  => 因为预先操作JS对象更加快！
+       但你不能说比整个过程都比【直接操作DOM】快。
 
-   若一次操作中有10次更新DOM的动作，虚拟DOM不会立即操作DOM，而是将这10次更新的diff内容保存到本地一个JS对象中，最终将这个JS对象`一次性attch到DOM树上`
+     - 正数再小也不可能比零还小，  Virtual DOM 仍然需要调用 DOM API 去生成真实的 DOM。
 
-3. VDOM的真正意义
+  2. 多次修改可以规避成一次修改。最终再一次性渲染出最终的实体dom
 
-   vdom 的真正意义是为了实现跨平台，服务端渲染，以及提供一个性能还算不错 Dom 更新策略。
+     - ⭐ 这是优化了JavasCript的执行速度， 而非 reflow / repaint的性能
 
-   Diff算法只是为了虚拟DOM比较替换效率更高，通过Diff算法得到diff算法结果数据表
 
-   **DOM** **fragment**来操作dom是原本就是有的功能，只不过现在帮你进行打包操作了！
+- VDOM的优点
 
-#### 3 关于源码
+  - 实现跨平台，服务端渲染
+
+    只要有 JS 引擎就能运行在任何地方运行。
+
+  - 提供一个性能还算不错 Dom 更新策略，
+
+    有 diff 算法，可以减少没必要的 DOM 操作
+
+    
+
+#### 03 | 关于源码
 
 https://segmentfault.com/a/1190000008291645
 
-#### 4 Vue通过数据劫持可以进准探测数据变化，为什么还需要虚拟DOM进行diff检测差异？
+#### 04 | Vue通过数据劫持可以进准探测数据变化，为什么还需要虚拟DOM进行diff检测差异？
 
 如果给每个属性都添加watcher用于更新的话，会产生大量的watcher从而降低性能
 
@@ -130,7 +139,63 @@ https://segmentfault.com/a/1190000008291645
 
 ⭐ vue 2.x中为了降低Watcher粒度，每个组件只有一个Watcher与之对应，只有引入diff才能精确找到 发生变化的地方
 
-### Vue 双向绑定原理
+#### 05 | VDOM真的减少了回流和重绘吗？
+
+- 支撑的观点
+
+  1. DOM 操作会先改变 Virtual DOM， 所以一些无效改变就不会调用到DOM的API
+
+     如 文本 A 修改为 B ，然后再修改为 A
+
+  2. Virtual DOM 调用 `patch` 方法批量操作 DOM ，不会导致过程中出现无意义的回流和重绘
+
+- 无效回流与重绘
+
+  1. **多次的DOM的API的调用不会触发多次的回流与重绘**
+
+     事实上，Javascript 线程和 UI 线程是互斥的，故执行期间不可能触发回流与重绘。无效的改变，是浏览器的渲染本身机制，而非VDOM
+
+  2. **批量操作并不能减少回流与重绘**
+
+     Javascript 是单线程且与 UI 线程互斥
+
+     - Layout 耗时（数据取3次平均值）几乎相等
+     - Javascript 执行耗时略有20%的差别
+
+     ```js
+     // 单独操作
+     for (let i = 0; i < counts; i++) {
+     	let node = document.createTextNode(`${i}, `)
+     	$app.append(node)
+     }
+     
+     // 批量操作
+     let $tempContainer = document.createElement('div')
+     for (let i = 0; i < counts; i++) {
+     	let node = document.createTextNode('node,')
+           $tempContainer.append(node)
+     }
+     $app.append($tempContainer)
+     
+     
+     ```
+
+#### 06 | 总结
+
+1. 操作VDOM很快，但这并不是它的优势。
+
+2. Virtual DOM 可以避免频繁操作 DOM ，但与有效减少回流和重绘次数无关。
+
+3. Virtual DOM 有跨平台优势
+
+   跨平台是 Javascript 的优势，而不是VDOM的优势
+
+4. VDOM的真正优点
+
+   - **其抽象能力和常驻内存的特性**
+   - **让框架能更容易实现更强大的 diff 算法，缺点是增加了框架复杂度，也占用了更多的内存**
+
+### 5 Vue 双向绑定原理
 
 > 当数据发生变化时，触发 Observer 中 setter 方法，
 >
@@ -152,7 +217,7 @@ https://segmentfault.com/a/1190000008291645
 
    即连接 Observer 和 Compile 的桥梁， 存储对应回调事件，从而实现双绑。
 
-### Vue的响应式
+### 6 Vue的响应式
 
 > 此与绑定原理异曲同工
 
@@ -161,13 +226,13 @@ https://segmentfault.com/a/1190000008291645
 3. getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)
 4. data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新
 
-### computed与watch实现机理
+### 7 computed与watch实现机理
 
 > wachter机制
 
 
 
-### vue的nextTick
+### 8 vue的nextTick
 
 ick 即指的是微任务！与微任务进行了联动！
 
@@ -204,7 +269,7 @@ nextTick的主要目的就是为了`让你获取到更新后的dom元素`, 不�
 
 5. setTimeout宏任务
 
-### scoped与module
+### 9 scoped与module
 
 #### 01 | scoped
 
