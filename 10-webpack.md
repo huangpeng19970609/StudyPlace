@@ -536,12 +536,6 @@ use: ["style-loader", "css-loader", "postcss-loader"],
         }
   ````
 
-
-
-
-
-
-
 ### 3 file-loader 
 
 ![](images/wp-4.png)
@@ -2581,11 +2575,11 @@ entry:{
 - 默认的配置  chunks仅仅针对于异步（async）请求```
 
        1. async异步导入  
-    
+        
           一般而言，我们确实也仅需要对异步进行chunk
 
      2. initial 同步导入 
-  
+    
      3. all 异步/同步导入
   
   ```js
