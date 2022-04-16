@@ -149,27 +149,70 @@ tslint --init
 
   
 
-## 1 强弱静动
+## 1 场景提问
 
-> 【类型安全角度】 分为强类型与弱类型
->
-> 【类型检查角度】分为静态类型与动态类型
->
-> 两者毫无关系， 勿要混淆。
+### 自我巩固
 
--  强类型 与 弱类型 
+1. 传递的对象其拥有多余的的属性，你应该如何处理?  （四种方法），
 
-  1. 强类型： 不允许任意的类型的转换
-  2. 弱类型： 允许任意的类型转换
+   使用keyof、typeof也是高级解决方案，但大材小用。
 
-- 静态类型 与 动态类型
+2. 字面量类型与 string的区别
 
-  1. 动态类型： 允许类型的动态转换
-  2. 静态类型
+3. 尽可能的多提一些typescript的类型注解的类型
 
+4. any、unknown、void、never， never的场景
 
+5. 联合类型、交叉类型、类型别名
 
+6. 请你讲述一下 interface 与 type的区别
 
+7. 讲一下ts中的擦除出现的场景
+
+8. class
+   - 讲述下class的成员修饰符
+   - 抽象类、抽象方法， 为什么要有抽象类呢？
+   - class的继承、多态
+
+9. 泛型
+   - 为什么要有泛型？
+   - 泛型接口
+   - 泛型类
+   - 泛型类型约束
+   - 泛型有哪些约定俗成的名称
+
+10. 什么是类型声明，何时使用类型声明？
+
+11. 类型断言与非空类型断言
+
+12. 哪些可以使用类型缩小
+
+13. typeof & keyof
+
+14. 类型体操
+
+### 面试题
+
+1. **TypeScript 中 const 和 readonly 的区别**
+
+2. **枚举和常量枚举的区别？**
+
+3. **TypeScript 中使用 Union Types 时有哪些注意事项**
+
+4.  **TypeScript 模块的加载机制**
+
+   假设有一个导入语句 `import { a } from "moduleA"`; 
+
+   1. 首先，编译器会尝试定位需要导入的模块文件，通过绝对或者相对的路径查找方式； 
+   2. 如果上面的解析失败了，没有查找到对应的模块，编译器会尝试定位一个`外部模块声明`（.d.ts）； 
+   3. 最后，如果编译器还是不能解析这个模块，则会抛出一个错误 `error TS2307: Cannot find module 'moduleA'.`
+
+5. **declare，declare global是什么**
+
+   `declare` 是用来定义全局变量、全局函数、全局命名空间、js modules、class等
+   `declare global` 为全局对象 `window` 增加新的属性
+
+   
 
 ##  2 数据类型
 
@@ -271,13 +314,21 @@ const info = {
   let b: {name: string, age?: number};
   ```
 
-- 【键】的数据类型， 此处也是控制下标类型
+- 字符串索引签名，即可实现动态类型
+
+  注： 也有人称呼这种写法为【索引签名】
+
+  ⭐ 前提是你能够确定这个对象可能具有某些做为特殊用途使用的额外属性
 
   ```ts
-  # 拓展: 属性值为string，且是任意类型
-  let c: { name: string, [propName: string]: any }
-  c = { name: '1', b: 1, c: 1 }
+  interface SquareConfig {
+      color?: string;
+      width?: number;
+      [propName: string]: any;
+  }
   ```
+
+  ⭐ 此外将一个对象赋予另一个新的对象的适合，也可以跳过检查。
 
 - 解构赋值
 
@@ -718,6 +769,10 @@ const cache: Cache: {}
 
 ### 3.1 索引类型
 
+- 普通的对象、数组都是支持索引类型的， interface也如此
+
+  共有支持两种索引签名：字符串和数字
+
 - JS知识： 即使用【number】进行索引等价于使用【string】索引
 
   ⭐ js没有真正的数组，数组的实现仅是通过哈希表的实现仅此而已。
@@ -726,8 +781,6 @@ const cache: Cache: {}
   arr[0] 即 arr['0']
   obj['0']访问原理便是与arr[0] 无差别=> 都是计算偏移量通过查找数组
   ````
-
-  
 
 - 0、1、2虽然是数字索引， 但会被转为字符串。 ts会将其推导为 string。
 
@@ -754,22 +807,35 @@ const cache: Cache: {}
       1: "HELLP"
   }
   ```
+  
+- 你可以将索引签名设置为只读，这样就防止了给索引赋值：
+
+  ```js
+  interface ReadonlyStringArray {
+      readonly [index: number]: string;
+  }
+  
+  let myArray: ReadonlyStringArray = ["Alice", "Bob"];
+  
+  myArray[2] = "Mallory"; // error!
+  ```
 
 ### 3.2 函数类型
 
-- 建议还是使用 【类型别名】阅读性更好
+- 【类型别名】更适合函数。抽象类，更应该抽象于对象，而不应该大材小用。
+  1. 函数类型的类型检查，函数的参数名不需要与接口里定义的名字相匹配
 
 ````typescript
 # 1 普通的注解
 function calcFn(num1: number, num2: number, calc: (n1: number, n2: number) => number {
     return calc(number1 + number2);
 })
-# 2 类型声明
+# 2 类型别名的函数
 type CalcType = (n1: nunmber, n2: number) => number
 function calcFn(num1: number, num2: number, calc: CalcType {
     return calc(number1 + number2);
 })
-# 3 这属于声明抽象类 是对【对象】 而不是通过interface 来定义函数类型
+# 3 抽象对象类型
 interface CalcFn {
     calc: (n1: number, n2: number) => numebr;
 }
@@ -778,7 +844,7 @@ const info: CalcFn = {
         return n1 + n2
     }
 }
-# ⭐
+# 抽象函数类型
 interface CalcFn {
     # 此处代表一个可调用的接口
     (n1: number, n2: number): number;
@@ -813,7 +879,9 @@ const action: Iaction = {
 }
 ````
 
-### 3.4 交叉类型
+
+
+### 3.4 混合类型
 
 ````typescript
 # 联合类型
@@ -852,6 +920,21 @@ class Fish extends Animal implements ISwim, IEat {
 function swimAction(swimable: Fish) {
     swimable.swimming();
 }
+
+# 第二个例子
+interface ClockInterface {
+    currentTime: Date;
+    setTime(d: Date);
+}
+
+class Clock implements ClockInterface {
+    currentTime: Date;
+    setTime(d: Date) {
+        this.currentTime = d;
+    }
+    constructor(h: number, m: number) { }
+}
+
 ````
 
 3. 接口
@@ -868,50 +951,57 @@ function swimAction(swimable: Fish) {
    }
    swimAction(new Person());
    `````
+   
+4. 例子
+
+   ```js
+   interface Counter {
+       (start: number): string;
+       interval: number;
+       reset(): void;
+   }
+   
+   function getCounter(): Counter {
+       let counter = <Counter>function (start: number) { };
+       counter.interval = 123;
+       counter.reset = function () { };
+       return counter;
+   }
+   
+   let c = getCounter();
+   c(10);
+   c.reset();
+   c.interval = 5.0;
+   ```
 
 ### 3.6 interface与type区别
 
-> 若涉及的对象确实不需要拆分、合并，依旧还是建议你使用interface。
->
-> 大多数情况下根据你的个人爱好。若你真的需要官方建议，那就要用【interface】吧。
+- 语法上。
 
-1. 定义非对象类型推荐使用 【type】
+  type不可以使用 extends拓展。接口可以扩展类型别名， type可以使用【&】符号实现，语法不同。
 
-2. 若定义对象类型
+  语法书写上，对方法的描述有所不同。
 
-   - 【interface】可重复对某个接口来定义属性与方法
+- interface同名合并
 
-     ````typescript
-     interface IFoo {
-         name: string
-     }
-     interface IFoo {
-     	age: number   
-     }
-     
-     # 此时你必须要同时由 【name】 与 【string】
-     const foo: Ifoo {
-         name: '1',
-         age: 100
-     }
-     ````
+  即：interface可以被多次声明，而后被视为单个接口，type只能有一个。
 
-     1. 为什么我们要分开写【interface】呢？
+- interface只能用于 对象、函数
 
-        ````typescript
-        interface Window {
-            age: string
-        }
-        # 这样 window.age 才可以正常
-        window.age = 19;
-        ````
+  type可以基本类型（原始值）、联合类型、元组，而interface本身的意义就是对象。
 
-   - 【type】定义的是别名，而别名是不可重复的。
+- Type可以计算属性，生成映射类型
 
-     ```typescript
-     ❌ # duplicate type 
-     type Window {}
-     ```
+  ```js
+  # type是动态的， interface是静态的
+  type Keys = "firstname" | "surname"
+  
+  type DudeType = {
+    [key in Keys]: string
+  }
+  ```
+
+  
 
 ### 3.7 擦除
 
@@ -1013,11 +1103,11 @@ class Person {
 
 ### 4.2 成员访问修饰符
 
-> 控制访问的级别, 他们是结合ES6使用的.
+> 控制访问的级别, ES6 依旧没有
 
 #### public
 
-public 默认便是 public 
+public 默认便是· public 
 
 #### private 
 
@@ -1109,7 +1199,7 @@ class Person {
 
   
 
-### 4.4 接口
+### 4.4 接口 （implements）
 
 > 官方意见： 你可以自由的选择，但一定要我给一个意见的话，perfer to [interface]
 
@@ -1207,7 +1297,7 @@ class Person {
        function makeArea(shape: Shape) {
            return shape.getArea();
        }
-       class Shape extends {
+       class Shape {
            getArea() {}
        }
        class Circle extends Shape {}
@@ -1363,6 +1453,38 @@ function sum<Type>(num1: Type): Type {
    }
    foo<number, string, Boolean>(19, "abc");
    ````
+   
+4. 例子
+
+   ```js
+   function identity<T>(arg: T): T {
+       return arg;
+   }
+   
+   let myIdentity: <T>(arg: T) => T = identity;
+   # 或
+   let myIdentity: {<T>(arg: T): T} = identity;
+   ```
+
+5. 泛型接口
+
+   ````typescript
+   interface GenericIdentityFn() {
+       <T>(arg: T): T;
+   }
+   function identity<T1>(arg: T1): T1 {
+       return T1;
+   }
+   const fn: GenericIdentityFn = identity;
+   
+   
+   # 强调 具体是哪个泛型类型， 锁定了之后代码里使用的类型
+   let myIdentity: GenericIdentityFn<number> = identity;
+   ````
+
+   
+
+   
 
 ### 03 | 泛型常用的名称
 
@@ -1378,6 +1500,19 @@ function sum<Type>(num1: Type): Type {
 > 过去在定义接口时，是否也可以使用泛型呢？
 
 ````typescript
+#例1
+interface CreateArrayFunc {
+    <T>(length: number, value: T): T[]; // Array[T]
+}
+let createArray: CreateArrayFunc = <T extends {}>(length: number, value: T): Array[T] => {
+    let result: T[] = [];
+    for (let i = 0; i < length; i++) {
+        result[i] = value;
+    }
+    return result;
+}
+
+#例2:泛型参数放于【接口名】
 interface IPerson<T1 = string, T2 = number> {
 	name: T1
     age: T2
@@ -1394,6 +1529,34 @@ const p: IPerson = {
     age: 18
 }
 ````
+
+1. 泛型实现
+
+   ````js
+   interfae Config<T> {
+       (value: T): T;
+   }
+   function getData<T> (value: T) {
+       return value;
+   }
+   var test: Config<string> = getData();
+   test('str!!')
+   ````
+
+2. 泛型的接口与函数
+
+   `````js
+   interface Config {
+   	<T>(data: T): T;
+   }
+   var getDataConfig:Config = funtion<T>(value: T): T {
+       return value;
+   }
+   // 也可以不写尖括号
+   getDataConfig<string>('张三');
+   `````
+
+   
 
 ### 05 | 泛型类
 
@@ -1428,6 +1591,20 @@ const p3: Point<string> = new Point("1.32", "132", "1");
    # ⭐ 但开发不推荐！
    const arr: Array<any> = new Array([1, 2, ,3])
    ````
+   
+2. lz
+
+   ````js
+   class MinClas<T>{
+       public list:T[]=[];
+       add(value:T):void{
+           this.list.push(value);
+       }
+   }
+   var m1=new MinClas<number>();
+   ````
+
+   
 
 ### 06 | 泛型的类型约束
 
@@ -1451,7 +1628,7 @@ function getLength<T> (arg: T) {
 
 依旧存在问题，其不一定存在 length属性。故我们使用一种泛型约束手段来优化。
 
-⭐ extends
+⭐ extends， 我们需要传入符合约束类型的值，必须包含必须的属性：
 
 ````typescript
 interface ILength {
@@ -1461,8 +1638,6 @@ function getLength<T extends ILength>(arg: T) {
     return arg.length;
 }
 ````
-
-
 
 ## 6 类型声明
 
@@ -1720,7 +1895,7 @@ function add(a: number | string, b: number | string) {
    function add (num1: any, num2: any): any {
        return num1 + num2;
    }
-   const result add(20 + 30);
+   const result = add(20 + 30);
    ```
 
 2. 函数的重载中，实现的函数不能被直接调用的
@@ -1735,6 +1910,115 @@ function add(a: number | string, b: number | string) {
    ````
 
 3. 重载的时候，或许你应该尽量使用联合类型。
+
+## 10 typeof 和 keyof
+
+### 01 | typeof
+
+- 获取一个 【变量】或【对象】的类型注解的类型
+
+  ````typescript
+  interface Person {
+      name: string;
+      age: string;
+  }
+  const p: Person = {
+      name: 'hp',
+      age: 18
+  }
+  type Sem = typeof p;
+  ````
+
+### 02 | keyof
+
+- 用于获取某种类型的键，其返回的是联合类型
+
+  ````typescript
+  interface Person { name: string;  age: number; }
+  type K1 = keyof Person; // "name" | "age"
+  type K2 = keyof Person[]; // "length" | "push" | ....
+  ````
+
+- 一个典型 keyof的应用
+
+   当你传入一个 object 与 key 时， 若object不存在其key，便会报错。
+
+  ⭐ 泛型 + 泛型限制
+
+  ````js
+  function prop<T extends object, K extends keyof T>(object: T, key: K)  {
+      return obj[key];
+  }
+  ````
+
+  
+
+## 11 类型体操
+
+> - 什么是高级类型？
+>
+>   就像JavaScript的高阶函数一样（由一个函数创建出一个函数）。
+>
+>   高级类型是 通过 Type定义的【有类型的参数（泛型）】的类型，通过传入的类型参数进行一系列的类型计算，而产生的新的类型。
+
+````typescript
+type Pick<T, K extends keyof T> {
+    [P in K]: T[P];
+}
+````
+
+### 01 | 类型体操
+
+- 什么是类型体操
+
+  在ts的高级类型里，其根据类型参数生成新的类型的过程中，涉及的类型参数计算逻辑便是【类型体操】。
+
+### 02 | 常见的类型体操
+
+1. 条件判断
+
+   ````typescript
+   type isNumber<T> = T extends number ? true : false;
+   ````
+
+2. 递归模拟
+
+   ````typescript
+   type createArray<Len, Ele, Arr extends Ele[] = []> = 
+        Array['length'] extends Len ? Arr
+   								 : createArray<Len, Ele, [Ele, ...Arr]>
+            
+   type res = createArray<3, "a">;
+   ````
+
+3. 字符串操作
+
+   `````typescript
+   type left = "aaa";
+   type right = "bbb";
+   type str = `${left},${right}`; // "aaa,bbb"
+   
+   `````
+
+   - 此外可以模板匹配字符串的某一部分
+
+     ```typescript
+     type str = "aaa,bbb";
+     type res = str extends `aaa,${infer reset}` ? reset : null;
+     ```
+
+4. 对象操作
+
+   ````typescript
+   typeof obj = {a: 1, b: "2"};
+   type keys = keyof obj; // "a" | "b";
+   # 
+   type propB = obj[keys];// "1" | "2"
+   #
+   type newObj = {
+       [key in keyof obj]: obj[key]; 
+   }
+   ````
 
 ##  其他
 
