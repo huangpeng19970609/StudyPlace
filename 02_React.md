@@ -896,6 +896,7 @@ class Cmp extends PureComponent {
 真实开发的示范
 
 ````js
+
 ````
 
 
@@ -1680,7 +1681,7 @@ React并不提供状态管理功能，通常我们的选择是借助外部库，
    componentDidUpdate() {}
    
    #3 定时器 【同步事件】
-   this.setTimeou(()=> {
+   setTimeou(()=> {
        this.setState({});
        console.log(this.state)
    }, 0)
@@ -1792,19 +1793,128 @@ diff算法 => 两棵树的比较最先进的算法也是O的n3次方， react对
 
       因为其 每一次的插入时候其index也会发生变化，其没有任何意义。建议使用id作为key。   
 
-### 官网教程
+### hooks
 
-一个组件接收一些参数，我们把这些参数叫做 `props`（“props” 是 “properties” 简写）
+- 就是加强版函数组件，完全不使用"类"，就能写出一个全功能的组件。
 
-组合简单的组件来构建复杂的 UI 界面
+- React Hooks 的意思是，组件尽量写成纯函数，如果需要外部功能和副作用，就用钩子把外部代码"钩"进来
+- 强调
+  1. Hook 使用了 JavaScript 的闭包机制， 以便于我们读取 props、state等
+  2. 
 
-#### props传递数据
+#### 01 | useState
 
-```jsx
-class Board extends React.Component {
-    renderCmp(i) {
-        return <Cmp value="{}"></Cmp>
-    }
+````jsx
+import { useState } from 'react';
+const Index = () => {
+    const [count, setCount] = useState(0);
+    return (
+    	<div>
+        	<h2>{count}</h2>
+        </div>
+    )
 }
-```
+````
+
+- 修改数据
+
+  ```js
+  # 基本类型
+  setCount(count + 1);
+  # 对象类型
+  setObj({...obj, {name: 10}});
+  # 数组类型
+  setArr( () => {
+  	arr.push(100);
+      return [...arr]
+  })
+  # 函数
+  const [ func, setFunc ] = useState(() => 1);
+  ```
+
+
+
+#### 02 | useEffect
+
+- 强调： 完全不使用"类"，就能写出一个全功能的组件
+
+  class的场景： componentDidMount、componentDidUpdate、componentWillUnmount
+
+- 作用：
+
+  可以让你在函数组件中执行副作用操作
+
+- 特点：
+
+  无堵塞的更新，目的是组件挂载完以后，再执行，这样一定可以保证页面初始化结束。
+
+  useEffect 使用 闭包的形式来实现。
+
+- 清除阶段
+
+  1. 如果你的 effect 返回一个函数，React 将会在执行清除操作时(组件卸载)调用它
+  2. 此外，effect 的清除阶段在每次重新渲染时都会执行
+
+  ````js
+  useEffect( () => {
+      ChatAPI.subscribeToFriendStatus(props.friend.id, handler);
+  	return () => {
+          ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handler);
+      } 
+  })
+  ````
+
+- Effect 进行性能优化
+
+  过去class组件时候， 我们在 【componentDidUpdate】生命周期进行判断以提高性能。
+
+  1. 传递一个空数组, React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。这并不属于特殊情况 —— 它依然遵循依赖数组的工作方式
+
+     即 【componentDidMount】、【componentWillUnmount】
+
+  2. 如果数组中有多个元素，即使只有一个元素发生变化，React 也会执行 effect
+
+  ```js
+  # 仅在 props.friend.id 更改时更新
+  useEffect(() => {
+    document.title = `You clicked ${props.friend.id} times`;
+  }, [props.friend.id]); 
+  ```
+
+#### 03 | useContext
+
+1. 接收一个 context 对象， 故它总是与 React.createContext 配合使用
+2. 当前的 context 值由上层组件中距离当前组件最近的<MyContext.Provider的value属性决定的！
+3. 使用了 【useContext】的组件，总是在 【context 值】变化时重新渲染。
+
+````jsx
+
+````
+
+
+
+#### 04 | useRef
+
+- `useRef` 返回一个可变的 ref 对象, 其 `.current` 属性被初始化为传入的参数
+
+- 示范
+
+  ````jsx
+  function TextInputWithFocusButton() {
+    const inputEl = useRef(null);
+    const onButtonClick = () => {
+      inputEl.current.focus();
+    };
+    return (
+      <>
+        <input ref={inputEl} type="text" />
+        <button onClick={onButtonClick}>Focus the input</button>
+      </>
+    );
+  }
+  ````
+
+#### 
+
+
 
