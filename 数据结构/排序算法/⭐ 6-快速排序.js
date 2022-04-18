@@ -23,16 +23,18 @@ function quick(array, i, j) {
   if (array.length <= 1) {
     return array;
   }
-  // 以主元【排序】, 并获取 left = right + 1
+  // 以主元【排序】 比主元小的都会在左边，比主元大的都在主元右边
   index = partition(array, i, j);
-  // 若数组中存在较小值的元素
+  // 若返回的下标, 其大于i，代表左侧需要排序
+  // 减一的目的: 要包含右侧的 index - 1
   if (i < index - 1) {
     // [3, 5, 1, 2, 4]
     quick(array, i, index - 1);
   }
+  // 若返回的下标，其 index 小于j，代表右侧还需要排序
   // [7, 6]
   if (j > index) {
-    quick(array, index, j);
+    quick(array, index,  j);
   }
   return array;
 }
@@ -75,3 +77,4 @@ function partition(array, i, j) {
 let arr = [9, 8, 7, 6, 5];
 quickSort(arr);
 console.log(arr);
+

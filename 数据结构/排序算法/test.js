@@ -1,39 +1,35 @@
-// 快速排序
-function quickSort(arr) {
-  return quick(arr, 0, arr.length - 1);
-}
 /*
-  5 4 3 2 1
-  1 2 3 4 5
+  1. DNS 解析
+  2. 三次握手
+  3. 页面渲染
+  4. 四次挥手
 */
-function quick(arr, i, j) {
+function splitMerge(arr) {
   if (arr.length <= 1) return arr;
-  let index = splitSort(arr, i, j);
-  if (i < index - 1) {
-    quick(arr, i, index - 1);
-  }
-  if (j > index) {
-    quick(arr, index, j);
-  }
-  return arr;
+  const middle = Math.floor(arr.length / 2);
+  const left = splitMerge(arr.slice(0, middle));
+  const right = splitMerge(arr.slice(middle));
+  return arr = merge(left, right);
 }
-function splitSort(arr, i, j) {
-  const pivot = arr[Math.floor((i + j) / 2)];
-  while (i <= j) {
-    while (arr[i] < pivot) {
-      i++;
+function merge(left, right) {
+  let i = 0;
+  let j = 0;
+  const result = [];
+  while ( i < left.length  && j < right.length) {
+    if (left[i] < right[j]) {
+      result.push(left[i++]);
     }
-    while (arr[j] > pivot) {
-      j--;
-    }
-    if (i <= j) {
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-      i++;
-      j--;
+    else {
+      result.push(right[j++]);
     }
   }
-  return i;
+  if (i < left.length) {
+    return [...result, ...left.slice(i)];
+  }
+  else {
+    return [...result, ...right.slice(j)];
+  }
 }
-let arr = [9, 8, 7, 6, 5];
-quickSort(arr);
+let arr = [2, 2, 1, 100];
+arr = splitMerge(arr);
 console.log(arr);
