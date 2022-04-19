@@ -630,7 +630,6 @@ handleChange(event) {
    const EnhancedComponent = higherOrderComponent(WrappedComponent);
    ```
 
-   
 
 ### * Redux
 
@@ -1636,9 +1635,6 @@ React并不提供状态管理功能，通常我们的选择是借助外部库，
    import React, { Component } from 'react';
    ```
 
-   
-
-
 
 ### 其他
 
@@ -1888,10 +1884,42 @@ const Index = () => {
 3. 使用了 【useContext】的组件，总是在 【context 值】变化时重新渲染。
 
 ````jsx
+const thems = {
+    light: {
+        background: "#eeeeee",
+    }
+    dark: {
+    	background: "#222222"
+	}
+}
+const ThemContext = React.createContext(thems.light);
 
+function App() {
+    return (
+    	<ThemeContext.Provider value={thems.dark}>
+        	<Toolbar/>
+        </ThemeContext.Provider>
+    )
+}
+
+function Toolbar(props) {
+  return (
+    <div>
+      <ThemedButton />
+    </div>
+  );
+}
+
+# 当前的 context 值由上层组件中距离当前组件最近的<MyContext.Provider的value属性决定的！
+function ThemedButton() {
+  const theme = useContext(ThemeContext);
+  return (
+    <button style={{ background: theme.background, color: theme.foreground }}>
+      I am styled by theme context!
+    </button>
+  );
+}
 ````
-
-
 
 #### 04 | useRef
 
@@ -1914,7 +1942,107 @@ const Index = () => {
   }
   ````
 
-#### 
+#### 05 | useMemo
 
+1. 返回一个 [memoized](https://en.wikipedia.org/wiki/Memoization) 值, 它仅会在某个依赖项改变时才重新计算 memoized 值
+   - 使用 “ memoization ”提高性能——一种JavaScript的性能缓存技术
+   - 以空间换取时间
+2. 传入 `useMemo` 的函数会在渲染期间执行
+3. **你可以把 `useMemo` 作为性能优化的手段**
 
+```jsx
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
 
+#### 06 | useCallback
+
+1. 返回一个 [memoized](https://en.wikipedia.org/wiki/Memoization) 回调函数， 该回调函数仅在某个依赖项改变时才会更新
+
+2. `useCallback(fn, deps)` 相当于 `useMemo(() => fn, deps)`。
+
+   ```js
+   const memoizedCallback = useCallback(
+     () => {
+       doSomething(a, b);
+     },
+     [a, b],
+   );
+   ```
+
+#### 07 | useImperativeHandle
+
+> ```js
+> useImperativeHandle(ref, createHandle, [deps])
+> ```
+
+1. 在你使用ref时，可以自定义暴露给父组件的实例值
+2. `useImperativeHandle` 应当与 [`forwardRef`](https://react.docschina.org/docs/react-api.html#reactforwardref) 一起使用
+
+##### 认识forwardRef
+
+1. 使用 forwardRef 封装了一个组件
+
+   ````jsx
+   import { forwardRef } from 'react';
+   const Forward = forwardRef((props, ref) => {
+      return (
+      		<h3 ref={ref}>123</h3> 
+      ) 
+   });
+   ````
+
+2. 其父组件可拿取到子组件中某个元素的ref
+
+   ````jsx
+   export default () => {
+       const el = useRef(null);
+       return (
+       	<>
+           	<Forward ref={el}></Forward>
+           </>
+       )
+   }
+   ````
+
+##### useImperativeHandle
+
+- 获取子组件的实例属性
+
+`````jsx
+function FancyInput(props, ref) {
+  const inputRef = useRef();
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    }
+  }));
+  return <input ref={inputRef} ... />;
+}
+
+FancyInput = forwardRef(FancyInput);
+`````
+
+- 现在
+
+  你可以在渲染其的父组件中，通过inputRef.current.focus() 来调用它了！
+
+  ````jsx
+  export default () => {
+      const inputRef = useRef(null);
+      return (
+      	<>
+          	<FancyInput ref={inputRef}></FancyInput>
+          </>
+      )
+  }
+  ````
+
+#### 08 | useLayoutEffect
+
+类似于 useEffect
+
+- 但【useLayoutEffect】会堵塞组件， 即DOM 布局时同步触发重渲染 
+
+#### 09 | useReducer
+
+https://react.docschina.org/docs/hooks-reference.html#usereducer

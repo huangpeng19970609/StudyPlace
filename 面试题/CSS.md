@@ -2,43 +2,47 @@
 
 块级格式化上下文 Block Formatting Context
 
-**用于决定`块级盒的布局`及`浮动相互影响范围`的`一个区域`**
+> - 什么是BFC
+>   1. **隔离**
+>   2. 浮动元素
 
-1. 经常有margin溢出，导致位置改变
+1. margin溢出，导致位置改变
 
-   你可以用 BFC的隔离性 （  一个元素不能同时存在于两个 BFC 中 ）再其子元素外再创建BFC
+   你可以用 BFC的隔离性 ，（  一个元素不能同时存在于两个 BFC 中 ）再其子元素外再创建BFC
 
 2. BFC 不可以解决margin的重叠问题
 
-   解决垂直margin重叠问题的方法都可以让元素具有BFC特性，。
+   是解决垂直margin重叠问题的方法都可以让元素具有BFC特性，。
 
    但是让元素具有BFC特性不一定能够解决垂直margin重叠的问题。
 
    （ 而是浮动元素、inline-block 元素、绝对定位元素都在触发了BFC的同时解决了重叠问题 ）
 
-   ❗ 浮动元素、inline-block 元素、绝对定位元素的 margin 不会和垂直方向上其他元素的 margin 折叠（注意这里指的是上下相邻的元素）
+   ❗ 浮动元素、inline-block 元素、绝对定位元素的 margin 不会和垂直方向上其他元素的 margin 折叠
+
+   （注意这里指的是上下相邻的元素）
 
 3. BFC的区域不会与float box重叠（因为计算过程需要计算浮动流）
 
-   即 它认得出 【浮动流】！这真是太好了！
+   即 它认得出 【浮动流】！浮动流不会高度坍塌了
 
 4. BFC独立，不会影响外部元素
 
 创建BFC  满足其一
 
-1. 浮动元素、绝对定位 （absoluted、fixed）
+1. 浮动定位、绝对定位 （absoluted、fixed）的元素
 
-2. 表格的标题和单元格（display:  table）、行内块元素、弹性元素 ( flex )、网格元素 （grid）
+2. 表格的标题和单元格（display:  table）、行内块元素、网格元素 （grid）
 
    display`  为 table-caption，table-cell
 
 3. overflow不是visible
 
-4. html根元素创建bfc元素
 
 注意事项
 
 1. BFC中若再有BFC，这便是两个BFC （即**一个元素不能同时存在于两个 BFC 中**）
+   1. 此外 flex布局产生的是*flex formatting context*， 是flex-layout，其内部不许浮动。
 
 ### 2 为什么要初始化 CSS 样式
 
@@ -258,7 +262,13 @@ flex: 1 1 auto(0%);
 
 ### 8 行内块的幽灵节点
 
+1. **行级盒子 \**line boxes，是由好几个\**行内元素** inline boxes 组成的，正常情况下他们是下边缘对齐的
+2. 如果一个line box里**没有文字、保留的空格、非0的margin或padding或border的inline元素、或其他in-flow内容（比如图片、inline-block或inline-table元素）**，且不以保留的换行符结束的话，就会被视作**高度为0的line box**。
 
+解决办法：
+
+1. vertical-align 值 不要设置 baseline
+2. 修正line-height， （font-size的修改目的也是修改line-heihgt）
 
 ### 9 margin负值
 
