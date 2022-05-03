@@ -405,8 +405,8 @@ https://github.com/mqyqingfeng/Blog/issues/6
 
 比如dom的点击事件。都是 基于发布订阅模式。
 
-- DOM0 级事件：  直接html 元素上绑定 on-event
-- DOM2 级事件： 通过 addEventListener 注册事件
+- DOM0 级事件：  直接html 元素上绑定 on-event。仅许一个。
+- DOM2 级事件： 通过 addEventListener 注册事件。 支持多个事件。
 - DOM3级事件，增加了事件类型，比如 UI 事件，焦点事件，鼠标事件
 
 ### 15 new 一个函数发生了什么
@@ -447,6 +447,25 @@ https://github.com/mqyqingfeng/Blog/issues/6
 
 ### 14 闭包
 
-https://mp.weixin.qq.com/s?__biz=MzAxODE2MjM1MA==&mid=2651573240&idx=1&sn=3241251fd22402b8920a2ec524b6d5b6&chksm=80251c39b752952f57f4a1af9f01b6223c0bcd211450dc68f938822e403691f494f8770e3706&mpshare=1&scene=24&srcid=0408M3VQQHOPMYL6QwQqAT34&sharer_sharetime=1617876221799&sharer_shareid=0a52d1be9b22a62ff3e5ced00733a680#rd
-
 JavaScript的代码的整个执行过程分为【编译阶段】与【执行阶段】
+
+- 编译阶段由编译器完成。
+  1. 语法分析、词法分析
+  2. 作用域规则确定
+- 执行阶段由引擎执行（如V8），执行上下文在这个阶段创建。
+
+而闭包便是由【执行上下文】和【执行上下文】中创建的函数构成。
+
+### 15 讲一讲异步
+
+1. setTimeout
+2. MutationObserver / postMessage -> vue-2的nextTick实现
+3. Promise、async与await、generator
+
+### 16 不想访问原型
+
+所有继承了 Object 的对象都会继承到 hasOwnProperty 方法。
+
+这个方法可以用来检测一个对象是否含有特定的自身属性，
+
+和in 运算符不同，该方法会忽略掉那些从原型链上继承到的属性。

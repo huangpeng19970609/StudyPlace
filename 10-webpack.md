@@ -2,68 +2,63 @@
 
 `Webpack`
 
-## 序 注意事项
+## 序 自问自答
 
-- `若你要修改某个基础的配置， 你应该有这种【思想】
+### 01 | npx webpack
 
-  1. 底层总是命令行作为接口
+以命令行作为接口。执行
 
-     ```js
-      ../node_modules/.bin/webpack
-     ```
-     
-  2. 既然是可以命令行执行 对应的配置的  脚本提供。
+````js
+ ../node_modules/.bin/webpack
+````
 
-     1. npx webpack 
-       2. "build": "webpack"
+脚本命令中 是可以配置很多的，伴随命令行的增多， 脚本命令越来越长，配置文件便油然而生。
 
-  3. 若其脚本命令中 是可以配置很多的，伴随命令行的增多， 脚本命令越来越长。
+### 02 |  require("path")
 
-     故 【 配置文件】很重要， 。如 `webpack.config.js`的出现。
+答： 因为 path是 nodeJs  提供的 => node相当于一个环境。
 
-- 为什 可以 require 一个 node_modules中不存在的 ‘path’ 呢？
+​		  如 npm install 都是node环境提供的， `webpack也是基于node环境执行的`。
 
-  答： 因为 path是 nodeJs  提供的 => node相当于一个环境 
+​          如 npm run dev，其实就是配置在pakcage.json中的`npm脚本命令`
 
-  ​		  npm install 都是node环境提供的， 而`webpack也是基于node环境执行的`。
+​		  如 webpack中的js并非是浏览器中执行，而是NodeJS环境
 
-  ​          npm run dev，其实就是配置在pakcage.json中的`npm脚本命令`
+nodejs环境中跑webpack，当然可以使用node内置模块 
 
-  ​		 ⭐ webpack是通过node运行的，但是vue文件是运行后的webpack来操作的，
+​		 ⭐  nodejs的模块 require 先加载【`原生模块`】， 再去尝试 `文件模块`	 	
 
-  ​                不是直接由node执行的，所以无法访问node中的内置模块
+### 03 | process.env.isProduction
 
-  ​		 ⭐  nodejs的模块 require 先加载【`原生模块`】， 再去尝试 `文件模块`	 			
-  
-- 官方文档 https://webpack.docschina.org/concepts/#entry
+Node环境存在的变量是不存在Boolean类型的
 
-  官方文档中极其详细讲述了本文章大部分的知识点。
+### 04 | require的default
 
-- process.env.isProduction
+```js
+# esModule导出
+export default router;
+# commonJs导入
+const router = require('./routes').default;
+```
 
-  Node环境存在的变量是不存在Boolean类型的
+前端代码上线前如果使用webpack打包编译的，
 
-  ```js
-  process.env.isProduction = isProduction; // 将 false 赋予其 会发现 候会转为String
-  这是因为 process.env对象的属性赋值的问题
-  ```
-  
-- require一个node模块什么时候需要加上.default
+1. babel@5及之前的版本可以把  export和import转成  node的module.exports和require 
 
-  https://www.cnblogs.com/PeunZhang/p/12736940.html
+   故你不需要写【default】
 
-  前端代码上线前如果使用webpack打包编译的，
+2. babel@6版本开始不再把export default转成  node的  module.exports
 
-  1. babel@5及之前的版本可以把  export和import转成node的module.exports和require ，
+   故现在你额外需要写default了，export default 并不会被 require 作为语法糖而使用。
 
-  2. babel@6版本开始不再把export default转成  node的  module.exports
+### 05 | 
 
 ## 一 邂逅
 
-- 当代前端问题 => webpack都提供了对应的解决措施
+- webpack解决了哪些问题
   1. 模块化开发
-  2. 高级特性兼容问题
-  3. 热加载下·
+  2. 特性兼容问题
+  3. 热加载
   4. 压缩丑化优化
   
 - 什么是 webpack?
@@ -2579,7 +2574,7 @@ entry:{
           一般而言，我们确实也仅需要对异步进行chunk
 
      2. initial 同步导入 
-    
+   
      3. all 异步/同步导入
   
   ```js

@@ -78,7 +78,7 @@ Webpack选择了compose方式，而不是pipe的方式而已，在技术上实�
 
    Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果
 
-### 文件指纹
+### 文件指纹(hash)
 
 文件指纹是打包后输出的文件名的后缀。
 
@@ -88,7 +88,9 @@ Webpack选择了compose方式，而不是pipe的方式而已，在技术上实�
 
 2. Chunkhash
 
-    Webpack 打包的 chunk 有关，不同的 entry 会生出不同的 chunkhash
+    Webpack 打包的 chunk 有关，不同的 entry 会生出不同的 chunkhash.
+
+    根据不同的入口文件(Entry)进行依赖文件解析、构建对应的 chunk，生成对应的哈希值（来源于同一个 chunk，则 hash 值就一样）。
 
 3. Contenthash
 
@@ -283,3 +285,72 @@ https://zhuanlan.zhihu.com/p/363928061
 
 浏览器必须支持 sourcemap技术： 浏览器就会通过`sourceURL`去获取这份映射文件。。
 
+### package-lock.json
+
+- 为什么我们需要package-lock.json
+
+  我实际安装的 与 package.json的不一致
+
+  这是因为 每次重新安装依赖时，”次要版本“和“小版本”是会拉取最新的。\
+
+- 作用
+
+  当项目中已有 `package-lock.json` 文件，
+
+  在安装项目依赖时，将以该文件为主进行解析安装指定版本依赖包，而不是使用 `package.json` 来解析和安装模块
+
+❗cnpm 并不支持 package-lock.json，设置npm代理更好。
+
+### yarn
+
+1. 并行下载
+2. 离线模式，即再次安装从缓存获取，而不是npm
+3. **安装版本统一**， yarn-lcok文件
+4. 更好听的命令 yarn add此类
+
+### webpack5 有哪些新特性
+
+1. webpack5之前你总是需要
+
+   - url-loader (将文件作为 data URI 内联到 bundle 中)
+   - raw-loader (将文件导入为字符串)
+   - file-loader (将文件发送到输出目录)
+
+   ❗而现在
+
+   资源模块类型(asset module type)，通过添加 4 种新的模块类型，来替换所有这些 loader
+
+   - asset/resource 发送一个单独的文件并导出 URL（之前通过使用 file-loader 实现）
+   - asset/inline 导出一个资源的 data UR（之前通过使用 url-loader 实现）
+   - asset/source 导出资源的源代码（之前通过使用 raw-loader 实现）
+   - asset 在导出一个 data URI 和发送一个单独的文件之间自动选择（之前通过使用 url-loader，并且配置资源体积限制实现）
+
+2. **文件缓存**
+
+   过去 我们可能会借助插件、额外的配置来完成，但现在webpack提供了cache特性。
+
+   cache 会在 [开发模式](https://link.zhihu.com/?target=https%3A//webpack.docschina.org/configuration/mode/%23mode-development) 下被设置成 type: 'memory' 
+
+   - 即使内容修改，增量编译的缓存效果也很明显
+
+   这极大提高了再次编译的速度
+
+3. 更好的Tree-**Shaking**
+
+   mode 工作模式改为 production 自动打开
+
+   更好用的、提供更多配置。
+
+4. webpack5提供了 【splitchunk】，为了让我们的打出来的包体积更加小，颗粒度更加明确
+
+### tree-shaking 原理？
+
+利用`ES Module`做静态分析，通过分析 ast 语法树，对每个模块维护了一个作用域，收集模块内部使用的变量，然后分析作用域，将`import`进来未被使用的模块删除，最后递归处理文件。
+
+### babel 对 箭头函数的this处理
+
+过程：parser => transfrom => generator，可以根据自己的理解，展开说说。
+
+箭头函数转普通函数如何处理 this：就近找上一层作用域里面的 this，
+
+用一个唯一变量名 that 缓存一下 this，然后将之前箭头函数里面的 this 替换成 that 即可。

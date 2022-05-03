@@ -1228,7 +1228,7 @@ watch([() => ({...info}), name], (newValue, oldValue) => {
 - 若是传入一个普通的对象你应该使用deep
 
   ```js
-  watch(()=> {...info}, (newVal) => {
+  watch( ()=> ({...info}, (newVal) => {
   	console.log(newVal)
   }, {
       deep: true,

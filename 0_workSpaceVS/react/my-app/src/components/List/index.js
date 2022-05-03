@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import Item from "../Item/index.js";
+
 export default class List extends Component {
   state = {
     list: [],
@@ -20,13 +22,21 @@ export default class List extends Component {
   }
   componentDidMount() {
     this.getData().then((res) => {
-      console.log(res);
+      this.setState({
+        list: res,
+      });
     });
   }
   render() {
+    const { list } = this.state;
+    const { change } = this.props;
     return (
       <>
-        <p>123qqqq456</p>
+        <div className="menu-wrapper">
+          {list.map((item, index) => {
+            return <Item key={index} item={item} change={change}></Item>;
+          })}
+        </div>
       </>
     );
   }
