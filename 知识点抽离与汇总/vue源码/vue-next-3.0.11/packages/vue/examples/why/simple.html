@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+  <div id="app"></div>
+  <template id="my-app">
+    <div>Coderwhy</div>
+    <h2>Coderwhy</h2>
+    <p>{{message}}</p>
+    <button @click="changeMessage">修改message</button>
+  </template>
+  <script src="../../dist/vue.global.js"></script>
+  <script>
+    debugger;
+    const app = Vue.createApp({
+      template: `#my-app`,
+      data() {
+        return {
+          message: "Hello World"
+        }
+      },
+      methods: {
+        changeMessage() {
+          this.message = "你好啊, 李银河";
+        }
+      }
+    });
+    app.mount("#app");
+  </script>
+</body>
+</html>
