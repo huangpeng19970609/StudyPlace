@@ -1,4 +1,141 @@
+<<<<<<< HEAD
 - 
+=======
+### vue3.0的改进
+
+#### 01 | 性能优化
+
+重写了虚拟DOM的实现, 提升编译模板的优化
+
+- 现在可以进行【节点标记（PatchFlag）】，使得区分了静态节点与动态节点。
+
+- diff算法不再需要一定遍历所有节点，而是先查看是否是一个动态节点。
+
+  ````js
+  patchFlag & PatchFlags.TEXT
+  ````
+
+#### 02 | Tree shaking support
+
+- 未用的模块便不会被打包，拥有更多的功能，却更加mini。
+  1. 编译阶段利用`ES6 Module`判断哪些模块已经加载
+  2. 判断那些模块和变量未被使用或者引用，进而删除对应代码
+- 即 vue3.0 做成了按需引入 （ 这也是Composition API的必然）
+
+#### 03 |  Composition API
+
+- 过去的 mixin不再建议使用，而Composition API更可以实现灵活且无副作用的复用代码。
+
+- option api 也是支持使用的
+
+- vue-3的可响应模块也可以与其他框架使用
+
+- 而传统的OptionsAPI中， 当业务复杂时，弊大于利
+
+  新增或者修改一个需求，就需要分别在data，methods，computed里修改
+
+#### 04 | fragment & teleport
+
+- fragment （多template） 
+
+  组件支持多个template 。
+
+- teleport（传入）
+
+  `Teleport` 是一种能够将我们的模板移动到 `DOM` 中 `Vue app` 之外的其他位置的技术，
+
+  就有点像哆啦A梦的“任意门”
+
+  https://www.jianshu.com/p/1ecf5006b1ae
+
+#### 05 | 更好的TypeScript支持
+
+- vue-next 本身就是typescript编写的
+
+#### 06 | 更详细的讲述
+
+- 生命周期
+
+  1. 生命周期要【按需引入】
+  2. setup 便是围绕【beforeCreate】与【created】生命周期钩子运行的，不用显示定义。
+
+- 多根节点 （fragment），可支持多个template
+
+- 异步组件 （Suspense）
+
+  允许程序在等待异步组件加载完成前渲染兜底的内容，如 loading ， 这是一种用户体验的优化。
+
+  ```vue
+  <tempalte>
+    <suspense>
+      <!- 默认插槽 ->  
+      <template #default>
+        <List />
+      </template>
+      <!- 加载插槽 ->  
+      <template #fallback>
+        <div>
+          Loading...
+        </div>
+      </template>
+    </suspense>
+  </template>
+  ```
+
+- Teleport (任意门)
+
+   Teleport 组件可将部分 DOM 移动到 Vue app 之外的位置。比如项目中常见的 Dialog 弹窗
+
+  ```vue
+  <button @click="dialogVisible = true">显示弹窗</button>
+  
+  <teleport to="body">
+    <div class="dialog" v-if="dialogVisible">
+      我是弹窗，我直接移动到了body标签下
+    </div>
+  </teleport>
+  ```
+
+- 响应式原理
+
+  用proxy消除了 局限性
+
+  1. 对象、数组的 增 与 删除
+  2. length的变更
+  3. Map、Set的支持
+
+- VDOM
+
+  虚拟DOM上增加 patchFlag 字段
+
+- 事件缓存
+
+  `cacheHandler`可在第一次渲染后缓存我们的事件。
+
+  相比于 Vue2 无需每次渲染都传递一个新函数。加一个 click 事件
+
+- Diff算法优化
+
+  patchFlag 帮助 diff 时区分静态节点，以及不同类型的动态节点。一定程度地减少节点本身及其属性的比对
+
+- 打包优化
+
+  tree-shaking 的支持， 故全局API现在只能作为ES模块构建的命名导出进行访问.
+
+  Vue应用程序中未使用的 api 将从最终的捆绑包中消除，获得最佳文件大小.
+
+  也这也是组合式API的优点。
+
+  ```js
+  import { nextTick } from 'vue';   // 显式导入
+   
+  nextTick(() => {
+    // 一些和DOM有关的东西
+  });
+  ```
+
+- Composition API
+>>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
 
 ### 前言
 

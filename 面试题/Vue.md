@@ -221,6 +221,7 @@ https://segmentfault.com/a/1190000008291645
 
 > 此与绑定原理异曲同工
 
+<<<<<<< HEAD
 1. 观察者模式
 
    任何一个 Vue Component 都有一个与之对应的 Watcher 实例
@@ -250,6 +251,12 @@ https://segmentfault.com/a/1190000008291645
    ```js
    dep.notify();
    ```
+=======
+1. 任何一个 Vue Component 都有一个与之对应的 Watcher 实例
+2. data会被劫持与代理
+3. getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)
+4. data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新
+>>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
 
 ### 7 computed与watch实现机理
 
@@ -349,6 +356,7 @@ module是一种替代 scoped的方案。了解即可。
 
 
 
+<<<<<<< HEAD
 ### 11 vue的use
 
 
@@ -449,3 +457,5 @@ $on、$off、$set、$delete
 v-model使用的变化
 
 插槽的合并
+=======
+>>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
