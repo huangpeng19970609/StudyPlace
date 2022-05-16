@@ -1,0 +1,12 @@
+.main {
+  display: flex;
+}
+.left {
+  width: 10vw;
+  min-width: 100px;
+  background: #fff;
+}
+.right {
+  width: 90vw;
+  
+}

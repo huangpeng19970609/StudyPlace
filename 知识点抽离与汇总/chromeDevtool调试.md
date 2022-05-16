@@ -1,3 +1,7 @@
+### 01 | alt + click
+
+直接展开所有的子dom
+
 ### 命令行
 
 > screen + shift + p  唤醒chrome浏览器的命令行

@@ -221,10 +221,42 @@ https://segmentfault.com/a/1190000008291645
 
 > 此与绑定原理异曲同工
 
+<<<<<<< HEAD
+1. 观察者模式
+
+   任何一个 Vue Component 都有一个与之对应的 Watcher 实例
+
+   观察者模式，其中`Dep` 被观察者类（多个）。`Watcher` 观察者类。
+
+2. 劫持数据
+
+   Object.defineProperty / Proxy ---> 具体实现的便是 Observer 类
+
+   我们往往称呼一个实现了getter / setter的对象，称呼为响应式对象。
+
+3. 依赖收集
+
+   getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)。
+
+   ```js
+   Dep.target.addDep(this); 将自己加入到 Watcher中
+   ```
+
+4. 派发更新
+
+   data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新.
+
+   set以后， notify会对subs里的每一个watcher执行update
+
+   ```js
+   dep.notify();
+   ```
+=======
 1. 任何一个 Vue Component 都有一个与之对应的 Watcher 实例
 2. data会被劫持与代理
 3. getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)
 4. data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新
+>>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
 
 ### 7 computed与watch实现机理
 
@@ -320,5 +352,110 @@ module是一种替代 scoped的方案。了解即可。
    }
    ```
 
+### 10 reactive 与 ref的区别
 
 
+
+<<<<<<< HEAD
+### 11 vue的use
+
+
+
+### 12 vue3.0的改进
+
+#### 01 | 性能优化
+
+1. 重写了虚拟DOM的实现, 提升编译模板的优化
+   - 现在可以进行【节点标记（PatchFlag）】，使得区分了静态节点与动态节点。
+   - diff算法不再需要一定遍历所有节点，而是先查看是否是一个动态节点。
+
+````js
+patchFlag & PatchFlags.TEXT
+````
+
+2. 事件缓存
+
+   `cacheHandler`可在第一次渲染后缓存我们的事件。
+
+   相比于 Vue2 无需每次渲染都传递一个新函数。加一个 click 事件
+
+#### 02 | Tree shaking support
+
+- 未用的模块便不会被打包，拥有更多的功能，却更加mini。
+  1. 编译阶段利用`ES6 Module`判断哪些模块已经加载
+  2. 判断那些模块和变量未被使用或者引用，进而删除对应代码
+- 即 vue3.0 做成了按需引入 （ 这也是Composition API的必然）
+
+#### 03 |  Composition API
+
+1. Option API的反复横跳
+2. setup 便是围绕【beforeCreate】与【created】生命周期钩子运行的，不用显示定义。
+3. 而且你可以用hooks代替 原本的mixins
+
+#### 04 | 新的组件
+
+- fragment （多template） 
+
+  组件支持多个template 。
+
+- teleport（传入）
+
+  `Teleport` 是一种能够将我们的模板移动到 `DOM` 中 `Vue app` 之外的其他位置的技术，
+
+  就有点像哆啦A梦的“任意门”
+
+  https://www.jianshu.com/p/1ecf5006b1ae
+
+  ```js
+  <button @click="dialogVisible = true">显示弹窗</button>
+  
+  <teleport to="body">
+    <div class="dialog" v-if="dialogVisible">
+      我是弹窗，我直接移动到了body标签下
+    </div>
+  </teleport>
+  ```
+
+- Suspense
+
+  允许程序在等待异步组件加载完成前渲染兜底的内容，如 loading ， 这是一种用户体验的优化。
+
+  ````vue
+  <tempalte>
+    <suspense>
+      <!- 默认插槽 ->  
+      <template #default>
+        <List />
+      </template>
+      <!- 加载插槽 ->  
+      <template #fallback>
+        <div>
+          Loading...
+        </div>
+      </template>
+    </suspense>
+  </template>
+  ````
+
+#### 05 | 更好的TypeScript支持
+
+- vue-next 本身就是typescript编写的
+- vue-2 之前采用的是 FLow.js， 现在不再使用。
+
+#### 06 | 响应式原理的变更
+
+用proxy消除了 局限性。 而之前必须在 data 中声明属性。
+
+1. 对象、数组的 增 与 删除
+2. length的变更
+3. Map、Set的支持
+
+#### 07 | 废弃
+
+$on、$off、$set、$delete
+
+v-model使用的变化
+
+插槽的合并
+=======
+>>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
