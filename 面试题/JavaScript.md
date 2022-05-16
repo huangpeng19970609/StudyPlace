@@ -1,20 +1,26 @@
+### 0 自问
+
+1. target 与 currentTarget的区别
+2. instanceof原理
+3. DOM事件阶段
+4. requestAnimationFrame
+5. Object.is(a, b)
+6. 执行上下文在何时确定下来？this是在何时确定下来？
+7. ES6的新特性
+
 ### 1 event中target与currentTarget的区别
 
-1. target返回的触发事件的元素 
-
-   ⭐ 我们最常会用target进行 `事件委托`
-
-   我虽然给的是一个 大的父极绑定的元素，
-
-   但是点击哪个子元素时，event.target返回的是点击的元素节点
+1. event.target返回的是点击的元素节点
 
 2. currentTarget返回绑定事件的元素
 
+⭐ 我们最常会用target进行 【事件委托】，再获取 event.target进行处理。
+
 ### 2 instanceof的原理
 
-- 原理是 构造函数的 prototype 属性是否出现在对象的原型链中的任何位置、
-
-  故instanceof总是返回的true与false
+1. 原理是 构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
+2.  `__proto__ `与  prototype比较
+3. instanceof的返回值是一个布朗值
 
 ### 3 ES5 和 ES6 分别几种方式声明变量
 
@@ -45,13 +51,13 @@
 
 ### 5 requestAnimationFrame
 
-js做动画是以定时器为核心实现，下一次的宏任务可能被上一次的宏任务堵塞。
+js做动画是以【定时器】为核心实现，下一次的宏任务可能被上一次的宏任务【堵塞】
 
-1. 会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成
+1. 会把每一帧中的所有DOM操作集中起来，在【一次重绘或回流】中就完成。
 
-2. 更加智能。 更加的在隐藏或不可见的元素中，requestAnimationFrame将不会进行重绘或回流
+2. 回调函数执行次数通常与【浏览器屏幕刷新次数相匹配】。
 
-3. requestAnimationFrame更像是一个独立的任务队列。 GUI渲染之前执行，但在微服务之后。
+3. requestAnimationFrame更像是一个【独立的任务队列】。 GUI渲染之前执行，但在微服务之后。
 
    绝对是一个异步任务
 
@@ -65,15 +71,13 @@ js做动画是以定时器为核心实现，下一次的宏任务可能被上一
 
 ### 7 隐式转换
 
-- 共有
-
-  ````js
-  Number()
-  String()
-  Boolean() // 用 !! 同理
-  parseInt()
-  parseFloat()
-  ````
+````js
+Number()
+String()
+Boolean() // 用 !! 同理
+parseInt()
+parseFloat()
+````
 
 ### 8 如何让 a === 1 & a === 2
 
@@ -89,21 +93,22 @@ var a = {
 
 ### 9 函数柯里化（Currying）
 
-<<<<<<< HEAD
-###### 一个函数返回一个函数这便是函数柯里化。
-=======
 一个函数返回一个函数这便是函数柯里化。
->>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
+
+高阶函数是对其他函数进行操作的函数，如map、forEach...
 
 ### 10 原型链
 
 #### 01 | 概念
 
-````js
-Person() 	  prototype  ->			Person.prototype 
-        		 	 	  
-Person() 	  <- constructor	    Person.prototype 
+完全没有必要的解释，但他们在实现的关系便是如此。
 
+````js
+
+Person() 	  prototype  ->			Person.prototype 
+
+Person() 	  <- constructor	    Person.prototype 
+									
 Person()	  <- constructor		person    	
 
 person		   __proto__ ->			Person.prototype 
@@ -162,7 +167,7 @@ person		   __proto__ ->			Person.prototype
 
   JavaScript 使用【词法作用域】， 即【静态作用域】，即 【词法作用域】实现了JavaSCript的作用域
 
-  ⭐ 函数的作用域在函数定义的时候就决定了！
+  ⭐ 函数的作用域（上下文）在预编译时已确定。
 
   ````js
   var value = 1;
@@ -175,11 +180,10 @@ person		   __proto__ ->			Person.prototype
       var value = 2;
       foo();
   }
-  # 若是 动态 答案便是 2 -> 但其显然不是, 因为作用域已经在函数定义时候确定下来。
-  # 若是 静态 答案便是 1
   bar();
+  # 由于预编译期已确定上下文，故foo的上下文只能到value = 1;
   ````
-
+  
 - 块级作用域
 
    使用let、const声明的才会有【块级作用域】
@@ -279,7 +283,7 @@ https://github.com/mqyqingfeng/Blog/issues/6
 
    - 拓展运算符
 
-   - 方法的拓展： 
+   - 方法的拓展
 
      Array.from、findIndex、entries、includes、flat、fill
 
@@ -360,7 +364,11 @@ https://github.com/mqyqingfeng/Blog/issues/6
 
 - 答案
 
-  1. **进制转换*中出现了精度丢失，毕竟无限循环的二进制。
+  1. 【进制转换】中出现了精度丢失。
+
+     双精度浮点的小数部分最多只能保留 52 位。加首位，最多是53位数。
+
+     
 
   2. **对阶运算**中精度也出现了丢失。JS 引擎对二进制进行截断，所以造成精度丢失。（故01. === 0.1）
 
