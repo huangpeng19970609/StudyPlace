@@ -2,11 +2,18 @@
 
 ### 0 vue的注意事项
 
+可以参考的vue脚手架
+
+https://github.com/galaxy-s10/vue3-blog-admin
+https://github.com/galaxy-s10/mini-demo/tree/main/vue3-cli-demo
+
 #### property默认值
 
 disbled 有时候我们希望 `disabled`不要渲染出来，
 
 但是要给与一个默认值 ``null` `undefined` `false`
+
+
 
 #### 8  attribute 的合并
 
