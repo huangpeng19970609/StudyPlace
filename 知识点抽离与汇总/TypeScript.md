@@ -153,42 +153,33 @@ tslint --init
 
 ### 自我巩固
 
-1. 传递的对象其拥有多余的的属性，你应该如何处理?  （四种方法），
+1. 传递的对象其拥有多余的的属性，你应该如何处理?  （五种方法），
 
-   使用keyof、typeof也是高级解决方案，但大材小用。
-
+   1. 赋予一个新对象，可以规避
+   2. interface、type比较蠢
+   3. 使用 断言
+   4. 给与原本的prop以 索引签名
+   5. 使用类型体操的 keyof typeof来根据次生成。
 2. 字面量类型与 string的区别
-
 3. 尽可能的多提一些typescript的类型注解的类型
-
 4. any、unknown、void、never， never的场景
-
 5. 联合类型、交叉类型、类型别名
-
 6. 请你讲述一下 interface 与 type的区别
-
 7. 讲一下ts中的擦除出现的场景
-
 8. class
    - 讲述下class的成员修饰符
    - 抽象类、抽象方法， 为什么要有抽象类呢？
    - class的继承、多态
-
 9. 泛型
    - 为什么要有泛型？
    - 泛型接口
    - 泛型类
    - 泛型类型约束
    - 泛型有哪些约定俗成的名称
-
 10. 什么是类型声明，何时使用类型声明？
-
 11. 类型断言与非空类型断言
-
 12. 哪些可以使用类型缩小
-
 13. typeof & keyof
-
 14. 类型体操
 
 ### 面试题
@@ -1653,8 +1644,6 @@ declare function camelCase (input: string): string
 const res = camelCase('heloo!');
 ```
 
-
-
 ## 7 类型断言
 
 - 使用场景
@@ -1701,6 +1690,7 @@ let strLength: number = (<string>someValue).length;
 # 方式二 使用as语句
 let someValue: any = "this is a string";
 let strLength: number = (someValue as string).length;
+let strLength: number = (<string>someValue).length;
 
 # 了解即可。切勿这样做。
 let str: string = 'qwert';
