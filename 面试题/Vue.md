@@ -1,3 +1,9 @@
+### 0 自问
+
+1. vueX
+2. vue组件传递方式
+3. 父组件监听子组件的生命周期
+
 ### 1 vueX
 
 > vuex的store有State、 Getter、Mutation 、Action、 Module五种属性\
@@ -7,28 +13,18 @@
 3. **mutation** 更改store中state状态的唯一方法就是提交mutation
 4. **action**  异步操作数据， view 层通过 store.dispath 来分发 action
 
-如何共享？
-
-1. vuex-init混淆进Vue的beforeCreacte钩子
-
-   beforeCreate的时候注册了store， 若为根元素可直接获取，否则从parent上取store
-
 ### 2 vue传值方式
 
 1. 依赖注入 provide / inject => **一个祖先组件向其所有子孙后代注入一个依赖**
 
 2. `$attrs`/`$listeners` => **跨级组件之间的通讯变得更简单** 
 
-   一个负责收纳属性，一个负责收纳事件
-
-   $attrs存在了父元素但未被prop所识别。
-
-   你应该配合 inheritAttrs: false 来使用！
+   一个负责收纳属性，一个负责收纳事件。$attrs存在了父元素但未被prop所识别。配合 inheritAttrs: false 来使用。
 
    ```js
-   <child-com1
+<child-com1
          :foo="foo"
-         :boo="boo"
+      :boo="boo"
          :coo="coo"
          :doo="doo"
          title="前端工匠"
@@ -47,13 +43,13 @@
    
     this.$listeners.two()
    ```
-
+   
    - 关于 listener
-
+   
      ```js
-     <child 
+  <child 
          :foo="foo" 
-         :bar="bar"
+      :bar="bar"
          @one.native="triggerOne"
          @two="triggerTwo">
      </child>
@@ -61,10 +57,10 @@
      则再child里 this.$listeners.two(); => 便可以访问到 triggerTwo
      # v-on="$listeners" 一级级的往下传递，子子孙孙无穷尽也！
      ```
-
+   
      
-
-3. bus通信， vue3已废弃
+   
+3. bus通信。
 
 4. 父子传值 props / $emit
 
@@ -78,13 +74,11 @@
 
 1. @hook对应的生命周期即可
 
-   ```js
+   ```html
    <Child @hook:mounted="doSomething" ></Child>
    ```
 
 2. 对应声明周期 $emit即可
-
-
 
 ### 4 虚拟DOM
 
@@ -97,6 +91,10 @@
 3. 将DOM树和样式表，关联起来，构建一颗Render树
 4. 有了Render树，浏览器开始布局。为每个Render树上的节点确定一个在显示屏上出现的精确坐标。
 5. Render树和节点显示坐标都有了，就调用每个节点**paint方法，把它们绘制**
+
+----
+
+1. 
 
 #### 02 | 为什么虚拟DOM快？
 

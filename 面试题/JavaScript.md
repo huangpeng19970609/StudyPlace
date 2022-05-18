@@ -1,12 +1,33 @@
 ### 0 自问
 
 1. target 与 currentTarget的区别
+
 2. instanceof原理
+
 3. DOM事件阶段
+
 4. requestAnimationFrame
+
 5. Object.is(a, b)
+
 6. 执行上下文在何时确定下来？this是在何时确定下来？
+
 7. ES6的新特性
+
+8. 小数计算精度误差的原因？怎么解决呢？
+
+   - 精度转换，IEEE754，53位数 -> 精度缺少
+   - 对阶运算，二进制截取， 导致精度计算的丢失。
+
+9. DOM三级事件
+
+10. new一个函数发生了什么
+
+11. symbol的好处
+
+12. 
+
+    
 
 ### 1 event中target与currentTarget的区别
 
@@ -413,13 +434,23 @@ https://github.com/mqyqingfeng/Blog/issues/6
      - 小数部分再转换为整数
      - 再转换为浮点数。
 
-### 14 事件是如何实现的
+### 14 DOM三级事件
 
-比如dom的点击事件。都是 基于发布订阅模式。
+比如dom的点击事件。都是 基于发布订阅模式。1级DOM不涉及DOM事件，故不存在DOM1级事件。
 
 - DOM0 级事件：  直接html 元素上绑定 on-event。仅许一个。
+
+  原始事件模型（浏览器处理事件的开始）
+
 - DOM2 级事件： 通过 addEventListener 注册事件。 支持多个事件。
-- DOM3级事件，增加了事件类型，比如 UI 事件，焦点事件，鼠标事件
+
+  如 UI、鼠标、键盘、HTML事件。
+
+  事件传播遵循 【事件阶段】（捕获、目标、冒泡）
+
+- DOM3级事件。
+
+  DOM3级事件就是在DOM2基础上增加了更多的事件类型
 
 ### 15 new 一个函数发生了什么
 
