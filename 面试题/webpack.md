@@ -354,3 +354,13 @@ https://zhuanlan.zhihu.com/p/363928061
 箭头函数转普通函数如何处理 this：就近找上一层作用域里面的 this，
 
 用一个唯一变量名 that 缓存一下 this，然后将之前箭头函数里面的 this 替换成 that 即可。
+
+### 提高首屏速度
+
+https://vue3js.cn/interview/vue/first_page_time.html#%E4%B8%89%E3%80%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88
+
+- 减少入口文件体积，常见便是懒加载，CSS分块。
+- 静态资源本地缓存
+  1. 采用`HTTP`缓存，设置`Cache-Control`，`Last-Modified`，`Etag`等响应头（后端同学）
+  2. 
+

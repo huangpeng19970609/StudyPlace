@@ -3,6 +3,12 @@
 1. vueX
 2. vue组件传递方式
 3. 父组件监听子组件的生命周期
+4. 浏览器的dom解析过程， 为什么说vdom更快？
+5. vue可以探测数据变化，为什么还需要VDOM的diff算法？
+6. VDOM的意义是什么？ （回流重绘）
+7. Vue双向绑定原理
+8. scoped 与 module
+9. 
 
 ### 1 vueX
 
@@ -47,7 +53,7 @@
    - 关于 listener
    
      ```js
-  <child 
+    <child 
          :foo="foo" 
       :bar="bar"
          @one.native="triggerOne"
@@ -92,10 +98,6 @@
 4. 有了Render树，浏览器开始布局。为每个Render树上的节点确定一个在显示屏上出现的精确坐标。
 5. Render树和节点显示坐标都有了，就调用每个节点**paint方法，把它们绘制**
 
-----
-
-1. 
-
 #### 02 | 为什么虚拟DOM快？
 
 - 虚拟DOM是真实DOM的一层抽象数据（AST）
@@ -123,7 +125,7 @@
 
     有 diff 算法，可以减少没必要的 DOM 操作
 
-    
+  - 为了框架的实现而存在。
 
 #### 03 | 关于源码
 
@@ -151,34 +153,20 @@ https://segmentfault.com/a/1190000008291645
 
   1. **多次的DOM的API的调用不会触发多次的回流与重绘**
 
-     事实上，Javascript 线程和 UI 线程是互斥的，故执行期间不可能触发回流与重绘。无效的改变，是浏览器的渲染本身机制，而非VDOM
+     ⭐ 事实上，Javascript 线程和 UI 线程是互斥的，故执行期间不可能触发回流与重绘。
+
+     浏览器的渲染本身机制决定回流与渲染，而不是DOM API的调用。
+
+     简而言之：
+
+     ❗**无论你在一次事件循环中调用多少次的 DOM API ，浏览器也只会触发一次回流与重绘（如果需要），并且如果多次调用并没有修改 DOM 状态，那么回流与重绘一次都不会发生**。
 
   2. **批量操作并不能减少回流与重绘**
 
-     Javascript 是单线程且与 UI 线程互斥
+     依旧是【Javascript 单线程引擎且与 UI 线程互斥】这个理由。无论你在一次事件循环中调用多少次的 DOM API ，浏览器也只会触发一次回流与重绘。
 
-     - Layout 耗时（数据取3次平均值）几乎相等
-     - Javascript 执行耗时略有20%的差别
 
-     ```js
-     // 单独操作
-     for (let i = 0; i < counts; i++) {
-     	let node = document.createTextNode(`${i}, `)
-     	$app.append(node)
-     }
-     
-     // 批量操作
-     let $tempContainer = document.createElement('div')
-     for (let i = 0; i < counts; i++) {
-     	let node = document.createTextNode('node,')
-           $tempContainer.append(node)
-     }
-     $app.append($tempContainer)
-     
-     
-     ```
-
-#### 06 | 总结
+#### 06 | 总结 
 
 1. 操作VDOM很快，但这并不是它的优势。
 
@@ -193,86 +181,100 @@ https://segmentfault.com/a/1190000008291645
    - **其抽象能力和常驻内存的特性**
    - **让框架能更容易实现更强大的 diff 算法，缺点是增加了框架复杂度，也占用了更多的内存**
 
-### 5 Vue 双向绑定原理
+### 5 源码之Vue 双向绑定原理
 
-> 当数据发生变化时，触发 Observer 中 setter 方法，
->
-> 立即调用 Dep.notify(),Dep 这个数组开始遍历所有的订阅者，并调用其 update 方法，
->
-> Vue 内部再通过 diff 算法，patch 相应的更新完成对订阅者视图的改变
+https://www.cnblogs.com/hanguidong/p/9533139.html
 
-1. 数据监听器 Observer 
+![image-20220518150038987](../images/image-20220518150038987.png)
 
-   数据劫持， 初始getter时进行依赖收集至Wachter中的Dep， 
+1. 观察者 Observer 
 
-   若进行改动，触发setter中的Wachter的Dep的notify
+   正因为 Observe，所以可以实现数据劫持，在初始getter时（Compile阶段），将Wachter依赖收集至Dep.
+
+   正因为 Observe，所以可以实现数据改动，触发setter中的Dep， Dep去notify其中收集的Wachter（订阅者）的update，以触发其Watcher其update方法。
 
 2. Compile
 
-   在对VNODE进行解析的时候，即触发getter进行依赖收集
+   对于Wachter， 初始getter时（Compile阶段），将Wachter依赖收集至Dep。
 
-3. Wachter
+3. Wachter (订阅者)
 
    即连接 Observer 和 Compile 的桥梁， 存储对应回调事件，从而实现双绑。
 
-### 6 Vue的响应式
+   Vue 内部再通过 diff 算法，patch 相应的更新完成对订阅者视图的改变。
 
-> 此与绑定原理异曲同工
-
-<<<<<<< HEAD
-1. 观察者模式
-
-   任何一个 Vue Component 都有一个与之对应的 Watcher 实例
-
-   观察者模式，其中`Dep` 被观察者类（多个）。`Watcher` 观察者类。
-
-2. 劫持数据
-
-   Object.defineProperty / Proxy ---> 具体实现的便是 Observer 类
-
-   我们往往称呼一个实现了getter / setter的对象，称呼为响应式对象。
-
-3. 依赖收集
-
-   getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)。
+   （此外 Compile也是初始化视图的手段，Watcher强调的是更新）
 
    ```js
-   Dep.target.addDep(this); 将自己加入到 Watcher中
+   # 注意此处是极其精细化的处理，真实开发其用的是diff算法来更新。
+   Watcher.prototype = {
+       update: function() {
+           this.get();
+           this.node[this.type] = this.value; // 订阅者执行相应操作
+       },
+       // 获取data的属性值
+       get: function() {
+           console.log(1)
+           this.value = this.vm[this.name]; //触发相应属性的get
+       }
+   }
    ```
 
-4. 派发更新
+4. Dep
 
-   data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新.
+   vue响应式属性都要经过Object.defineProperty()
 
-   set以后， notify会对subs里的每一个watcher执行update
+   - 为每个属性分配一个订阅者集合的管理数组dep
+   - 编译的时候在该属性的数组dep中添加订阅者
+   - v-model会添加一个订阅者，{{}}也会，v-bind也会，只要用到该属性的指令理论上都会
+   - 触发该属性的set方法，在set方法内通知订阅者数组dep，订阅者数组循环调用各订阅者的update方法更新视图
 
    ```js
-   dep.notify();
+   	Object.defineProperty(obj, key, {
+                get: function() {
+                       if(Dep.target) {
+                           dep.addSub(Dep.target);
+                       }
+                       return val;
+                },
+                set: function (newVal) {
+                       if(newVal === val) return;
+                       val = newVal;
+                       dep.notify();
+                }
+          })
    ```
-=======
-1. 任何一个 Vue Component 都有一个与之对应的 Watcher 实例
-2. data会被劫持与代理
-3. getter 方法会被调用, 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)
-4. data 被改动时（主要是用户操作）, 即被写, setter 方法会被调用, 此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新
->>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
 
-### 7 computed与watch实现机理
+### 6 computed与watch实现机理
 
-> wachter机制
+1. computed
 
+   - 当模板中的某个值需要通过一个或多个数据计算得到时，就可以使用计算属性.
 
+   - 计算属性的本质是属性，当访问到其 【计算属性】时，才会触发getter再依赖收集。
 
-### 8 vue的nextTick
+     当触发内部状态的任一setter时，computed会重新计算（当然内部是响应数据）
+
+2. watch
+
+   属性主要是监听某个值发生变化后，对新值去进行逻辑处理
+
+   ```js
+   #1 initWatch
+   	初始化watch
+   #2 this.$watch
+   	触发对应的getter，令watcher加入到dep
+   #3 new Watcher
+   	若是 render-watcher，此时实例化render-wachter
+   #4 vm._render
+   	触发对应的getter，以让dep收集到此watcher
+   ```
+
+### 7 vue的nextTick
 
 ick 即指的是微任务！与微任务进行了联动！
 
-nextTick的主要目的就是为了`让你获取到更新后的dom元素`, 不过在此时也保证了dom肯定存在
-
-> 一处误区
->
-> 虽然UI渲染也是一个宏任务，但DOM的修改是一个同步的任务！故vue在实现的时候其实也考虑到了此点，
->
-> vue的dom操作是微任务，之后再进行UI渲染，减少了ui的渲染性能。
+nextTick的主要目的就是为了让你获取到更新后的dom元素。
 
 实现
 
@@ -299,9 +301,11 @@ nextTick的主要目的就是为了`让你获取到更新后的dom元素`, 不�
 
 5. setTimeout宏任务
 
-### 9 scoped与module
+### 8 scoped与module
 
 #### 01 | scoped
+
+其实现插件： PostCss
 
 1. 给每一个html的dom节点添加不重复的data属性
 2. 在每句css选择器的末尾，添加属性选择器 (特指data)， 来私有化选择器。
@@ -350,16 +354,58 @@ module是一种替代 scoped的方案。了解即可。
    }
    ```
 
-### 10 reactive 与 ref的区别
+### 9 vue的use
 
+是Vue作为插件给全局添加的功能。它要求你是一个对象，且拥有install方法，以此实现更加复杂的功能。
 
+- vue.component
+- vue.mixins
+- ...
 
-<<<<<<< HEAD
-### 11 vue的use
+### 10 对vue的理解
 
+- MVVM  （VM是V -> M单项数据的中间层，也实现双向绑定）
+- 组件化
+- 指令系统 -> 作用于DOM
+- 与react的区别
+  1. react一直推崇单向数据流，以至于redux的实现并非在react的考虑范围内
+  2. vue使用的响应式数据
+  3. diff算法不同。react是【diff队列保存哪些更新的dom】，vue是双指针【对比比较，再更新】。
 
+### 11 源码之v-if 与 v-show
 
-### 12 vue3.0的改进
+v-if 的注意事项
+
+1. 与key结合使用，可以服用已有元素。
+2. 配合组件使用，会触发组件生命周期函数
+3. 与transition使用，根据transition触发过渡动画效果
+
+v-show
+
+1. 仅在修改其元素的display （v-show时也会判断有无transition属性而触发动画）
+
+### 12 源码之Vue实例的挂载过程
+
+1. 实例化属性合并 （extends、mixins属性混入）
+2. 生命周期标识符的初始化、组件事件系统的初始化
+3. beforeCreate，并初始化组件依赖注入内容（inject）
+4. 初始化initState （initProps、initMethods、initData、computed、初始化watch）
+5. created触发
+6. 编译并挂载模板
+   - template -> AST -> render函数 -> 挂载至DOM
+   - 调用beforeMount，定义updateComponents方法
+   - 当前vue组件实例化Watcher
+     1. updateComponents调用render函数，以生成vnode
+     2. 调用当前的vm._patch_根据vnode生成真实DOM，移除old-node
+     3. 触发mounted
+
+### 加快
+
+### 
+
+### reactive 与 ref的区别
+
+### vue3.0的改进
 
 #### 01 | 性能优化
 
@@ -454,6 +500,4 @@ $on、$off、$set、$delete
 
 v-model使用的变化
 
-插槽的合并
-=======
->>>>>>> 2f9b1cf7b276e51ea5a21d2c3ad9205851816ab6
+#### 08 | 插槽的合并
