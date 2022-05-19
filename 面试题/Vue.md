@@ -183,7 +183,7 @@ https://segmentfault.com/a/1190000008291645
 
 ### 5 源码之Vue 双向绑定原理
 
-https://www.cnblogs.com/hanguidong/p/9533139.html
+https://vue3js.cn/interview/vue/bind.html#%E4%BA%8C%E3%80%81%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88
 
 ![image-20220518150038987](../images/image-20220518150038987.png)
 
@@ -399,9 +399,29 @@ v-show
      2. 调用当前的vm._patch_根据vnode生成真实DOM，移除old-node
      3. 触发mounted
 
-### 加快
+### 为什么data是一个函数？
 
-### 
+1. vue实例注册时data既可以是对象也可以是一个函数。
+
+   Vue实例只会存在一个。
+
+2. 组件data属性，只可为函数。
+
+   vue`最终都会通过`Vue.extend()`构成组件实例。故不可以要避免data同时指向一个地址。
+
+   即 一个组件可能会被多次使用。
+
+   具体是在 `initData`时会将其作为工厂函数都会返回全新`data`对象
+
+### mixin
+
+https://vue3js.cn/interview/vue/mixin.html#%E4%B8%89%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90
+
+### vue插件
+
+- 实现上：vue的插件的实现总是暴露install方法，如Element-UI就可看作是一个插件。
+- 注册上：插件总是Vue.use,  在new Vue前
+- 功能： 插件增强Vue的功能模块，比如Vue-router、VueX这些。
 
 ### reactive 与 ref的区别
 

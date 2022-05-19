@@ -359,8 +359,28 @@ https://zhuanlan.zhihu.com/p/363928061
 
 https://vue3js.cn/interview/vue/first_page_time.html#%E4%B8%89%E3%80%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88
 
+总的来说【分包】、【缓存】、【压缩文件（gzip）（图片）】、【UI按需引用】、【script的下载】、【减少打包的大小 （避免组件重复打包、CDN....）】
+
 - 减少入口文件体积，常见便是懒加载，CSS分块。
+
 - 静态资源本地缓存
   1. 采用`HTTP`缓存，设置`Cache-Control`，`Last-Modified`，`Etag`等响应头（后端同学）
-  2. 
+  2. Service Worker
+  3. 合理的使用localStorage也可以优化速度
+  
+- 图片资源的压缩
+
+  精灵图、图片资源的适当压缩、善用字体库。
+
+- UI框架按需加载
+
+- 避免组件重复打包。
+
+   设置 （CommonsChunkPlugin）的minChunks， 将重复依赖的包抽离放于公共依赖文件，使得避免重复加载组件。
+
+- 开启gzip压缩
+
+  使用【compression-webpack-plugin】，并让浏览器支持gzip压缩。
+
+- async / defer
 
