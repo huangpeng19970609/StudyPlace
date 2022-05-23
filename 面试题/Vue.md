@@ -222,13 +222,18 @@ https://vue3js.cn/interview/vue/bind.html#%E4%BA%8C%E3%80%81%E5%8F%8C%E5%90%91%E
 
 4. Dep
 
-   vue响应式属性都要经过Object.defineProperty()
+   vue响应式属性都要经过Object.defineProperty()，每一个属性便是有一个dep
 
-   - 为每个属性分配一个订阅者集合的管理数组dep
-   - 编译的时候在该属性的数组dep中添加订阅者
-   - v-model会添加一个订阅者，{{}}也会，v-bind也会，只要用到该属性的指令理论上都会
+   - 为每个属性分配一个订阅者集合的管理数组dep， 每一个dep下可能有一个或多个Wachter
+   
+     一般而言，Watcher处理的对象是VueComponent。
+   
+- 编译的时候在该属性的数组dep中添加订阅者
+   
+   - v-model会添加一个订阅者，{{}}也会，v-bind也会，只要用到该属性的指令理论上都会。
+   
    - 触发该属性的set方法，在set方法内通知订阅者数组dep，订阅者数组循环调用各订阅者的update方法更新视图
-
+   
    ```js
    	Object.defineProperty(obj, key, {
                 get: function() {
