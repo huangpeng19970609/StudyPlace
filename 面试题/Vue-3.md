@@ -139,13 +139,38 @@ v-model使用的变化
 
    - diff算法优化
 
-     
+     静态标记， 给与 【PatchFlags 】，若是静态节点，则diff时不予比较。
 
    - 静态提升
 
+     不参与更新的元素，会静态提升，以至于创建时创建一次，渲染时直接复用。
+
+     ````js
+     export function render(_ctx, _cache, $props, $setup, $data, $options) {
+       return (_openBlock(), _createBlock(_Fragment, null, 
+         # 静态提升 （再次渲染替换  _createVNode("span", null, "你好") ）
+         _hoisted_1,
+         _createVNode("div", null, _toDisplayString(_ctx.message), 1 /* TEXT */)
+       ], 64 /* STABLE_FRAGMENT */))
+     }
+     ````
+
    - 事件监听缓存
 
-   
+     ````js
+     export function render(_ctx, _cache, $props, $setup, $data, $options) {
+       return (_openBlock(), _createBlock("div", null, [
+         _createVNode("button", {
+           onClick: _cache[1] || (_cache[1] = (...args) => (_ctx.onClick(...args)))
+         }, "点我")
+       ]))
+     }
+     ````
 
-2. 静态提升
+2. 源码体积
 
+   - Tree shanking， 按需加载
+
+3. 响应式系统
+
+   `vue3`采用`proxy`重写了响应式系统
