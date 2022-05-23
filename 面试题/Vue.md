@@ -1,14 +1,47 @@
 ### 0 自问
 
-1. vueX
-2. vue组件传递方式
-3. 父组件监听子组件的生命周期
-4. 浏览器的dom解析过程， 为什么说vdom更快？
-5. vue可以探测数据变化，为什么还需要VDOM的diff算法？
-6. VDOM的意义是什么？ （回流重绘）
-7. Vue双向绑定原理
-8. scoped 与 module
-9. 
+https://vue3js.cn/interview/vue/mixin.html#%E4%B8%89%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90
+
+1. vue组件传递方式
+
+2. 父组件监听子组件的生命周期
+
+3. 浏览器的dom解析过程
+
+4. 谈一下VODM
+
+   - 为什么说vdom更快？
+
+   - vue可以探测数据变化，为什么还需要VDOM的diff算法？
+
+   - VDOM的意义是什么？ （回流重绘）
+
+5. Vue双向绑定原理
+
+6. scoped 与 module
+
+7. computed与watch
+
+8. vue.use
+
+9. 你对vue的理解
+
+10. v-if
+
+11. ⭐ vue实例的挂载过程
+
+12. 为什么vue的data是一个函数
+
+    - vue.extend
+    - initState
+
+13. mixin
+
+14. 插槽
+
+15. vue的key的原理
+
+16. keep-alive的理解
 
 ### 1 vueX
 
@@ -86,17 +119,17 @@
 
 2. 对应声明周期 $emit即可
 
-### 4 虚拟DOM
+### 3 真实DOM的解析过程
 
-#### 01 | 真实DOM的解析过程
-
-创建DOM树 => 创建StyleRules => 创建Render树 => 布局Laypit => 绘制Painting
+创建DOM树 => 创建StyleRules => 创建Render树 => 布局layOut=> 绘制Painting
 
 1. 创建DOM树: 用HTML分析器，分析HTML元素，**构建一颗DOM树**
 2. StyleRules:  用CSS分析器，分析CSS文件和元素上的inline样式，生成页面的样式表
 3. 将DOM树和样式表，关联起来，构建一颗Render树
-4. 有了Render树，浏览器开始布局。为每个Render树上的节点确定一个在显示屏上出现的精确坐标。
+4. 有了Render树，浏览器开始布局。为每个Render树上的节点确定一个在显示屏上出现的精确坐标， 此为Layout
 5. Render树和节点显示坐标都有了，就调用每个节点**paint方法，把它们绘制**
+
+### 4 虚拟DOM
 
 #### 02 | 为什么虚拟DOM快？
 
@@ -137,7 +170,7 @@ https://segmentfault.com/a/1190000008291645
 
 所以vue采用了组件级的watcher配合diff来检测差异。
 
-⭐ vue 2.x中为了降低Watcher粒度，每个组件只有一个Watcher与之对应，只有引入diff才能精确找到 发生变化的地方
+⭐ vue 2.x中为了降低Watcher粒度，每个组件只有一个Watcher与之对应，只有引入diff才能精确找到  发生变化的地方
 
 #### 05 | VDOM真的减少了回流和重绘吗？
 
@@ -367,6 +400,16 @@ module是一种替代 scoped的方案。了解即可。
 - vue.mixins
 - ...
 
+什么是Vue的插件
+
+- 实现上
+
+  vue的插件的实现总是暴露install方法，如Element-UI就可看作是一个插件。
+
+- 功能
+
+   插件增强Vue的功能模块，比如Vue-router、VueX这些。
+
 ### 10 对vue的理解
 
 - MVVM  （VM是V -> M单项数据的中间层，也实现双向绑定）
@@ -381,7 +424,7 @@ module是一种替代 scoped的方案。了解即可。
 
 v-if 的注意事项
 
-1. 与key结合使用，可以服用已有元素。
+1. 与key结合使用，可以复用已有元素。
 2. 配合组件使用，会触发组件生命周期函数
 3. 与transition使用，根据transition触发过渡动画效果
 
@@ -402,9 +445,9 @@ v-show
    - 当前vue组件实例化Watcher
      1. updateComponents调用render函数，以生成vnode
      2. 调用当前的vm._patch_根据vnode生成真实DOM，移除old-node
-     3. 触发mounted
+7. 触发mounted
 
-### 为什么data是一个函数？
+### 13 为什么data是一个函数？
 
 1. vue实例注册时data既可以是对象也可以是一个函数。
 
@@ -418,111 +461,472 @@ v-show
 
    具体是在 `initData`时会将其作为工厂函数都会返回全新`data`对象
 
-### mixin
+### 14 mixin
 
-https://vue3js.cn/interview/vue/mixin.html#%E4%B8%89%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90
+- 目的
 
-### vue插件
+  代码复用 + 独立继承
 
-- 实现上：vue的插件的实现总是暴露install方法，如Element-UI就可看作是一个插件。
-- 注册上：插件总是Vue.use,  在new Vue前
-- 功能： 插件增强Vue的功能模块，比如Vue-router、VueX这些。
+- 实现形式
 
-### reactive 与 ref的区别
+  传入对象，将公用功能混入到该组件本身的选项中来
 
-### vue3.0的改进
+- 常见场景
 
-#### 01 | 性能优化
+  弹窗组件、Tooltip组件
 
-1. 重写了虚拟DOM的实现, 提升编译模板的优化
-   - 现在可以进行【节点标记（PatchFlag）】，使得区分了静态节点与动态节点。
-   - diff算法不再需要一定遍历所有节点，而是先查看是否是一个动态节点。
+- 源码
+
+  替换型的合并有`props`、`methods`、`inject`、`computed`
+
+  单纯的合并： data
+
+  队列性的合并： 生命周期、watch， 合并成数组，再正序执行
+
+  叠加的合并： `component`、`directives`、`filters`，通过原型链进行层层的叠加
+
+### 15 slot的理解
+
+- 场景
+
+  1. 复用组件而不重写
+  2. 传递内容，以便场景复用
+
+- 插槽
+
+  1. 默认插槽
+  2. 具名插槽
+  3. 作用域插槽
+
+- 插槽的实现
+
+  1. Vue的组件的渲染
+
+     template -> render function -> VNODE -> NODE
+
+  2. renderSlot
+
+     类似如此， 不过变成了 【resolveSlots】方法，以获得渲染函数，以生成vnodes。
+
+     在此函数中，会根据children做节点归类和过滤处理，以生成slots。
+
+  3. 由于我们在渲染插槽函数时，我们传入了props
+
+     故父组件可以获得子组件的值。
+
+### 16 vue.observable
+
+数据劫持的暴露方法。
+
+1. walk函数
+
+   遍历key，通过defineReactive创建响应式对象
+
+2. defineReactive
+
+   劫持数据
+
+使用场景： 使用observe 代替vuex的实现。
+
+本质其实就是数据劫持，方法触发，页面响应。
 
 ````js
-patchFlag & PatchFlags.TEXT
+// 引入vue
+import Vue from 'vue
+// 创建state对象，使用observable让state对象可响应
+export let state = Vue.observable({
+  name: '张三',
+  'age': 38
+})
+// 创建对应的方法
+export let mutations = {
+  changeName(name) {
+    state.name = name
+  },
+  setAge(age) {
+    state.age = age
+  }
+}
+# ----------
+import { state, mutations } from '@/store
+export default {
+  // 在计算属性中拿到值
+  computed: {
+    name() {
+      return state.name
+    },
+    age() {
+      return state.age
+    }
+  },
+  // 调用mutations里面的方法，更新数据
+  methods: {
+    changeName: mutations.changeName,
+    setAge: mutations.setAge
+  }
+}
 ````
 
-2. 事件缓存
+### 17 vue的key的原理
 
-   `cacheHandler`可在第一次渲染后缓存我们的事件。
+- 什么是key
 
-   相比于 Vue2 无需每次渲染都传递一个新函数。加一个 click 事件
+  给vnode添加唯一的id，服务于diff的优化策略，使得 diff算法可以根据key更加快捷的寻找到vnode节点。
 
-#### 02 | Tree shaking support
+  key在列表渲染中的作用是：在复杂的列表渲染中快速准确的找到与`newVnode`相对应的`oldVnode`
 
-- 未用的模块便不会被打包，拥有更多的功能，却更加mini。
-  1. 编译阶段利用`ES6 Module`判断哪些模块已经加载
-  2. 判断那些模块和变量未被使用或者引用，进而删除对应代码
-- 即 vue3.0 做成了按需引入 （ 这也是Composition API的必然）
+- 加与不加的区别
 
-#### 03 |  Composition API
+  不添加，就地复用。
 
-1. Option API的反复横跳
-2. setup 便是围绕【beforeCreate】与【created】生命周期钩子运行的，不用显示定义。
-3. 而且你可以用hooks代替 原本的mixins
+  若添加了key，根据keys的顺序记录element（若以前的key不再出现，便remove此节点）
 
-#### 04 | 新的组件
+- 不添加key -> 就地复用
 
-- fragment （多template） 
-
-  组件支持多个template 。
-
-- teleport（传入）
-
-  `Teleport` 是一种能够将我们的模板移动到 `DOM` 中 `Vue app` 之外的其他位置的技术，
-
-  就有点像哆啦A梦的“任意门”
-
-  https://www.jianshu.com/p/1ecf5006b1ae
-
-  ```js
-  <button @click="dialogVisible = true">显示弹窗</button>
-  
-  <teleport to="body">
-    <div class="dialog" v-if="dialogVisible">
-      我是弹窗，我直接移动到了body标签下
-    </div>
-  </teleport>
-  ```
-
-- Suspense
-
-  允许程序在等待异步组件加载完成前渲染兜底的内容，如 loading ， 这是一种用户体验的优化。
-
-  ````vue
-  <tempalte>
-    <suspense>
-      <!- 默认插槽 ->  
-      <template #default>
-        <List />
-      </template>
-      <!- 加载插槽 ->  
-      <template #fallback>
-        <div>
-          Loading...
-        </div>
-      </template>
-    </suspense>
-  </template>
+  ````js
+   	  data: { items: ['a', 'b', 'c', 'd', 'e'] },
+        mounted () {
+          setTimeout(() => { 
+            this.items.splice(2, 0, 'f')  // 
+         }, 2000);
+            
   ````
 
-#### 05 | 更好的TypeScript支持
+  ![image-20220522163536917](D:\StudyPlace\面试题\图片资源\image-20220522163536917.png)
 
-- vue-next 本身就是typescript编写的
-- vue-2 之前采用的是 FLow.js， 现在不再使用。
+  比较节点，A与A相同类型的节点，故进行patch，数据相同，故不发生dom操作.....
 
-#### 06 | 响应式原理的变更
+  比较节点，C与F相同类型的节点，故进行patch，数据不同，发生dom操作。
 
-用proxy消除了 局限性。 而之前必须在 data 中声明属性。
+  同理，D -> C 与 E -> D
 
-1. 对象、数组的 增 与 删除
-2. length的变更
-3. Map、Set的支持
+  故三次更新操作，一次插入操作。
 
-#### 07 | 废弃
+- 使用了key的情况
 
-$on、$off、$set、$delete
+  AA、BB同上，不变化，复用key比较。
 
-v-model使用的变化
+  会根据`newStartVnode`的`key`去对比`oldCh`数组中的`key`，从而找到相应`oldVnode`。
 
-#### 08 | 插槽的合并
+  当然若你设置key为其顺序的index，那么diff是毫无意义的比较方案。
+
+### 18 keep-alive的理解
+
+- 什么是keep-alive
+
+  keep-alive是内置的组件，目的是状态保留于内存中，防止重复渲染DOM。
+
+  此外，我们总是用keep-alive包裹活动组件，这样就可以实现缓存不活动的组件实例，而不是切换销毁。
+
+  1. 进行keep-alive的新的生命周期
+
+     activated与deactivated
+
+  2. 生命周期
+
+     beforeRouterEnter -> beforeCreate -> created -> mounted -> activated
+
+     beforeRouterLeave -> deactivated
+
+  3. 
+
+- 源码
+
+  keep-alive组件的缓存功能在render函数中实现
+
+  1. 根据key来命中缓存。
+  2. 若无key，表明此组件未被缓存过，则将其存入cache对象。cache存储的是其组件的vnode
+
+- 番外，你怎么获取到缓存数据
+
+  1. beforeRouteEnter生命周期的next会传入vm, vm.getData
+  2. activated生命周期调用this.getData()
+
+### 19 自定义指令
+
+1. 是什么？
+
+   vue的指令系统，vue也支持自定义的指令系统
+
+2. 如何实现
+
+   - el 绑定元素
+   - bingding 包含其属性
+   - vnode参数
+
+   除了 `el` 之外，其它参数都应该是只读的，切勿进行修改。如果需要在钩子之间共享数据，建议通过元素的 `dataset` 来进行
+
+3. 应用场景
+
+   - 防抖
+
+     ````js
+     // 1.设置v-throttle自定义指令
+     Vue.directive('throttle', {
+       bind: (el, binding) => {
+         let throttleTime = binding.value; // 防抖时间
+         if (!throttleTime) { // 用户若不设置防抖时间，则默认2s
+           throttleTime = 2000;
+         }
+         let cbFun;
+         el.addEventListener('click', event => {
+           if (!cbFun) { // 第一次执行
+             cbFun = setTimeout(() => {
+               cbFun = null;
+             }, throttleTime);
+           } else {
+             event && event.stopImmediatePropagation();
+           }
+         }, true);
+       },
+     });
+     // 2.为button标签设置v-throttle自定义指令
+     <button @click="sayHello" v-throttle>提交</button>
+     ````
+
+   - 图片懒加载
+
+     ````js
+     const LazyLoad = {
+         // install方法
+         install(Vue,options){
+         	  // 代替图片的loading图
+             let defaultSrc = options.default;
+             Vue.directive('lazy',{
+                 bind(el,binding){
+                     LazyLoad.init(el,binding.value,defaultSrc);
+                 },
+                 inserted(el){
+                     // 兼容处理
+                     if('IntersectionObserver' in window){
+                         LazyLoad.observe(el);
+                     }else{
+                         LazyLoad.listenerScroll(el);
+                     }
+                     
+                 },
+             })
+         },
+         // 初始化
+         init(el,val,def){
+             // data-src 储存真实src
+             el.setAttribute('data-src',val);
+             // 设置src为loading图
+             el.setAttribute('src',def);
+         },
+         // 利用IntersectionObserver监听el
+         observe(el){
+             let io = new IntersectionObserver(entries => {
+                 let realSrc = el.dataset.src;
+                 if(entries[0].isIntersecting){
+                     if(realSrc){
+                         el.src = realSrc;
+                         el.removeAttribute('data-src');
+                     }
+                 }
+             });
+             io.observe(el);
+         },
+         // 监听scroll事件
+         listenerScroll(el){
+             let handler = LazyLoad.throttle(LazyLoad.load,300);
+             LazyLoad.load(el);
+             window.addEventListener('scroll',() => {
+                 handler(el);
+             });
+         },
+         // 加载真实图片
+         load(el){
+             let windowHeight = document.documentElement.clientHeight
+             let elTop = el.getBoundingClientRect().top;
+             let elBtm = el.getBoundingClientRect().bottom;
+             let realSrc = el.dataset.src;
+             if(elTop - windowHeight<0&&elBtm > 0){
+                 if(realSrc){
+                     el.src = realSrc;
+                     el.removeAttribute('data-src');
+                 }
+             }
+         },
+         // 节流
+         throttle(fn,delay){
+             let timer; 
+             let prevTime;
+             return function(...args){
+                 let currTime = Date.now();
+                 let context = this;
+                 if(!prevTime) prevTime = currTime;
+                 clearTimeout(timer);
+                 
+                 if(currTime - prevTime > delay){
+                     prevTime = currTime;
+                     fn.apply(context,args);
+                     clearTimeout(timer);
+                     return;
+                 }
+     
+                 timer = setTimeout(function(){
+                     prevTime = Date.now();
+                     timer = null;
+                     fn.apply(context,args);
+                 },delay);
+             }
+         }
+     }
+     export default LazyLoad;
+     ````
+
+### 20 vue的diff算法
+
+1. 概述
+
+   - 双指针： 从两边到中间开始比较。
+   - 策略：深度优先、同层比较。
+
+2. patch函数，传入参数为 oldNode与newNode （只是同级比较）
+
+   当数据发生改变时，`set`方法会调用`Dep.notify`通知所有订阅者`Watcher`，订阅者就会调用`patch`给真实的`DOM`打补丁，更新相应的视图
+
+   - 没有新节点，触发旧节点的destory
+   - 没有旧节点，即初始化
+   - 若是新旧节点相同（sameNode）【⭐patchVNode】，比较子节点
+   - 若是非 sameNode，则创建新节点，删除旧节点
+
+   此外sameNode的key也是判断节点的表示之一。
+
+3. patchVnoe （实际操作节点的过程）
+
+   判断节点类型
+
+   - 新节点是文本，则更新文本内容。 【setTextContent】
+   - 依旧存在子节点，比较更新子节点。 子节点不完全一致，则调用`updateChildren`
+   - 若新节点有子节点，但旧的没有，则直接初始化，添加至节点。【addVnodes】
+   - 若旧有，新无，则删除。 【removeVnodes】
+
+4. updateChildren （difff核心比较方案）
+
+   updateChildren若是满足sameNode则调用 `patchVnode`。
+
+   - 设置新旧的头尾指针（双指针）。
+
+     新旧头尾指针进行比较，循环向中间靠拢。
+
+     ````js
+     # 双指针比较 
+     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+     }
+     ````
+
+   - 在比较的过程中总结：
+
+     根据情况调用`patchVnode`进行patch那一套的重复流程。
+
+     调用`createElem`创建一个新节点，从哈希表寻找 `key`一致的`VNode` 节点再分情况操作
+
+   - 新旧start相同， patchVnode，两个startIndex + 1
+
+     新旧endIndex相同， 两个endIndex减一。
+
+   - 老start与新end相同，patchVnode，并移动真实DOM节点位置
+
+   - 老end与新start相同，patchVnode，移动真实DOM
+
+   - 若不相同，新旧start、end无法匹配
+
+     识别旧node的key，再从新node的key进行匹配，将其patchVnode，再移动真实DOM
+
+5. 事件（updateChildren）
+
+   <img src="图片资源/2dcd6ad5cf82c65b9cfc43a27ba1e4ec.png" style="zoom:50%;" />
+
+   - 第一次循环
+
+     新节点的D 与 旧节点的D，绑定的key相同的，其内容相同，故复用旧节点的D.
+
+     此时 old的endIndex 加1，startIndex不变。
+
+     new的startIndex加1，endIndex不变。
+
+     ![img](图片资源/76032c78c8ef74047efd42c070e48854.png)
+
+   - 第二次循环
+
+     旧节点的endIndex是C， 新节点的startImdex也是C，同上。
+
+     ![](图片资源/1c76e7489660188d35f0a38ea8c8ecd7.png)
+
+   - 第三次循环
+
+     new的的startIndex为E，old中没有寻找到，故创建E插入到C后。
+
+     ![](图片资源/4b622c0d61673ec5474465d82305d308.png)
+
+   - 第四次循环
+
+     在old中寻找到 A，
+
+     ![](图片资源/5982417c3e0b2fa9ae940354a0e67ab4.png)
+
+### 21 vue的权限管理
+
+1. 是什么？
+
+   确保用户只能访问到被分配的资源，前端是控制请求的发起权。
+
+   - 路由方面
+   - 视图方面， 用户只能看到自己有权浏览的内容及有权操作的控件。
+   - 请求控制兜底
+
+2. 如何实现？
+
+   - 接口权限
+
+     token控制。
+
+   - 按钮权限
+
+     1. 每个页面页面都要获取用户权限`role`和路由表里的`meta.btnPermissions`，然后再做判断。
+     2. 自定义指令进行按钮权限的判断
+
+   - 菜单权限
+
+     菜单与路由分离， 菜单由后端控制，路由由后端格式处理。
+
+     要求前后端的配合度高。
+
+   - 路由权限
+
+     1. 用户的权限信息，然后筛选有权限访问的路由，即按需加载。
+     2. 每次路由跳转前做校验，路由上标记相应的权限信息
+
+### 22 部署服务器的404问题
+
+SPA： 不管我们应用有多少页面，构建物都只会产出一个`index.html`
+
+而ngnix的配置，根据路径匹配便是会出现404的情况。
+
+- hash模式没有此问题
+
+  `hash` 虽然出现在 `URL` 中，但不会被包括在 `HTTP` 请求中，故对服务器端的请求没有影响。
+
+  即更改hash不会导致重载页面
+
+- 解决方案
+
+  重定向为index.html
+
+### 23 vue的错误处理
+
+1. 后端接口错误
+
+   - 路由拦截
+
+2. 代码错误
+
+   - `errorCaptured`
+
+     是 2.5.0 新增的一个生命钩子函数，当捕获到一个来自子孙组件的错误时被调用
+
+   - Vue.config.errorHandler
+
+     组件的渲染和观察期间未捕获错误的处理函数
