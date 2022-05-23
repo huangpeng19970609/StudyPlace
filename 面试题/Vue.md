@@ -262,7 +262,7 @@ https://vue3js.cn/interview/vue/bind.html#%E4%BA%8C%E3%80%81%E5%8F%8C%E5%90%91%E
      一般而言，Watcher处理的对象是VueComponent。
    
 - 编译的时候在该属性的数组dep中添加订阅者
-   
+  
    - v-model会添加一个订阅者，{{}}也会，v-bind也会，只要用到该属性的指令理论上都会。
    
    - 触发该属性的set方法，在set方法内通知订阅者数组dep，订阅者数组循环调用各订阅者的update方法更新视图
@@ -442,7 +442,7 @@ v-show
 6. 编译并挂载模板
    - template -> AST -> render函数 -> 挂载至DOM
    - 调用beforeMount，定义updateComponents方法
-   - 当前vue组件实例化Watcher
+   - 当前vue组件实例化Watcher， 通过 vm._patch_渲染真实DOM
      1. updateComponents调用render函数，以生成vnode
      2. 调用当前的vm._patch_根据vnode生成真实DOM，移除old-node
 7. 触发mounted
@@ -930,3 +930,7 @@ SPA： 不管我们应用有多少页面，构建物都只会产出一个`index.
    - Vue.config.errorHandler
 
      组件的渲染和观察期间未捕获错误的处理函数
+
+### 24 vue.extnd
+
+https://juejin.cn/post/6890072682864476168
