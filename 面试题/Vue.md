@@ -934,3 +934,31 @@ SPA： 不管我们应用有多少页面，构建物都只会产出一个`index.
 ### 24 vue.extnd
 
 https://juejin.cn/post/6890072682864476168
+
+### 25 vue的三类Watcher
+
+https://www.cnblogs.com/WindrunnerMax/p/14864214.html
+
+- 三类watcher
+
+  1. 定义函数时的render watcher
+
+     负责视图更新 （数据变化，视图更新）
+
+  2. computed watcher
+
+     负责计算属性更新，由【dirty】开关决定是否重新计算还是复用之前的值。
+
+     （计算属性变化，使用计算属性的视图更新）
+
+  3. watcher api
+
+     数据变化，开发者注册的watch回调函数触发。
+
+- render-watcher
+
+  1. Observe
+  2. Watcher
+  3. Dep
+
+- 1
