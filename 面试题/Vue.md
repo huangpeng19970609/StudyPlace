@@ -434,18 +434,87 @@ v-show
 
 ### 12 源码之Vue实例的挂载过程
 
-1. 实例化属性合并 （extends、mixins属性混入）
-2. 生命周期标识符的初始化、组件事件系统的初始化
-3. beforeCreate，并初始化组件依赖注入内容（inject）
-4. 初始化initState （initProps、initMethods、initData、computed、初始化watch）
-5. created触发
-6. 编译并挂载模板
-   - template -> AST -> render函数 -> 挂载至DOM
-   - 调用beforeMount，定义updateComponents方法
-   - 当前vue组件实例化Watcher， 通过 vm._patch_渲染真实DOM
-     1. updateComponents调用render函数，以生成vnode
-     2. 调用当前的vm._patch_根据vnode生成真实DOM，移除old-node
-7. 触发mounted
+1. init
+
+   ```js
+   new Vue()
+   function Vue(options) {
+       this._init(options);
+   }
+   Vue.prototype._init = function(options) {
+       #01 合并实例和mixins/extend上的数据
+       mergeOptions(...);
+       #02 初始化组件生命周期标志位
+       initLifecycle(vm)
+       #03 初始化组件事件侦听
+       initEvents(vm)
+       #04 初始化渲染方法
+       initRender(vm)
+       callHook(vm, 'beforeCreate')
+       #05 初始化依赖注入内容，在初始化data、props之前
+       initInjections(vm)
+       #06 初始化props/data/method/watch/methods
+       initState(vm) -> 其中 initData -> observe(data);	
+       initProvide(vm)
+       callHook(vm, 'created')
+   }
+   
+   # initData 
+   class Observe {
+    construcotr() {
+       this.walk(value);
+    }
+    walk (obj: Object) {
+       const keys = Object.keys(obj)
+       for (let i = 0; i < keys.length; i++) {
+         defineReactive(obj, keys[i])
+       }
+     }
+   }
+   ```
+
+2. 组件依赖注入内容（inject）
+
+   初始化initState （initProps、initMethods、initData、computed、初始化watch）
+
+3. created触发
+
+4. 解析template、挂载dom
+
+   ```js
+   Vue.prototype.$mount = function() {
+       #01 template 经过compileToFunctions 成为render函数
+       const { render, staticRenderFns } = compileToFunctions();
+       options.render = render;
+   	return mount.call(this, el, hydrating);
+   }
+   # 生成render函数，挂载到vm上后，会再次调用mount方法 (复写方法)
+   Vue.prototype.$mount = function() {
+       return mountComponent(this, el, hydrating)
+   }
+   
+   function mountComponent() {
+    	// 若vm.$options.render不存在此处也会抛出异常
+   	#02 beforeMount钩子
+   	callHook(vm, 'beforeMount');
+       #03 定义updateComponent
+       updateComponent = () => { 
+       	vm._update(vm._render(), hydrating)
+       }
+       #04 监听当前组件状态，当有数据变化时，更新组件 -> 调用updateComponent
+       new Watcher(vm, updateComponent, noop, {
+           before () {
+             if (vm._isMounted && !vm._isDestroyed) {
+               callHook(vm, 'beforeUpdate')
+             }
+           }
+     	}, true)
+       #end mounted
+       callHook(vm, 'mounted')
+   }
+   ```
+
+5. 
 
 ### 13 为什么data是一个函数？
 
@@ -935,6 +1004,37 @@ SPA： 不管我们应用有多少页面，构建物都只会产出一个`index.
 
 https://juejin.cn/post/6890072682864476168
 
+- 挂载组件的方式
+
+  data选项在Vue.extend中必须是一个函数。
+
+  Element-UI的弹窗组件甚至支持你的虚拟节点。
+
+  ```js
+  const Profile = Vue.extend({});
+  new Profile().$mount('#mount-point')
+  ```
+
+- 实现源码
+
+  1. 继承Vue，创建子类， 拥有Vue的_init方法
+
+  2. 这便是new Vue的过程了。不同之处在于【resolveConstructorOptions】
+
+     ```js
+     vm.$options = mergeOptions(
+         resolveConstructorOptions(vm.constructor),
+         options || {},
+         vm
+       )
+     ```
+
+  3. $mount
+
+     render -> update -> patch
+
+- 
+
 ### 25 vue的三类Watcher
 
 https://www.cnblogs.com/WindrunnerMax/p/14864214.html
@@ -957,8 +1057,25 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 - render-watcher
 
-  1. Observe
-  2. Watcher
-  3. Dep
+  1. Observe： 劫持数据
+  2. Watcher： 监听数据改变，执行响应回调函数。
+  3. Dep：链接【Observe】和【Watcher】
 
-- 1
+- computed watcher
+
+  根据依赖的数据动态显示新的计算结果，且是存在计算属性的依赖的。
+
+- watcher api
+
+### 26 vm.$mount
+
+template 经过compileToFunction -> render
+
+vm._render -> vnode
+
+vnode -> vm._update -> vm.$el
+
+1. 提取el元素
+2. 若本vue实例无render函数，则将template编译成render函数
+3. 挂载函数为 mountComponent
+4. 更新渲染函数是updateComponent
