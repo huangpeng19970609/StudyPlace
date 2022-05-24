@@ -434,6 +434,10 @@ v-show
 
 ### 12 源码之Vue实例的挂载过程
 
+https://www.cnblogs.com/gerry2019/p/12001661.html
+
+https://vue3js.cn/interview/vue/new_vue.html#%E4%B8%80%E3%80%81%E5%88%86%E6%9E%90
+
 1. init
 
    ```js
