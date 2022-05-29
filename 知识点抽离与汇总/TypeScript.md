@@ -967,17 +967,33 @@ class Clock implements ClockInterface {
 
 ### 3.6 interface与type区别
 
-- 语法上。
+- 语法上extends的用法是不相同的。
 
   type不可以使用 extends拓展。接口可以扩展类型别名， type可以使用【&】符号实现，语法不同。
 
   语法书写上，对方法的描述有所不同。
 
-- interface同名合并
+  ```typescript
+  type persontype = {}
+  # 支持interface 继承 type
+  interface dimension extends persontype {}
+  class dimension extends persontype {}
+  ```
 
-  即：interface可以被多次声明，而后被视为单个接口，type只能有一个。
+- 声明上是不同的。
 
-- interface只能用于 对象、函数
+  即：interface可以被多次声明，而后被视为合并为一个接口，type只能有一个。
+
+  ```tsx
+  // These two declarations become:
+  // interface Point { x: number; y: number; }
+  interface Point { x: number; }
+  interface Point { y: number; }
+  
+  const point: Point = { x: 1, y: 2 };
+  ```
+
+- ⭐ interface只能用于 对象、函数
 
   type可以基本类型（原始值）、联合类型、元组，而interface本身的意义就是对象。
 
@@ -1417,7 +1433,7 @@ function sum<Type>(num1: Type): Type {
 }
 ````
 
-1. 明确的传入类型
+1. 明确的传入参数的类型
 
    ````typescript
    sum<number>(20, 30)
@@ -1468,13 +1484,9 @@ function sum<Type>(num1: Type): Type {
    }
    const fn: GenericIdentityFn = identity;
    
-   
    # 强调 具体是哪个泛型类型， 锁定了之后代码里使用的类型
    let myIdentity: GenericIdentityFn<number> = identity;
    ````
-
-   
-
    
 
 ### 03 | 泛型常用的名称
@@ -1595,7 +1607,6 @@ const p3: Point<string> = new Point("1.32", "132", "1");
    var m1=new MinClas<number>();
    ````
 
-   
 
 ### 06 | 泛型的类型约束
 
@@ -1941,7 +1952,6 @@ function add(a: number | string, b: number | string) {
   }
   ````
 
-  
 
 ## 11 类型体操
 
