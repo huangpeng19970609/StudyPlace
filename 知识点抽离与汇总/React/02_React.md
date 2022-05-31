@@ -1800,6 +1800,8 @@ diff算法 => 两棵树的比较最先进的算法也是O的n3次方， react对
 
 #### 01 | useState
 
+- useState 状态一旦改变，React 就会重新渲染组件
+
 ````jsx
 import { useState } from 'react';
 const Index = () => {
@@ -1827,8 +1829,6 @@ const Index = () => {
   # 函数
   const [ func, setFunc ] = useState(() => 1);
   ```
-
-
 
 #### 02 | useEffect
 
