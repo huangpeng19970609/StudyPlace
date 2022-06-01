@@ -1,0 +1,31 @@
+<div id="app"></div>
+<script src="./renderer.js"></script>
+<script src="./reactive.js"></script>
+<script src="./index.js"></script>
+<script>
+  // 1.挂载内容
+  // const vnode1 = h("h2", null, "哈哈哈");
+  // mount(vnode1, document.getElementById("app"));
+
+  // // 2.对比不同
+  // const vnode2 = h("button", null, "呵呵呵");
+  // patch(vnode1, vnode2);
+
+  const App = {
+    data: reactive({
+      counter: 0
+    }),
+    render() {
+      return h("div", null, [
+        h("h2", null, `当前计数: ${this.data.counter}`),
+        h("button", {
+          onClick: () => this.data.counter++
+        }, "+1"),
+        h("button", {
+          onClick: () => this.data.counter--
+        }, "-1")
+      ])
+    }
+  }
+  createApp(App).mount("#app")
+</script>

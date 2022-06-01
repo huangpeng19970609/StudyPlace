@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+  <div id="app"></div>
+
+  <template id="my-app">
+    <div>
+      <!-- <div>aaaa</div> -->
+      <!-- <div>{{counter}}</div> -->
+      <!-- <hello :counter='counter'></hello> -->
+      <!-- <button @click="changeMessage">Counter++</button> -->
+    </div>
+  </template>
+
+  <template id="hello">
+    <div>{{counter}}</div>
+  </template>
+
+  <script src="../../dist/vue.global.js"></script>
+  <script>
+    debugger;
+    
+    Vue.createApp({
+      template: '#my-app',
+      components: {
+        'Hello': {
+          template: "#hello",
+          props: {
+            counter: Number
+          }
+        }
+      },
+      data() {
+        return {
+          counter: 0
+        }
+      },
+      setup() {
+        const info = Vue.reactive({
+          name: "why"
+        })
+
+        return {
+          info
+        }
+      },
+      methods: {
+        changeMessage() {
+          this.counter++;
+          console.log(this.info);
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
