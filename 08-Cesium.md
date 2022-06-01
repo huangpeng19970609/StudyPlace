@@ -4,7 +4,7 @@
 
 https://sandcastle.cesium.com/index.html?src=Imagery%20Adjustment.html
 
-+ CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架。
++ CesiumJS 是一款用于创建虚拟场景的3D地理信息平台（基于JavaScript），是一个地图可视化框架111。
 
 + 浏览器必须支持WebGL
 
