@@ -27,13 +27,15 @@
        setState(state => ({ ...state, left: e.pageX, top: e.pageY }));
      }
      window.addEventListener('mousemove', handleWindowMouseMove);
-     return () => window.removeEventListener('mousemove', handleWindowMouseMove);
+     return () => window.removeEventListener('mousemove', handleWindowMouseMove
+                                            );
    }, []);
    ```
 
-2. 是
 
 ### useCallback
+
+
 
 ### useRef
 
@@ -72,4 +74,51 @@
      3. 页面渲染成功
      4. prevCount  为【100】
 
-3. 
+### useEffect
+
+#### 场景
+
+1. 【useEffect】在依赖列表中省略函数是否安全
+
+   - ❗**只有** 当函数（以及它所调用的函数）不引用 props、state 以及由它们衍生而来的值时，你才能放心地把它们从依赖列表中省略
+
+     ```js
+     function Example({ someProp }) {
+       useEffect(() => {
+         function doSomething() {
+           console.log(someProp);    
+         }
+         doSomething();
+       # // ✅ 安全（我们的effect仅用到了`someProp`）}
+       }, [someProp]); 
+     ```
+
+   - **推荐的修复方案：把那个函数移动到你的 effect 内部**（便于你effect更加直观的看出用了哪些prop与state）
+
+     1. 如果这个函数无法放于effect内部
+        - 尝试将此函数移动到你的组件之外
+        - 尝试 effect 之外调用它，再用effect依赖其返回值触发
+        - 万不得已下，**把函数加入 effect 的依赖但 把它的定义包裹** 进 [`useCallback`](https://react.docschina.org/docs/hooks-reference.html#usecallback) Hook（确保了它不随渲染而改变，除非 *它自身* 的依赖发生了改变）
+
+2.  effect的依赖项频繁变化，我们选择忽略state
+
+   ```js
+   function Counter() {
+     const [count, setCount] = useState(0);
+   
+     useEffect(() => {
+       const id = setInterval(() => {
+         // ❌ setCount(count + 1);
+         setCount(c => c + 1); // ✅ 在这不依赖于外部的 `count` 变量
+       }, 1000);
+       return () => clearInterval(id);
+     }, []); // ✅ 我们的 effect 不适用组件作用域中的任何变量
+     return <h1>{count}</h1>;
+   }
+   ```
+
+#### 03 | state依赖state
+
+**方案：** 尝试用 [`useReducer` Hook](https://react.docschina.org/docs/hooks-reference.html#usereducer) 把 state 更新逻辑移到 effect 之外
+
+···
