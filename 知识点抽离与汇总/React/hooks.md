@@ -1,4 +1,4 @@
-### 00 | 前言
+### 	00 | 前言
 
 https://react.docschina.org/
 
@@ -41,19 +41,50 @@ https://zhuanlan.zhihu.com/p/56975681#:~:text=useCallback%20%E7%9A%84%E7%9C%9F%E
 
 ### useCallback
 
+- 起因：该函数将在每个渲染中重新创建， 每一次handleClick都是不同的函数对象
 
+  ```js
+  function MyComponent() {
+   // handleClick is re-created on each render
+    const handleClick = () => {
+      console.log('Clicked!');
+   };
+  ```
+
+- 场景：某些情况下你需要保留功能实例
+
+  1. 包装在`React.memo()`的内部的组件
+  2. 当函数用作其他钩子的依赖项时
+
+- `handleClick`变量在渲染之间始终具有与回调函数相同的对象`MyComponent`。
+
+  ```js
+  import React, { useCallback } from 'react';  
+  function MyComponent() {
+   // handleClick is the same function object
+    const handleClick = useCallback(() => {
+      console.log('Clicked!');
+   }, []);
+   // ... 
+  }
+  ```
 
 ### useRef
 
-- 「ref」 对象是一个 `current` 属性可变且可以容纳任意值的通用容器，类似于一个 class 的实例属性
+#### 作用
 
-#### 00 | 场景
+1. 「ref」 对象是一个 `current` 属性可变且可以容纳任意值的通用容器，类似于一个 class 的实例属性
+2. 跨渲染周期”保存数据
+
+####  场景
 
 1. effect只在【更新时】使用
 
-   即我们需要区分首次渲染、还是后续渲染，方案是使用一个可变的ref存储值表示阶段。并在effect中检查此标识。
+   即我们需要区分首次渲染、还是后续渲染，方案是使用一个可变的ref存储值表示阶段。并在effect中检查此标识。利用跨周期的特性。
 
-2. 如何获取上一轮的【props】与【state】
+2. 
+
+3. 如何获取上一轮的【props】与【state】
 
    这是一个案例。
 
@@ -84,7 +115,53 @@ https://zhuanlan.zhihu.com/p/56975681#:~:text=useCallback%20%E7%9A%84%E7%9C%9F%E
 
 #### 场景
 
-1. 【useEffect】在依赖列表中省略函数是否安全
+> 1. 【useEffect】在依赖列表中省略函数是否安全
+> 2.  effect的依赖项频繁变化，我们选择忽略state
+
+1. effect的依赖项频繁变化，我们选择忽略state
+
+   ```js
+   function Counter() {
+     const [count, setCount] = useState(0);
+     useEffect(() => {
+       const id = setInterval(() => {
+         // ❌ setCount(count + 1);
+         setCount(c => c + 1); // ✅ 在这不依赖于外部的 `count` 变量
+       }, 1000);
+       return () => clearInterval(id);
+     }, []); // ✅ 我们的 effect 不适用组件作用域中的任何变量
+     return <h1>{count}</h1>;
+   }
+   ```
+
+2. 
+
+#### state依赖state
+
+**方案：** 尝试用 [`useReducer` Hook](https://react.docschina.org/docs/hooks-reference.html#usereducer) 把 state 更新逻辑移到 effect 之外
+
+#### 场景-如何正确地请求数据
+
+1. 变量的数组为空，则在更新组件时钩子根本不会运行，因为它不必监视任何变量
+
+2. asycn
+
+   - Effect 只能是一个同步函数，因为其应保证清理函数被立即调用
+
+   ```js
+   useEffect(() => {
+       async function fetchMyAPI() {
+           let url = 'http://something/' + productId
+           const response = await myFetch(url)
+       }
+    
+       fetchMyAPI()
+   }, [productId])
+   ```
+
+#### 场景-函数当做effect的依赖
+
+1. 我应该把函数当做effect的依赖吗？
 
    - ❗**只有** 当函数（以及它所调用的函数）不引用 props、state 以及由它们衍生而来的值时，你才能放心地把它们从依赖列表中省略
 
@@ -102,29 +179,42 @@ https://zhuanlan.zhihu.com/p/56975681#:~:text=useCallback%20%E7%9A%84%E7%9C%9F%E
    - **推荐的修复方案：把那个函数移动到你的 effect 内部**（便于你effect更加直观的看出用了哪些prop与state）
 
      1. 如果这个函数无法放于effect内部
+
         - 尝试将此函数移动到你的组件之外
         - 尝试 effect 之外调用它，再用effect依赖其返回值触发
-        - 万不得已下，**把函数加入 effect 的依赖但 把它的定义包裹** 进 [`useCallback`](https://react.docschina.org/docs/hooks-reference.html#usecallback) Hook（确保了它不随渲染而改变，除非 *它自身* 的依赖发生了改变）
 
-2.  effect的依赖项频繁变化，我们选择忽略state
+     2. useCallback
 
-   ```js
-   function Counter() {
-     const [count, setCount] = useState(0);
-   
-     useEffect(() => {
-       const id = setInterval(() => {
-         // ❌ setCount(count + 1);
-         setCount(c => c + 1); // ✅ 在这不依赖于外部的 `count` 变量
-       }, 1000);
-       return () => clearInterval(id);
-     }, []); // ✅ 我们的 effect 不适用组件作用域中的任何变量
-     return <h1>{count}</h1>;
-   }
-   ```
+        万不得已下，**把函数加入 effect 的依赖但 把它的定义包裹** 进 [`useCallback`](https://react.docschina.org/docs/hooks-reference.html#usecallback) Hook（确保了它不随渲染而改变，除非 *它自身* 的依赖发生了改变）
 
-#### 03 | state依赖state
+        ````jsx
+        function ProductPage({ productId }) {
+          // ✅ Wrap with useCallback to avoid change on every render
+          const fetchProduct = useCallback(() => {
+            // ... Does something with productId ...
+          }, [productId]); // ✅ All useCallback dependencies are specified
+        
+          return <ProductDetails fetchProduct={fetchProduct} />;
+        }
+        # 子
+        function ProductDetails({ fetchProduct }) {
+          useEffect(() => {
+            fetchProduct();
+          }, [fetchProduct]); // ✅ All useEffect dependencies are specified
+          // ...
+        }
+        ````
 
-**方案：** 尝试用 [`useReducer` Hook](https://react.docschina.org/docs/hooks-reference.html#usereducer) 把 state 更新逻辑移到 effect 之外
+#### **无限重复请求**
 
-···
+1. 移除你使用的依赖固然是一个解决办法，但是建议你从根源入手
+2. 把它们放到effect里
+3. 提到组件外面
+4. 或者用`useCallback`包一层
+5. `useMemo` 以避免重复生成对象
+
+#### effect是如何读取到最新的`count` 状态值的
+
+effect 函数本身\*在每一次渲染中都不相同
+
+#### 123
