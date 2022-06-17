@@ -80,9 +80,19 @@ https://zhuanlan.zhihu.com/p/56975681#:~:text=useCallback%20%E7%9A%84%E7%9C%9F%E
 
 1. effect只在【更新时】使用
 
-   即我们需要区分首次渲染、还是后续渲染，方案是使用一个可变的ref存储值表示阶段。并在effect中检查此标识。利用跨周期的特性。
+   即我们需要区分首次渲染、还是后续渲染，方案是使用一个可变的ref存储值表示阶段。并在effect中检查此标识。利用跨周期的特性。	
 
-2. 
+2. 定时器Id
+
+   ```js
+     useEffect(() => {
+       timerID.current = setInterval(()=>{
+           setCount(count => count + 1);
+       }, 1000); 
+     }, []);
+   ```
+
+   
 
 3. 如何获取上一轮的【props】与【state】
 
