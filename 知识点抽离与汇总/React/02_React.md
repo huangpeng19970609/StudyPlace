@@ -894,10 +894,6 @@ class Cmp extends PureComponent {
 
 真实开发的示范
 
-````js
-
-````
-
 
 
 ### class组件
@@ -1832,9 +1828,9 @@ const Index = () => {
 
 #### 02 | useEffect
 
-- 强调： 完全不使用"类"，就能写出一个全功能的组件
+- 场景
 
-  class的场景： componentDidMount、componentDidUpdate、componentWillUnmount
+   componentDidMount、componentDidUpdate、componentWillUnmount
 
 - 作用：
 
@@ -1842,31 +1838,34 @@ const Index = () => {
 
 - 特点：
 
-  无堵塞的更新，目的是组件挂载完以后，再执行，这样一定可以保证页面初始化结束。
+  - componentDidMount场景
 
-  useEffect 使用 闭包的形式来实现。
+    无堵塞的更新，目的是组件挂载完以后，再执行，这样一定可以保证页面初始化结果
+
+    ❗ 函数组件和`class`组件的心智模型是不同的，故状态变化的体现也是不同的，故我们不应该 狭隘的将【componentDidMount】与【useEffect】混为一谈
 
 - 清除阶段
 
   1. 如果你的 effect 返回一个函数，React 将会在执行清除操作时(组件卸载)调用它
+
   2. 此外，effect 的清除阶段在每次重新渲染时都会执行
 
-  ````js
-  useEffect( () => {
-      ChatAPI.subscribeToFriendStatus(props.friend.id, handler);
-  	return () => {
-          ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handler);
-      } 
-  })
-  ````
+     ```jsx
+     useEffect( () => {
+         ChatAPI.subscribeToFriendStatus(props.friend.id, handler);
+     	return () => {
+             ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handler);
+         }
+     })
+     ```
 
 - Effect 进行性能优化
 
   过去class组件时候， 我们在 【componentDidUpdate】生命周期进行判断以提高性能。
 
-  1. 传递一个空数组, React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。这并不属于特殊情况 —— 它依然遵循依赖数组的工作方式
+  1. 想执行只运行一次的 effect（仅在组件挂载和卸载时执行，可以传递一个空数组（`[]`）作为第二个参数
 
-     即 【componentDidMount】、【componentWillUnmount】
+     类似于 【componentDidMount】与【componentWillUnmount】
 
   2. 如果数组中有多个元素，即使只有一个元素发生变化，React 也会执行 effect
 
@@ -1874,8 +1873,39 @@ const Index = () => {
   # 仅在 props.friend.id 更改时更新
   useEffect(() => {
     document.title = `You clicked ${props.friend.id} times`;
-  }, [props.friend.id]); 
+  }, [props.friend.id]);
   ```
+  
+- 注意事项
+
+  1. 赋值给 `useEffect` 的函数会在组件渲染到屏幕之后执行 （React 会等待浏览器完成画面渲染之后才会延迟调用 `useEffect`）
+
+  2. ❗ 每个`useEffect`都是不同的，随着状态的变化，一个个`effect`出生，一个个`effect`死去。
+
+     如何保证effect如预期的，便是需借助依赖数组注入【依赖因子】
+
+  3. 【没有依赖数组】每次渲染都会触发、【依赖数组的变量始终在改变】依赖函数每次都会触发。
+
+- 最佳实践总结
+
+  - 函数组件: 不同时机不同状态 （每次函数都会重新执行）
+
+    `class`组件: 不同时机但是同一个状态 ( 同一State  )
+
+  - 代码示范
+
+    ```jsx
+    //推荐
+    useEffect(()=>{
+        const fetchData = async() => {
+            const res = await fetchNewData(id)
+            setData(res.data)
+        }
+        fetchData()
+    },[id])
+    ```
+
+    
 
 #### 03 | useContext
 

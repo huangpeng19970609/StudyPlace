@@ -1005,7 +1005,7 @@ props: {
 - 既可以复用子组件的slot，又可以使slot内容不一致
 - 内容由子组件决定，而利用作用域插槽改变显示内容
 
-```html
+```vue
   <div id="app">
     <!-- 
 		1、当我们希望li 的样式由外部使用组件的地方定义，因为可能有多种地方要使用该组件，
@@ -1018,8 +1018,7 @@ props: {
 			slotProps是我们的插槽对象，slotProps.info 就是我们绑定的info
 		---> 	
     <fruit-list :list='list'>//父组件传递给子组件
-          <template slot-scope='slotProps'>
-          <!--  -->
+       <template slot-scope='slotProps'>
         <strong v-if='slotProps.info.id==3' class="current">
             {{slotProps.info.name}}		         
          </strong>
